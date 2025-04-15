@@ -182,6 +182,7 @@ enum estadoSolicitud{
 
 @startuml Diagrama de clases v2
 
+skinparam linetype ortho
 /'
 -Fuente estatica deberia estar conectada con el administrador ya que este va a cargar los datasets y agregar un campo que sea a que fuente importa los hechos
 -Fuente proxy se vera luego ya que seguro implementa una api para conectarse con otras instancias 
@@ -209,7 +210,7 @@ sumando a ese comentario los criterios se pueden aplicar a los hechos o solo se 
 '/
 
 
-FuentesDeDatos *---down--- Coleccion
+FuentesDeDatos *-down- Coleccion
 Hecho -down- FuentesDeDatos
 
 Criterio *-up- Coleccion
