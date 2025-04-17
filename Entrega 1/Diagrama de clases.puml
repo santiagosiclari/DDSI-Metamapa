@@ -240,7 +240,7 @@ class Hecho {
     +eliminado: Boolean
     multimedia : List<Multimedia>
     metadata: list<String>
-    {method}esIgual(Hecho)
+    {method}esIgual(Hecho) 'Hay que sacarlo de aca, la responsabilidad deberia ser de la fuente de datos de saber si un hecho es igual al otro, pero los hechos son los que se actualizan
     {method}actualizar(Hecho): void
 }
 note top of Hecho 

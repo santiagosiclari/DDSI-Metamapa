@@ -1,0 +1,43 @@
+@startuml Casos de uso V1
+skinparam linetype ortho
+/'
+1. Como persona administradora, deseo crear una colección.
+2. Como persona administradora, deseo poder importar hechos desde un archivo CSV. 2
+3. Como persona visualizadora, deseo navegar todos los hechos disponibles de una colección.
+4. Como persona visualizadora, deseo navegar los hechos disponibles de una colección, aplicando
+filtros.
+5. Como persona contribuyente, deseo poder solicitar la eliminación de un hecho.
+6. Como persona administradora, deseo poder aceptar o rechazar la solicitud de eliminación de un
+hecho.
+'/
+left to right direction
+
+
+:Administrador: as Admin
+:Contribuyente: as Cont
+:Visualizador: as Visu
+
+package  {
+  usecase "Crear coleccion" as UC1
+  usecase "Importar hechos desde CSV" as UC2
+  usecase "Aceptar solicitud de eliminacion" as UC3
+  usecase "Rechazar solicitud de eliminacion" as UC4
+  usecase "Etiquetar hecho" as UC5
+  usecase "Navegar hechos de una coleccio" as UC6
+  usecase "Filtrar coleccion" as UC7
+  usecase "Contribuir hecho" as UC8
+  usecase "Realizar solicitud de eliminacion" as UC9
+}
+
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Visu -->
+Cont --> UC8
+Cont -->UC9
+
+
+
+@enduml
