@@ -1,4 +1,4 @@
-@startuml Diagrama de clases v4
+@startuml Diagrama de clases v3
 
 skinparam linetype ortho
 
@@ -78,6 +78,11 @@ class Administrador{
     {method}etiquetarHecho(hecho:Hecho,metadata:String)
 }
 
+class Visualizador{
+    {method}consultarColeccion(Coleccion)
+    {method}filtrarColeccion(coleccion: Coleccion, criterios Lista<Criterios>)
+}
+
 class Contribuyente extends Visualizador{ 
     +nombre: String
     +apellido: String
@@ -132,6 +137,180 @@ class Coleccion{
     +fuenteDeDatos: FuenteDeDatos
     {method}agregarCriterioPertenencia(criterio:Criterio)
     {method}eliminarCriterioPertenencia(criterio:Criterio)
+    {method}filtrarPorCriterios(criterios:List<Criterio>)
+}
+
+note right of Coleccion
+No contiene hechos.
+Consulta hechos desde su fuente de datos y los filtra por criterio.
+end note
+    
+interface FuenteDeDatos{
+    +nombre: String
+    +hechos: List<Hecho>
+    {method}agregarHecho(titulo:String, descripcion:String, longitud:Float, latitud:Float, categoria: String, multimedia: Multimedia, fecha:Date, anonimidad:Boolean)
+}
+
+note right of FuenteDeDatos
+Tiene la responsabilidad de persistir los hechos.
+Colección los filtra y visualiza, pero no los almacena.
+end note
+
+class FuenteEstatica implements FuenteDeDatos{
+    {method}agregarHecho(titulo:String, descripcion:String, longitud:Float, latitud:Float, categoria: String, multimedia: Multimedia, fecha:Date)
+}
+
+class FuenteDinamica implements FuenteDeDatos{
+    {method}agregarHecho(titulo:String, descripcion:String, longitud:Float, latitud:Float, categoria: String, multimedia: Multimedia, fecha:Date, anonimidad:Boolean)
+}
+
+note top of FuenteDinamica
+En el caso de que exista una sola seria un singleton
+end note
+
+class FuenteProxy implements FuenteDeDatos{
+    {method}agregarHecho(titulo:String, descripcion:String, longitud:Float, latitud:Float, categoria: String, multimedia: Multimedia, fecha:Date)
+}
+@enduml@startuml Diagrama de clases v3
+
+skinparam linetype ortho
+
+FuenteDeDatos -down-* Coleccion
+Hecho *-down- FuenteDeDatos
+Criterio -up-* Coleccion
+Hecho -left-* Multimedia
+Contribuyente -left-> FuenteDinamica
+SolicitudEliminacion -up- EstadoSolicitud
+SolicitudEliminacion -right- Contribuyente
+SolicitudEliminacion *-- Hecho
+SolicitudEliminacion <-- Administrador
+Administrador -up-* FuenteEstatica
+Visualizador -left- Coleccion
+Administrador -down-* Coleccion
+
+/'
+Tipo	Símbolo	Finalidad
+Extensión	<|--	Especialización de una clase en una jerarquía
+Implementación	<|..	Realización de una interfaz mediante una clase
+Composición	*--	La parte no puede existir sin el todo
+Agregación	o--	La parte puede existir independientemente del todo
+Dependencia	-->	El objeto utiliza otro objeto
+Dependencia	..>	Una forma más débil de dependencia
+
+'/
+
+class Hecho {
+    +titulo: String
+    +descripcion: String
+    +categoria: String
+    +latitud: Float
+    +longitud: Float
+    +fechaHecho: Date
+    +fechaCarga: Date
+    +fuente: FuenteDeDatos
+    +autor: String
+    -anonimo: Boolean
+    -eliminado: Boolean
+    +multimedia : List<Multimedia>
+    +metadata: list<String>
+}
+
+note top of Hecho 
+metdata sería útil a futuro tenerla como una clase? deberímos pensar que es una forma de poder filtrar las palabras clave?
+end note
+
+class Multimedia{
+    +url: String
+    +tamaño: Long
+}
+
+class Audio extends Multimedia{
+}
+class Video extends Multimedia{
+}
+class Foto extends Multimedia{
+}
+
+class SolicitudEliminacion{
+    +hechoAEliminar: Hecho
+    +motivo: String
+    -estado: EstadoSolicitud
+}
+enum EstadoSolicitud{
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+}
+
+class Administrador{
+    +nombre: String 
+    {method}crearColeccion(titulo:String, descripcion:String, fuente: FuenteDeDatos, criterios: Lista<Criterio>)
+    {method}importarHechos(pathCSV:String, fuenteEstatica:FuenteEstatica)
+    {method}aceptarSolicitud(solicitud:solicitudEliminacion)
+    {method}rechazarSolicitud(solicitud:solicitudEliminacion)
+    {method}etiquetarHecho(hecho:Hecho,metadata:String)
+}
+
+interface Visualizador{
+    {method}consultarColeccion(Coleccion)
+    {method}filtrarColeccion(coleccion: Coleccion, criterios Lista<Criterios>)
+}
+
+class Contribuyente implements Visualizador{ 
+    +nombre: String
+    +apellido: String
+    +edad: Int
+    {method}solicitarEliminacion(hecho:Hecho, motivo:String)
+    {method}contribuirHecho(titulo:String, descripcion:String, longitud:Float, latitud:Float, categoria: String, multimedia: Multimedia, fecha:Date, anonimidad:Boolean)
+}
+note right of Contribuyente
+El hecho se envía a la fuente dinámica para que lo persista.
+end note
+
+interface Criterio{ 
+    {method}cumple(Hecho)
+}
+
+class CriterioFecha implements Criterio{
+    +fechaDesde:Date
+    +fechaHasta:Date
+    {method}cumple(Hecho)
+}
+
+class CriterioTitulo implements Criterio{
+    +titulo:String 
+    {method}cumple(Hecho)
+}
+
+class CriterioDescripcion implements Criterio{
+    +descripcion:String
+    {method}cumple(Hecho)
+}
+
+class CriterioCategoria implements Criterio{
+    +categoria:String
+    {method}cumple(Hecho)
+}
+
+class CriterioZona implements Criterio{
+    +latitud:Float
+    +longitud:Float
+    {method}cumple(Hecho)
+}
+
+class CriterioOrigen implements Criterio{
+    +origen:FuenteDeDatos
+    {method}cumple(Hecho)
+}
+
+class Coleccion{
+    +titulo: String
+    +descripcion: String
+    +criterioPertenencia: List<Criterio>
+    +fuenteDeDatos: FuenteDeDatos
+    {method}agregarCriterioPertenencia(criterio:Criterio)
+    {method}eliminarCriterioPertenencia(criterio:Criterio)
+    {method}filtrarPorCriterios(criterios:List<Criterio>)
 }
 
 note right of Coleccion
