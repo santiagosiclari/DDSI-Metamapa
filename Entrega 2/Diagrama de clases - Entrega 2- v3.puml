@@ -11,12 +11,14 @@ Multimedia -right- TipoMultimedia
 Perfil *-up- Usuario
 Usuario -up- Rol
 Perfil o-right- SolicitudEliminacion
-SolicitudEliminacion -right- EstadoSolicitud
+Solicitud -right- EstadoSolicitud
 SolicitudEliminacion <-up- DetectorDeSpam
 FuenteDeDatos --* Coleccion
 FuenteProxy *-- HechoParser
 FuenteEstatica *-- HechoParser
 Criterio -up-* Coleccion
+
+SolicitudEdicion --* Hecho
 
 
 '-----------------Hechos----------------
@@ -27,6 +29,7 @@ class Hecho {
     +ubicacion: Ubicacion
     +fechaHecho: Date
     +fechaCarga: Date
+    +fechaModificacion: Date
     +fuente: FuenteDeDatos
     +autor: Perfil
     -anonimo: Boolean
@@ -86,6 +89,7 @@ class CsvHechoParser implements HechoParser{
 }
 
 '-----------------Fuentes de datos Proxy----------------
+
 class FuenteProxy implements FuenteDeDatos{
     +endpointBase: String
     -parser: HechoParser
@@ -109,23 +113,27 @@ class Coleccion{
     +titulo: String
     +descripcion: String
     +criterioPertenencia: List<Criterio>
-    +fuentesDeDatos: list<FuenteDeDatos>
+    +fuentesDeDatos: List<FuenteDeDatos>
     +handle: String
     {method}agregarCriterioPertenencia(criterio:Criterio)
     {method}eliminarCriterioPertenencia(criterio:Criterio)
     {method}filtrarPorCriterios(criterios:List<Criterio>)
 }
 
-
-'-----------------Solicitud de eliminacion----------------
-
-class SolicitudEliminacion{
-    +hechoAEliminar: Hecho
-    +motivo: String
+'-------------------Interfaz solicitud--------------------
+Abstract Solicitud{
+    +hechoAfectado: Hecho
     -estado: EstadoSolicitud
     {method}aceptarSolicitud()
     {method}rechazarSolicitud()
 }
+
+
+'-----------------Solicitud de eliminacion----------------
+class SolicitudEliminacion extends Solicitud{
+    +motivo: String
+}
+
 
 enum EstadoSolicitud{
     PENDIENTE
@@ -138,9 +146,20 @@ interface DetectorDeSpam {
     +esSpam(texto: String): Boolean
 }
 
+'-----------------Solicitud de Edicion----------------
+class SolicitudEdicion extends Solicitud{
+    +tituloMod: String
+    +descMod: String
+    +categoriaMod: String
+    +UbicacionMod: Ubicacion
+    +FechaHechoMod: Fecha
+    +MultimediaMod: list<Multimedia>
+    '+anonimidadMod: Boolean
+    +Sugerencia: String
+    {method}agregarSugerencia(String: Sugerencia)
+}
 
 ' ----Usuario rol perfil ----
-
 note left of Usuario
 chequear si es necesario tener un usuario y un perfil o organizar todo en uno
 end note
@@ -148,15 +167,14 @@ end note
 class Usuario{
     -email: String
     -contraseñaHasheada: String
-    -roles: list<Rol>
+    -rol: Rol
     {method}tieneRol(rol:Rol)
 }
 
 enum Rol{
     VISUALIZADOR
-    EDITOR
     CONTRIBUYENTE
-    ADMINISTRADOR 
+    ADMINISTRADOR
 }
 
 class Perfil{
@@ -165,6 +183,7 @@ class Perfil{
     +edad: Int
     +usuario: Usuario
     +solicitudesEliminacion: List<SolicitudEliminacion>
+    +solicitudesEdicion: List<SolicitudEdicion>
 }
 
 ' -----------Criterios-----------------
