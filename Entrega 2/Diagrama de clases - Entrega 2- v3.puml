@@ -61,7 +61,6 @@ enum TipoMultimedia {
 }
 
 '-----------------Fuentes de datos----------------
-
 interface FuenteDeDatos{
     +nombre: String
     +hechos: List<Hecho>
@@ -219,6 +218,5 @@ class CriterioMultimedia implements Criterio{
     +multimedia:Multimedia
     {method}cumple(Hecho)
 }
-
 
 @enduml
