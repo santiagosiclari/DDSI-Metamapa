@@ -17,9 +17,7 @@ FuenteDeDatos --* Coleccion
 FuenteProxy *-- HechoParser
 FuenteEstatica *-- HechoParser
 Criterio -up-* Coleccion
-
 SolicitudEdicion --* Hecho
-
 
 '-----------------Hechos----------------
 class Hecho {
@@ -103,10 +101,6 @@ class JsonHechoParser implements HechoParser{
 }
 
 '-----------------Colecciones----------------
-note left of Coleccion
-chequear si para la entrega 3 piden que una coleccion tenga una lista de fuentes de datos
-o que tenga una lista de hechos y que se actualicen 
-end note
 
 class Coleccion{
     +titulo: String
@@ -159,14 +153,12 @@ class SolicitudEdicion extends Solicitud{
 }
 
 ' ----Usuario rol perfil ----
-note left of Usuario
-chequear si es necesario tener un usuario y un perfil o organizar todo en uno
-end note
 
 class Usuario{
     -email: String
     -contraseñaHasheada: String
-    -rol: Rol
+    +perfil: Perfil
+    -rol: List<Rol>
     {method}tieneRol(rol:Rol)
 }
 
@@ -180,7 +172,6 @@ class Perfil{
     +nombre: String
     +apellido: String
     +edad: Int
-    +usuario: Usuario
     +solicitudesEliminacion: List<SolicitudEliminacion>
     +solicitudesEdicion: List<SolicitudEdicion>
 }
