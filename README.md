@@ -1,6 +1,6 @@
 # Trabajo Práctico de Diseño de Sistemas de Informacion - 2025
 <h1 align="center">
-Metamapa
+MetaMapa
 <p align="center">
   <img src=https://i.imgur.com/iAa9Kh5.png>
 </p>
