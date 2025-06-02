@@ -20,6 +20,4 @@ Trabajo práctico anual de la materia Diseño de Sistemas de Informacion, corres
 
 
 ## Documentos de interés
-[Enunciado a Entrega 1](https://github.com/ITantucci/TP-DDSI/blob/main/Archivos/Enunciado%20-%20Entrega%201/TPA%20DDSI%202025%20-%20Entrega%201.pdf)
-
-[Enunciado a Entrega 2 y 3](https://github.com/ITantucci/TP-DDSI/blob/main/Archivos/Enunciado%20-%20Entrega%202/TPA%20DDSI%202025%20-%20Entrega%202.pdf)
+[Enunciado MetaMapa](https://github.com/ITantucci/TP-DDSI/blob/main/Archivos/TPA%20DDSI%202025.pdf)
