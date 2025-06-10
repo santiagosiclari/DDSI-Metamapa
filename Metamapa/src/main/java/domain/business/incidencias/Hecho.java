@@ -33,7 +33,7 @@ public class Hecho {
   private Perfil autor;
   @Getter
   private Boolean anonimo;
-  @Getter
+  @Getter @Setter
   private Boolean eliminado;
   @Getter
   private ArrayList<Multimedia> multimedia;

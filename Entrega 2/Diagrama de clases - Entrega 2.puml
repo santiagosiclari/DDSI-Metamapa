@@ -81,7 +81,7 @@ interface FuenteDeDatos{
 }
 
 interface HechoParser{
-    {method}parsearHecho()
+    {method}parsearHecho(path:String)
 }
 
 '-----------------Fuentes de datos Dinamica----------------
@@ -97,7 +97,7 @@ class FuenteEstatica implements FuenteDeDatos{
 }
 
 class CsvHechoParser implements HechoParser{
-    {method}parsearHecho()
+    {method}parsearHecho(path:String)
 }
 
 '-----------------Fuentes de datos Proxy----------------
@@ -108,11 +108,10 @@ class FuenteProxy implements FuenteDeDatos{
     {method}agregarHecho()
     {method}getHechosDeColeccion()
     {method}solicitarEliminacion()
-    
 }
 
 class JsonHechoParser implements HechoParser{
-    {method}parsearHecho()
+    {method}parsearHecho(path)
 }
 
 '-----------------Colecciones----------------

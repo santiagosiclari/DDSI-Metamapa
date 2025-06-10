@@ -9,8 +9,8 @@ import lombok.Setter;
 
 public abstract class Solicitud {
   // Atributos
-  private Hecho hechoAfectado;  // Hecho relacionado con la solicitud
-  private EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)
+  Hecho hechoAfectado;  // Hecho relacionado con la solicitud
+  EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)
 
   // Constructor
   public Solicitud(Hecho hechoAfectado, EstadoSolicitud estado) {
@@ -18,9 +18,10 @@ public abstract class Solicitud {
     this.estado = estado;
   }
 
-
-  // Métodos abstractos (sin implementación en la clase base)
-  public abstract void aceptarSolicitud();  // Métodos abstractos que las subclases deben implementar
-  public abstract void rechazarSolicitud(); // Métodos abstractos que las subclases deben implementar
-
+  public void aceptarSolicitud(){
+    this.estado = EstadoSolicitud.APROBADA;
+  }
+  public  void rechazarSolicitud(){
+    this.estado = EstadoSolicitud.RECHAZADA;
+  }
 }
