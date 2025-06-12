@@ -3,7 +3,7 @@ import domain.business.incidencias.Hecho;
 import lombok.Getter;
 
 
-public class CriterioDescripcion {
+public class CriterioDescripcion implements Criterio{
   @Getter
   private String descripcion;
 

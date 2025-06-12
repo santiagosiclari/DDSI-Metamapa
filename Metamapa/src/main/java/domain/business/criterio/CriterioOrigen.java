@@ -11,7 +11,7 @@ public class CriterioOrigen implements Criterio{
     this.origen = origen;
   }
   public boolean cumple(Hecho hechoAValidar){
-    String origenAValidar = hechoAValidar.getFuenteDeDatos();
+    String origenAValidar = String.valueOf(hechoAValidar.getFuenteDeDatos());
 
     return this.getOrigen().equals(origenAValidar.getClass().getName());
   }

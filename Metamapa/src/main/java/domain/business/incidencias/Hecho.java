@@ -1,6 +1,7 @@
 package domain.business.incidencias;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import domain.business.FuentesDeDatos.FuenteDeDatos;
 import domain.business.Usuarios.Perfil;
 import domain.business.tiposSolicitudes.SolicitudEdicion;
@@ -93,9 +94,18 @@ public class Hecho {
 //
 //  }
 
+  @JsonIgnore
   public String getNombreAutor() {
-    if (this.getFuenteDeDatos().getClass().getName() != "FuenteDinamica"){
-       return this.getFuenteDeDatos().getNombre(); //Todavia no esta creado getter
-    }else return this.getAutor().getNombre() + " " + this.getAutor().getApellido();
+    if (this.getFuenteDeDatos() == null) {
+      return "Fuente desconocida";
+    }
+
+    if (!this.getFuenteDeDatos().getClass().getSimpleName().equals("FuenteDinamica")) {
+      return this.getFuenteDeDatos().getNombre();
+    }
+
+    return this.getAutor() != null
+            ? this.getAutor().getNombre() + " " + this.getAutor().getApellido()
+            : "Autor desconocido";
   }
 }
