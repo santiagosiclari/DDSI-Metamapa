@@ -69,7 +69,8 @@ class MetamapaTests {
 		}
 
 		//String path = "C:/Users/lucas/IdeaProjects/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
-		String path = "C:/Nacho/Facu/2025/DDS/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
+		//String path = "C:/Nacho/Facu/2025/DDS/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
+		String path = "C:/Users/IgnacioJavierTantucc/Desktop/DDSI/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
 		CSVHechoParser parser = new CSVHechoParser();
 		FuenteEstatica fuente = new FuenteEstatica(path, parser);
 
@@ -224,17 +225,17 @@ public void solicitarEliminacionHecho(){
 	if (!user1.tieneRol(Rol.CONTRIBUYENTE)) {
 		throw new IllegalStateException("El usuario no tiene rol de CONTRIBUYENTE.");
 	}
-		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Este hecho no me gusta");
+		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Motivo que no contiene SPAM y no deberia rechazar la solicitud");
 
 	assertThat(solicitudEliminacion1.getHecho()).isEqualTo(unHecho);
-	assertThat(solicitudEliminacion1.getMotivo()).isEqualTo("Este hecho no me gusta");
+	assertThat(solicitudEliminacion1.getMotivo()).isEqualTo("Motivo que no contiene SPAM y no deberia rechazar la solicitud");
 }
 
 	//TODO : 6 Como persona administradora, deseo poder aceptar o rechazar la solicitud de eliminación de un hecho.
 	@Test
 	public void aceptarSolicitudEliminacion(){
 		Hecho unHecho= new Hecho("incendio", "desc",null,null,null,null,null,null,null,null);
-		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Este hecho no me gusta");
+		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Motivo que no contiene SPAM y no deberia rechazar la solicitud");
 		Perfil perfil1 = new Perfil("Juan", "Perez", 30);
 		Usuario user1 = new Usuario("admin1@frba.utn.edu.ar", "algo", perfil1, List.of(Rol.CONTRIBUYENTE, Rol.VISUALIZADOR,Rol.ADMINISTRADOR));
 		if (!user1.tieneRol(Rol.ADMINISTRADOR)) {
@@ -247,7 +248,7 @@ public void solicitarEliminacionHecho(){
 	@Test
 	public void rechazarSolicitudEliminacion(){
 		Hecho unHecho= new Hecho("incendio", "desc",null,null,null,null,null,null,null,null);
-		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Este hecho no me gusta");
+		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Motivo que no contiene SPAM y no deberia rechazar la solicitud");
 		Perfil perfil1 = new Perfil("Juan", "Perez", 30);
 		Usuario user1 = new Usuario("admin1@frba.utn.edu.ar", "algo", perfil1, List.of(Rol.CONTRIBUYENTE, Rol.VISUALIZADOR,Rol.ADMINISTRADOR));
 		if (!user1.tieneRol(Rol.ADMINISTRADOR)) {
