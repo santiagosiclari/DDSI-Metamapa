@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-//import infrastructure.dto.HechoDTO;
+
 
 import lombok.Getter;
 import org.javatuples.Pair;
@@ -19,11 +19,11 @@ import org.javatuples.Pair;
 public abstract class FuenteDeDatos {
 
   @Getter
-  String nombre;
+  public String nombre;
 
   @Getter
 /*  LinkedList<Hecho> listaHecho;*/
-  List<Hecho> hechos;
+  public ArrayList<Hecho> hechos;
 
    void agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, FuenteDeDatos fuenteDeDatos, Perfil autor, Boolean anonimo, Boolean eliminado, ArrayList<Pair<TipoMultimedia,String>> multimedia)
    {

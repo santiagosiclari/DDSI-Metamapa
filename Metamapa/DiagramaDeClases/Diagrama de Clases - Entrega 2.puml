@@ -78,7 +78,7 @@ class Agregador{
 abstract class FuenteDeDatos{
     +nombre: String
     +hechos: List<Hecho>
-    {method}agregarHecho()
+    {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, FuenteDeDatos fuenteDeDatos, Perfil autor, Boolean anonimo, Boolean eliminado, ArrayList<Pair<TipoMultimedia,String>> multimedia)
 }
 
 interface HechoParser{
@@ -87,7 +87,8 @@ interface HechoParser{
 
 '-----------------Fuentes de datos Dinamica----------------
 class FuenteDinamica extends FuenteDeDatos{
-    {method}agregarHecho(titulo:String, descripcion:String, ubicacion: Ubicacion, categoria: String, multimedia: list<Multimedia>, fecha:Date, anonimidad:Boolean)
+    {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, Perfil
+                  autor, Boolean anonimidad, FuenteDeDatos Self, ArrayList<Multimedia> multimedia)
 }
 
 '-----------------Fuentes de datos Estatica----------------
@@ -95,6 +96,8 @@ class FuenteEstatica extends FuenteDeDatos{
     +pathCSV: String
     -parser: HechoParser
     {method}agregarHecho()
+    {method}cargarCSV()
+
 }
 
 class CsvHechoParser implements HechoParser{
@@ -135,7 +138,7 @@ se agrego el criterio de no pertenencia para poder incluir por ejemplo si se
 quiere filtrar por fechas que no sean 2012 o filtrar por fuentes que no sean estaticas
 end note
 '-------------------Interfaz solicitud--------------------
-Abstract Solicitud{
+abstract Solicitud{
     +hechoAfectado: Hecho
     -estado: EstadoSolicitud
     {method}aceptarSolicitud()
@@ -168,12 +171,17 @@ class SolicitudEdicion extends Solicitud{
     +UbicacionMod: Ubicacion
     +FechaHechoMod: Fecha
     +MultimediaMod: list<Multimedia>
-    '+anonimidadMod: Boolean
+    +anonimidadMod: Boolean
     +Sugerencia: String
     {method}agregarSugerencia(String: Sugerencia)
     {method}aceptarSolicitud()
     {method}rechazarSolicitud()
 }
+
+note top of SolicitudEdicion
+anonimidadMod es para que si cargue un hecho como anónimo, pueda modificarlo para que deje de ser anónimo
+anonimidad es distinto de registrado. Nosotros entendemos que si un usuario no está registado, no puede editar hechos.
+end note
 
 ' ----Usuario rol perfil ----
 

@@ -4,6 +4,6 @@ public class DetectorDeSpamMock implements DetectorDeSpam {
   @Override
   public boolean esSpam(String texto) {
     // Lógica simple para simular comportamiento
-    return texto.isBlank();
+    return texto.length()>25;
   }
 }

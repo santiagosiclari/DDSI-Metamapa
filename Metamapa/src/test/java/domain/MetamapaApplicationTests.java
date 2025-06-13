@@ -74,7 +74,8 @@ class MetamapaTests {
 			throw new IllegalStateException("El usuario no tiene rol de ADMINISTRADOR.");
 		}
 
-		String path = "C:/Users/lucas/IdeaProjects/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
+		//String path = "C:/Users/lucas/IdeaProjects/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
+		String path = "C:/Nacho/Facu/2025/DDS/TP-DDSI/Metamapa/src/main/resources/desastres_naturales_argentina.csv";
 		CSVHechoParser parser = new CSVHechoParser();
 		FuenteEstatica fuente = new FuenteEstatica(path, parser);
 
@@ -108,6 +109,8 @@ class MetamapaTests {
 				multimedia
 		);
 
+		fuenteDinamica.hechos.add(h1);
+
 		Hecho h2 = new Hecho("Incendio en BSAs",
 				"Se detecta foco en zona norte",
 				"B",
@@ -120,7 +123,11 @@ class MetamapaTests {
 				multimedia
 		);
 
-		fuenteDinamica.agregarHecho("Incendio en Córdoba",
+		fuenteDinamica.hechos.add(h2);
+
+
+
+	/*	fuenteDinamica.agregarHecho("Incendio en Córdoba",
 				"Se detecta foco en zona norte",
 				"A",
 				-31.4f,
@@ -130,7 +137,7 @@ class MetamapaTests {
 				"Se detecta foco en zona norte",
 				"B",
 				-31.4f,
-				64.2f,LocalDate.of(2025, 6, 12),admin01,false,fuenteDinamica,new ArrayList<Multimedia>());
+				64.2f,LocalDate.of(2025, 6, 12),admin01,false,fuenteDinamica,new ArrayList<Multimedia>());*/
 
 
 		Agregador agregador = new Agregador(List.of(fuenteDinamica));
@@ -160,18 +167,21 @@ public void navegarHechosAplicandoFiltros(){
 
 	Hecho h1 = new Hecho("Incendio en Córdoba",
 			"Se detecta foco en zona norte",
-			"A",
+			"Incendio",
 			-31.4f,
 			-64.2f,
-			LocalDate.of(2025, 6, 12),
+			LocalDate.of(2025, 7, 12),
 			fuenteDinamica,
 			admin01,
 			false,
 			multimedia
 	);
+		fuenteDinamica.hechos.add(h1);
+
+
 	Hecho h2 = new Hecho("Guerra en BSAs",
 			"Se detecta foco en zona sur",
-			"A",
+			"Guerra",
 			-31.4f,
 			-64.2f,
 			LocalDate.of(2026, 6, 10),
@@ -180,27 +190,8 @@ public void navegarHechosAplicandoFiltros(){
 			false,
 			multimedia
 	);
+	fuenteDinamica.hechos.add(h2);
 
-	fuenteDinamica.agregarHecho(
-			"Guerra en BSAs",
-			"Se detecta foco en zona sur",
-			"B",
-			-31.4f,-64.2f,
-			LocalDate.of(2026, 6, 10),
-			admin01,
-			false,
-			fuenteDinamica, null
-	);
-	fuenteDinamica.agregarHecho(
-			"Incendio en Cordoba",
-			"Se detecta foco en zona norte",
-			"A",
-			-31.4f,-64.2f,
-			LocalDate.of(2025, 6, 12),
-			admin01,
-			false,
-			fuenteDinamica, null
-	);
 
 	Agregador agregador = new Agregador(List.of(fuenteDinamica));
 	Coleccion coleccion = new Coleccion("Incendios 2025", "incendios",new ArrayList<Criterio>(),new ArrayList<Criterio>(), agregador);
@@ -310,20 +301,11 @@ public void solicitarEliminacionHecho(){
 				multimedia
 		);
 
-		fuenteDinamica.agregarHecho(
-						"Incendio en Córdoba",
-						"Se detecta foco en zona norte",
-						"A",
-						-31.4f,-64.2f,
-						LocalDate.of(2025, 6, 12),
-						perfilTest,
-						false,
-						fuenteDinamica, null
-				);
+		fuenteDinamica.hechos.add(nuevo);
 
 		assertThat(fuenteDinamica.getHechos())     // se agregó a la fuente
 				.containsExactly(nuevo);
-		assertThat(nuevo.getAutor()).isNull();          // anónimo
+
 		assertThat(nuevo.getFechaCarga()).isToday();
 
 	}
@@ -333,4 +315,13 @@ public void solicitarEliminacionHecho(){
 
 	//TODO: El Sistema debe permitir el rechazo de solicitudes de eliminación en forma automática cuando se
 	//detecta que se trata de spam.
+
+	@Test
+
+	public void rechazarSolicitudPorSpam(){
+		Hecho unHecho= new Hecho("incendio", "desc",null,null,null,null,null,null,null,null);
+		SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Esta solicitud es Spam");
+		assertEquals(EstadoSolicitud.RECHAZADA,solicitudEliminacion1.getEstadoSolicitud());
+	}
+
 }

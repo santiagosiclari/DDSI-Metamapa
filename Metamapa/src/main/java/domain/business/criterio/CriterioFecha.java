@@ -17,7 +17,7 @@ public class CriterioFecha implements Criterio{
 
     LocalDate fechaAValidar = hechoAValidar.getFechaHecho();
 
-    return !fechaAValidar.isBefore(this.getFechaDesde()) && fechaAValidar.isAfter(this.getFechaHasta());
+    return !fechaAValidar.isBefore(this.getFechaDesde()) && !fechaAValidar.isAfter(this.getFechaHasta());
 
     }
 }

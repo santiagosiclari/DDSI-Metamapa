@@ -15,6 +15,6 @@ public class CriterioCategoria implements Criterio{
   public boolean cumple(Hecho hechoAValidar){
     String categoriaAValidar = hechoAValidar.getCategoria();
 
-    return this.getCategoria().equals(categoriaAValidar);
+    return this.getCategoria().equalsIgnoreCase(categoriaAValidar);
   }
 }

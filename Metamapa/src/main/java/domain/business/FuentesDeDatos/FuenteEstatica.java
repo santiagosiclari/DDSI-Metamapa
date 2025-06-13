@@ -16,7 +16,12 @@ public class FuenteEstatica extends FuenteDeDatos{
 
   @Getter
   private HechoParser parser;
-
+  public FuenteEstatica(String pathCSV, HechoParser parser){
+    this.nombre = FilenameUtils.getBaseName(pathCSV);
+    this.pathCSV = pathCSV;
+    this.parser = parser;
+    this.hechos = new ArrayList<>();
+  }
 //TODO: ver bien estas cosas. me quede sin energias, revise hasta Usuarios,tiposSolicitudes(cambiar nombre a solicitudes),Criterios ,incidencias y vi algo de fuentes.
 
   public void agregarHecho(){throw new UnsupportedOperationException("Not supported yet.");};
@@ -31,11 +36,6 @@ public class FuenteEstatica extends FuenteDeDatos{
     this.hechos = hechosParseados;
   }
 
-  public FuenteEstatica(String pathCSV, HechoParser parser){
-    this.nombre = FilenameUtils.getBaseName(pathCSV);
-    this.pathCSV = pathCSV;
-    this.parser = parser;
-    this.hechos = new ArrayList<>();
-  }
+
 
 }

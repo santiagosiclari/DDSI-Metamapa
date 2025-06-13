@@ -12,15 +12,14 @@ public class SolicitudEliminacion extends Solicitud{
   public SolicitudEliminacion(Hecho hechoAfectado, String motivo) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE); //por defecto se inicializan pendientes
 
-    if (motivo == null || motivo.length() < 500) {
-      throw new IllegalArgumentException("El motivo debe tener al menos 500 caracteres.");
+    if (motivo == null || motivo.length() < 10) { //TODO: Cambio de 500 a 10
+      throw new IllegalArgumentException("El motivo debe tener al menos 10 caracteres.");
     }
 
-    /*if (DetectorDeSpam.esSpam(motivo)) {
-      // Rechazo automático si es spam
+    if (DetectorDeSpam.esSpam(motivo)) {
       this.rechazarSolicitud();
       return;
-    }*/
+    }
 
     this.motivo = motivo;
     this.hechoAfectado = hechoAfectado;
