@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 @startuml asd
 'https://plantuml.com/sequence-diagram
 
@@ -257,4 +258,265 @@ class CriterioFechaReportaje implements Criterio{
 '    DINAMICA
 '    PROXY
 '}
+=======
+@startuml asd
+'https://plantuml.com/sequence-diagram
+
+skinparam linetype ortho
+
+Hecho o-right- Multimedia
+Hecho o-left- Perfil
+Hecho --* FuenteDeDatos
+Hecho *-right- Ubicacion
+Hecho -up-* SolicitudEliminacion
+Multimedia -right- TipoMultimedia
+Perfil *-up- Usuario
+Usuario -up- Rol
+Perfil o-right- SolicitudEliminacion
+Solicitud -right- EstadoSolicitud
+SolicitudEliminacion <-up- DetectorDeSpam
+'FuenteDeDatos --* Coleccion
+FuenteProxy *-- HechoParser
+FuenteEstatica *-- HechoParser
+Criterio -up-* Coleccion
+SolicitudEdicion --* Hecho
+
+Coleccion -down- Agregador
+Agregador -- FuenteDeDatos
+Agregador -- Hecho
+
+'-----------------Hechos----------------
+class Hecho {
+    +titulo: String
+    +descripcion: String
+    +categoria: String
+    +ubicacion: Ubicacion
+    +fechaHecho: Date
+    +fechaCarga: Date
+    +fechaModificacion: Date
+    +fuente: FuenteDeDatos
+    +autor: Perfil
+    -anonimo: Boolean
+    -eliminado: Boolean
+    +multimedia : List<Multimedia>
+    +metadata: HashMap<key:String,value:String>
+    {method}tieneEtiqueta(String key, String value)
+    {method}editarHecho(SolicitudEdicion solicitud)
+    {method}aniadirEtiqueta(String key, String value)
+    {method}getNombreAutor()
+}
+
+class Ubicacion{
+    +latitud: Float
+    +longitud: Float
+    {method}esIgual(latitud:Float, longitud:Float)
+}
+
+class Multimedia{
+    tipo: TipoMultimedia
+    +path: String
+}
+
+
+enum TipoMultimedia {
+  FOTO
+  VIDEO
+  AUDIO
+}
+
+
+
+'----------- Agregador -------------
+class Agregador{
+    +fuentesDeDatos: List<FuenteDeDatos>
+    +hechos: List<Hecho>
+    {method}actualizarHechos()
+}
+
+
+
+'-----------------Fuentes de datos----------------
+abstract class FuenteDeDatos{
+    +nombre: String
+    +hechos: List<Hecho>
+    {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, FuenteDeDatos fuenteDeDatos, Perfil autor, Boolean anonimo, Boolean eliminado, ArrayList<Pair<TipoMultimedia,String>> multimedia)
+}
+
+interface HechoParser{
+    {method}parsearHecho(path:String)
+}
+
+'-----------------Fuentes de datos Dinamica----------------
+class FuenteDinamica extends FuenteDeDatos{
+    {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, Perfil
+                  autor, Boolean anonimidad, FuenteDeDatos Self, ArrayList<Multimedia> multimedia)
+}
+
+'-----------------Fuentes de datos Estatica----------------
+class FuenteEstatica extends FuenteDeDatos{
+    +pathCSV: String
+    -parser: HechoParser
+    {method}agregarHecho()
+    {method}cargarCSV()
+
+}
+
+class CsvHechoParser implements HechoParser{
+    {method}parsearHecho(path:String)
+}
+
+'-----------------Fuentes de datos Proxy----------------
+
+class FuenteProxy extends FuenteDeDatos{
+    +endpointBase: String
+    -parser: HechoParser
+    {method}agregarHecho()
+    {method}getHechosDeColeccion()
+    {method}solicitarEliminacion()
+}
+
+class JsonHechoParser implements HechoParser{
+    {method}parsearHecho(path)
+}
+
+'-----------------Colecciones----------------
+
+class Coleccion{
+    +titulo: String
+    +descripcion: String
+    +criterioPertenencia: List<Criterio>
+    +criterioNoPertenencia: List<Criterio>
+    +agregador: Agregador
+    +handle: String
+    {method}agregarCriterioPertenencia(criterio:Criterio)
+    {method}eliminarCriterioPertenencia(criterio:Criterio)
+    {method}agregarCriterioNoPertenencia(criterio:Criterio)
+    {method}eliminarCriterioNoPertenencia(criterio:Criterio)
+    {method}filtrarPorCriterios(List<Criterio> criterioPertenenciaAdicional, List<Criterio> criterioNoPertenenciaAdicional)
+}
+note top of Coleccion
+se agrego el criterio de no pertenencia para poder incluir por ejemplo si se
+quiere filtrar por fechas que no sean 2012 o filtrar por fuentes que no sean estaticas
+end note
+'-------------------Interfaz solicitud--------------------
+abstract Solicitud{
+    +hechoAfectado: Hecho
+    -estado: EstadoSolicitud
+    {method}aceptarSolicitud()
+    {method}rechazarSolicitud()
+}
+
+
+'-----------------Solicitud de eliminacion----------------
+class SolicitudEliminacion extends Solicitud{
+    +motivo: String
+    {method}aceptarSolicitud()
+    {method}rechazarSolicitud()
+}
+
+enum EstadoSolicitud{
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+}
+
+interface DetectorDeSpam {
+    +esSpam(texto: String): Boolean
+}
+
+'-----------------Solicitud de Edicion----------------
+class SolicitudEdicion extends Solicitud{
+    +tituloMod: String
+    +descMod: String
+    +categoriaMod: String
+    +UbicacionMod: Ubicacion
+    +FechaHechoMod: Fecha
+    +MultimediaMod: list<Multimedia>
+    +anonimidadMod: Boolean
+    +Sugerencia: String
+    {method}agregarSugerencia(String: Sugerencia)
+    {method}aceptarSolicitud()
+    {method}rechazarSolicitud()
+}
+
+note top of SolicitudEdicion
+anonimidadMod es para que si cargue un hecho como anónimo, pueda modificarlo para que deje de ser anónimo
+anonimidad es distinto de registrado. Nosotros entendemos que si un usuario no está registado, no puede editar hechos.
+end note
+
+' ----Usuario rol perfil ----
+
+class Usuario{
+    email: String
+    contraseniaHasheada: String
+    perfil: Perfil
+    rol: List<Rol>
+    {method}tieneRol(rol:Rol)
+}
+
+enum Rol{
+    VISUALIZADOR
+    CONTRIBUYENTE
+    ADMINISTRADOR
+}
+
+class Perfil{
+    nombre: String
+    apellido: String
+    edad: Int
+    solicitudesEliminacion: List<SolicitudEliminacion>
+    solicitudesEdicion: List<SolicitudEdicion>
+    {method}agregarSolicitudEliminacion(SolicitudEliminacion)
+    {method}agregarSolicitudEdicion(SolicitudEdicion)
+}
+
+' -----------Criterios-----------------
+interface Criterio{
+    {method}cumple(Hecho)
+}
+class CriterioFecha implements Criterio{
+    +fechaDesde:Date
+    +fechaHasta:Date
+    {method}cumple(Hecho)
+}
+class CriterioTitulo implements Criterio{
+    +titulo:String
+    {method}cumple(Hecho)
+}
+class CriterioDescripcion implements Criterio{
+    +descripcion:String
+    {method}cumple(Hecho)
+}
+class CriterioCategoria implements Criterio{
+    +categoria:String
+    {method}cumple(Hecho)
+}
+class CriterioUbicacion implements Criterio{
+    +ubicacion:Ubicacion
+    {method}cumple(Hecho)
+}
+class CriterioOrigen implements Criterio{
+    +origen: String
+    {method}cumple(Hecho)
+}
+class CriterioFuenteDeDatos implements Criterio{
+    +origen: FuenteDeDatos
+    {method}cumple(Hecho)
+}
+class CriterioMultimedia implements Criterio{
+    +tipoMultimedia:TipoMultimedia
+    {method}cumple(Hecho)
+}
+class CriterioFechaReportaje implements Criterio{
+    +desde:Date
+    +hasta:Date
+    {method}cumple(Hecho)
+}
+
+'enum tipoFuenteDatos{
+'    ESTATICA
+'    DINAMICA
+'    PROXY
+'}
+>>>>>>> Stashed changes
 @enduml
