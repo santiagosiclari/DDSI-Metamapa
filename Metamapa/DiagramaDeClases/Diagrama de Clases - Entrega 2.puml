@@ -9,23 +9,21 @@ Hecho o-right- Multimedia
 Hecho o-left- Perfil
 Hecho --* FuenteDeDatos
 Hecho *-right- Ubicacion
-'Hecho -up-* SolicitudEliminacion
-Multimedia -right- TipoMultimedia
-Perfil *-up- Usuario
-Usuario -up- Rol
-Perfil o-right- SolicitudEliminacion
+Multimedia -down- TipoMultimedia
+Perfil *-down- Usuario
+Usuario -right- Rol
+Perfil o-left- SolicitudEliminacion
 Perfil --> SolicitudEdicion
 Solicitud -right- EstadoSolicitud
-SolicitudEliminacion <-up- DetectorDeSpam
+SolicitudEliminacion <-down- DetectorDeSpam
 'FuenteDeDatos --* Coleccion
 FuenteProxy *-- HechoParser
 FuenteEstatica *-- HechoParser
 Criterio -up-* Coleccion
-'SolicitudEdicion --* Hecho
-Hecho<--Solicitud
-Coleccion -down- Agregador
-Agregador -- FuenteDeDatos
-Agregador -- Hecho
+Hecho<-up-Solicitud
+Coleccion -down-> Agregador
+Agregador --> FuenteDeDatos
+Agregador --> Hecho
 
 '-----------------Hechos----------------
 class Hecho {
@@ -36,8 +34,8 @@ class Hecho {
     +fechaHecho: Date
     +fechaCarga: Date
     +fechaModificacion: Date
-    +fuente: FuenteDeDatos
-    +autor: Perfil
+    '+fuente: FuenteDeDatos
+    +perfil: Perfil
     -anonimo: Boolean
     -eliminado: Boolean
     +multimedia : List<Multimedia>
@@ -109,7 +107,7 @@ class CsvHechoParser implements HechoParser{
 
 '-----------------Fuentes de datos Proxy----------------
 
-class FuenteProxy extends FuenteDeDatos{
+abstract FuenteProxy extends FuenteDeDatos{
     +endpointBase: String
     -parser: HechoParser
     '{method}agregarHecho()
@@ -124,6 +122,9 @@ class FuenteDemo extends FuenteProxy{
 }
 
 class FuenteMetamapa extends FuenteProxy{
+    {method}actualizarHechos(filtros: Map<String, String>)
+    {method}actualizarHechosDeColeccion(idColeccion: String , filtros: Map<String, String>)
+    {method}obtenerHechosDesdeURL(url: String)
 }
 
 class JsonHechoParser implements HechoParser{

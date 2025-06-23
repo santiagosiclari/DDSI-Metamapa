@@ -11,7 +11,7 @@ import domain.business.criterio.Criterio;
 import domain.business.criterio.Coleccion;
 import java.time.LocalDate;
 
-public class FuenteProxy extends FuenteDeDatos {
+public abstract class FuenteProxy extends FuenteDeDatos {
     @Getter
     public URL endpointBase;
     @Getter
@@ -21,10 +21,10 @@ public class FuenteProxy extends FuenteDeDatos {
         this.endpointBase = endpointBase;
         this.parser = parser;
     }
-    public void agregarHecho() {
-    }
-    public void getHechosDeColeccion() {
+    /*public void actualizarHechos() {
+    }*/
+    /*public void getHechosDeColeccion() {
     }
     public void solicitarEliminacion() {
-    }
+    }*/
 }

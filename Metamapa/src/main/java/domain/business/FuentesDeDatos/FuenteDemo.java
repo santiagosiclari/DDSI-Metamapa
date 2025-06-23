@@ -14,7 +14,9 @@ import domain.business.externo.demo.Conexion;
 import java.time.LocalDateTime;
 
 public class FuenteDemo extends FuenteProxy{
+  @Getter
   private LocalDateTime fechaUltimaConsulta;
+  @Getter
   private Conexion conexion;
 
   public FuenteDemo(String nombreFuente, URL endpointBase, Conexion conexion, HechoParser parser) {
@@ -31,8 +33,8 @@ public class FuenteDemo extends FuenteProxy{
   }
 
   public void actualizarHechos() {
-    Map<String, Object> datos = conexion.siguienteHecho(this.getEndpointBase(), fechaUltimaConsulta);
-    if (datos != null) {
+    Map<String, Object> datos = conexion.siguienteHecho(this.getEndpointBase(), this.getFechaUltimaConsulta());
+    while (datos != null) {
       Hecho nuevoHecho = new Hecho(
           (String) datos.get("titulo"),
           (String) datos.get("descripcion"),
@@ -48,8 +50,12 @@ public class FuenteDemo extends FuenteProxy{
       // Asignar perfil y anonimato según convenga
       nuevoHecho.setPerfil(null);
       nuevoHecho.setAnonimo(false);
+      //verifica si ya existe
+      boolean yaExiste = hechos.stream()
+              .anyMatch(e -> e.getTitulo().equalsIgnoreCase(nuevoHecho.getTitulo()));
       // Agrego el hecho a la lista
-      hechos.add(nuevoHecho);
+      if (!yaExiste)
+        hechos.add(nuevoHecho);
       // Actualizo fechaUltimaConsulta con la fecha del hecho si está disponible
       if (nuevoHecho.getFechaHecho() != null) {
         LocalDateTime fechaHecho = nuevoHecho.getFechaHecho().atStartOfDay();
