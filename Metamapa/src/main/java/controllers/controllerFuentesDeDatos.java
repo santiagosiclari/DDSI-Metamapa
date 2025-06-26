@@ -49,13 +49,13 @@ public class controllerFuentesDeDatos {
     return hechos;
   }
 
-  @GetMapping("/fuentesDeDatos/{idFuenteDeDatos}/hechos")
+ /* @GetMapping("/fuentesDeDatos/{idFuenteDeDatos}/hechos")
   public ArrayList<Hecho>
   getHechosFuente(
       @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos)
   {
     ArrayList<Hecho> hechos = getFuenteDeDatosXID(idfuenteDeDatos);
   return hechos;
-  }
+  }*/
 
   }

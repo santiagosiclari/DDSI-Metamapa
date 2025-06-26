@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class controllerColecciones {
   public static void main(String[] args) {
     //SpringApplication.run(testApplication.class, args);
-    SpringApplication app = new SpringApplication(demo.testApplication.class);
+    SpringApplication app = new SpringApplication(controllers.controllerColecciones.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "8083"));
 //    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
     app.run(args);
@@ -67,4 +67,8 @@ public class controllerColecciones {
     return coleccion.filtrarPorCriterios(criteriosP,criteriosNP);
 
   }
+
+  //TODO: Crear una coleccion (post /colecciones)
+
+  //TODO: Modificar algoritmo de consenso (patch /colecciones/{id})
 }

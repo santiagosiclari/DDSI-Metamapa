@@ -1,21 +1,21 @@
 @startuml asd
 'https://plantuml.com/sequence-diagram
 skinparam linetype ortho
-skinparam arrowthickness 2
+skinparam arrowthickness 3
 skinparam classFontSize 17
 skinparam classAttributeFontSize 15
 
-Hecho o-right- Multimedia
+Hecho o-- Multimedia
 Hecho o-left- Perfil
 Hecho --* FuenteDeDatos
-Hecho *-right- Ubicacion
+Hecho *-- Ubicacion
 Multimedia -down- TipoMultimedia
 Perfil *-down- Usuario
-Usuario -right- Rol
-Perfil o-left- SolicitudEliminacion
-Perfil --> SolicitudEdicion
+Usuario -down- Rol
+Perfil -left-> SolicitudEliminacion
+Perfil -up-> SolicitudEdicion
 Solicitud -right- EstadoSolicitud
-SolicitudEliminacion <-down- DetectorDeSpam
+SolicitudEliminacion <-up- DetectorDeSpam
 'FuenteDeDatos --* Coleccion
 FuenteProxy *-- HechoParser
 FuenteEstatica *-- HechoParser
@@ -125,6 +125,7 @@ class FuenteMetamapa extends FuenteProxy{
     {method}actualizarHechos(filtros: Map<String, String>)
     {method}actualizarHechosDeColeccion(idColeccion: String , filtros: Map<String, String>)
     {method}obtenerHechosDesdeURL(url: String)
+    {method}solicitarEliminacion(solicitud: SolicitudEliminacion)
 }
 
 class JsonHechoParser implements HechoParser{
@@ -146,10 +147,10 @@ class Coleccion{
     {method}eliminarCriterioNoPertenencia(criterio:Criterio)
     {method}filtrarPorCriterios(List<Criterio> criterioPertenenciaAdicional, List<Criterio> criterioNoPertenenciaAdicional)
 }
-note top of Coleccion
-se agrego el criterio de no pertenencia para poder incluir por ejemplo si se
-quiere filtrar por fechas que no sean 2012 o filtrar por fuentes que no sean estaticas
-end note
+'note top of Coleccion
+'se agrego el criterio de no pertenencia para poder incluir por ejemplo si se
+'quiere filtrar por fechas que no sean 2012 o filtrar por fuentes que no sean estaticas
+'end note
 '-------------------Interfaz solicitud--------------------
 abstract Solicitud{
     +hechoAfectado: Hecho
@@ -191,10 +192,10 @@ class SolicitudEdicion extends Solicitud{
     {method}rechazarSolicitud()
 }
 
-note top of SolicitudEdicion
-anonimidadMod es para que si cargue un hecho como anónimo, pueda modificarlo para que deje de ser anónimo
-anonimidad es distinto de registrado. Nosotros entendemos que si un usuario no está registado, no puede editar hechos.
-end note
+'note top of SolicitudEdicion
+'anonimidadMod es para que si cargue un hecho como anónimo, pueda modificarlo para que deje de ser anónimo
+'anonimidad es distinto de registrado. Nosotros entendemos que si un usuario no está registado, no puede editar hechos.
+'end note
 
 ' ----Usuario rol perfil ----
 

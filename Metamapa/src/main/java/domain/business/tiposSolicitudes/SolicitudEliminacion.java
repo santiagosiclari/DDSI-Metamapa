@@ -19,15 +19,10 @@ public class SolicitudEliminacion extends Solicitud{
     }
 
     this.motivo = motivo;
-    this.hechoAfectado = hechoAfectado;
   }
 
   public Hecho getHecho(){
     return hechoAfectado;
-  }
-
-  public EstadoSolicitud getEstadoSolicitud(){
-    return estado;
   }
 
   @Override

@@ -2,10 +2,11 @@ package domain.business.tiposSolicitudes;
 import domain.business.incidencias.Hecho;
 import lombok.Getter;
 import lombok.Setter;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 public abstract class Solicitud {
   // Atributos
   @Setter @Getter
+  @JsonIgnore
   Hecho hechoAfectado;  // Hecho relacionado con la solicitud
   @Setter @Getter
   EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)

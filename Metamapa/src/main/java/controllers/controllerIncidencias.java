@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class controllerIncidencias {
   public static void main(String[] args) {
     //SpringApplication.run(testApplication.class, args);
-    SpringApplication app = new SpringApplication(demo.testApplication.class);
+    SpringApplication app = new SpringApplication(controllers.controllerIncidencias.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "8081"));
 //    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
     app.run(args);

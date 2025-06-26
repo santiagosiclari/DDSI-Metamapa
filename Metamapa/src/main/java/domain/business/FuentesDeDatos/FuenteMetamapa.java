@@ -7,13 +7,14 @@ import domain.business.incidencias.Hecho;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import domain.business.tiposSolicitudes.SolicitudEliminacion;
 import lombok.Getter;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FuenteMetamapa extends FuenteProxy{
-  private RestTemplate restTemplate;
+  final private RestTemplate restTemplate;
 
   public FuenteMetamapa(String nombre, URL endpointBase, HechoParser parser) {
     super(endpointBase, parser);
@@ -67,8 +68,12 @@ public class FuenteMetamapa extends FuenteProxy{
       }
     }
   }
-  //TODO: POST /solicitudes
-  /*public void solicitarEliminacion(Hecho hecho) {
-    HttpService.post(endpoint + "/solicitudes", hecho.toSolicitudJson());
-  }*/
+
+  public void solicitarEliminacion(SolicitudEliminacion solicitud) {
+    try {
+      restTemplate.postForEntity(getEndpointBase() + "/solicitudes", solicitud, Void.class);
+    } catch (Exception e) {
+      System.err.println("Error al enviar solicitud de eliminación: " + e.getMessage());
+    }
+  }
 }

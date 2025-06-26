@@ -219,7 +219,7 @@ class MetamapaTests {
       throw new IllegalStateException("El usuario no tiene rol de CONTRIBUYENTE.");
     }
     solicitudEliminacion1.aceptarSolicitud();
-    assertEquals(EstadoSolicitud.APROBADA, solicitudEliminacion1.getEstadoSolicitud());
+    assertEquals(EstadoSolicitud.APROBADA, solicitudEliminacion1.getEstado());
     System.out.println("Solicitud aprobada: " + solicitudEliminacion1);
   }
 
@@ -233,26 +233,10 @@ class MetamapaTests {
       throw new IllegalStateException("El usuario no tiene rol de CONTRIBUYENTE.");
     }
     solicitudEliminacion1.rechazarSolicitud();
-    assertEquals(EstadoSolicitud.RECHAZADA, solicitudEliminacion1.getEstadoSolicitud());
+    assertEquals(EstadoSolicitud.RECHAZADA, solicitudEliminacion1.getEstado());
     System.out.println("Solicitud rechazada: "+ solicitudEliminacion1);
   }
 
-	/*@Test
-	void contextLoads() {
-	}*/
-
-  //Como persona usuaria, quiero poder obtener todos los hechos de una fuente proxy demo configurada
-  //en una colección, con un nivel de antigüedad máximo de una hora.
-
-	/*@Test
-	public void testFuenteDemo(){
-		FuenteDeDatos fuenteDemo = new FuenteProxy("", new HechoParser() {
-			@Override
-			public ArrayList<Hecho> parsearHecho(String path) {
-				return ArrayList.of();
-			}
-		});
-	}*/
   //Como persona contribuyente, deseo poder crear un hecho a partir de una fuente dinámica.
   @Test
   public void agregarHechoAFuente() {
@@ -276,7 +260,20 @@ class MetamapaTests {
     assertThat(nuevo.getFechaCarga()).isToday();
     System.out.println("Hecho agregado a fuente: " + nuevo);
   }
+	/*@Test
+	void contextLoads() {
+	}*/
 
+  //TODO: Como persona usuaria, quiero poder obtener todos los hechos de una fuente proxy demo configurada en una colección, con un nivel de antigüedad máximo de una hora.
+  /*@Test
+  public void testFuenteDemo(){
+      FuenteDeDatos fuenteDemo = new FuenteProxy("", new HechoParser() {
+          @Override
+          public ArrayList<Hecho> parsearHecho(String path) {
+              return ArrayList.of();
+          }
+      });
+  }*/
   // TODO: Como persona usuaria, quiero poder obtener todos los hechos de las fuentes MetaMapa configuradas en cada colección, en tiempo real.
   public void obtenerTodosLosHechos() {
 
@@ -284,11 +281,10 @@ class MetamapaTests {
 
   // El Sistema debe permitir el rechazo de solicitudes de eliminación en forma automática cuando se detecta que se trata de spam.
   @Test
-
   public void rechazarSolicitudPorSpam() {
     Hecho unHecho = new Hecho("incendio", "desc", null, null, null,  null, null, null, null);
     SolicitudEliminacion solicitudEliminacion1 = new SolicitudEliminacion(unHecho, "Esta solicitud es Spam");
-    assertEquals(EstadoSolicitud.RECHAZADA, solicitudEliminacion1.getEstadoSolicitud());
+    assertEquals(EstadoSolicitud.RECHAZADA, solicitudEliminacion1.getEstado());
     System.out.println("Solicitud rechazada por Spam: " + solicitudEliminacion1);
   }
 }
