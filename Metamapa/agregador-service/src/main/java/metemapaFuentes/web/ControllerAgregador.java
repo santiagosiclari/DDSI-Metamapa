@@ -1,7 +1,7 @@
 package metemapaFuentes.web;
 
-import domain.Persistencia.RepositorioAgregador;
 import domain.business.Agregador.Agregador;
+import metemapaFuentes.persistencia.RepositorioAgregador;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

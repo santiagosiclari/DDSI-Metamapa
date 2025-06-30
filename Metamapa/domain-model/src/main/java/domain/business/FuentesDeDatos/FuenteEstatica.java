@@ -1,6 +1,7 @@
 package domain.business.FuentesDeDatos;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import domain.business.Parsers.HechoParser;
 import domain.business.incidencias.Hecho;
@@ -14,7 +15,9 @@ public class FuenteEstatica extends FuenteDeDatos{
   //private String pathCSV;
 
   @Getter
+  @JsonIgnore
   private HechoParser parser;
+  public FuenteEstatica() {} // va a haber que usar dtos para no modificar la capa de negocio
   public FuenteEstatica( String nombre, HechoParser parser){
     this.nombre = nombre;
     this.id = contadorID++;

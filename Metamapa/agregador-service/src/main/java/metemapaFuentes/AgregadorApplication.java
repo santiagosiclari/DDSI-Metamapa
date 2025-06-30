@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AgregadorApplication {
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(AgregadorApplication.class);
-    app.setDefaultProperties(Collections.singletonMap("server.port", "9002"));
+    app.setDefaultProperties(Collections.singletonMap("server.port", "server.port"));
     var context = app.run(args);
     // para cerrar la app, comentar cuando se prueben cosas
     //context.close();
