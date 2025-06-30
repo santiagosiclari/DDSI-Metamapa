@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fuente Dinamica</title>
+</head>
+<body>
+<section>
+  <h1 th:text="${fuente.nombre}">Nombre de la Fuente</h1>
+</section>
+
+<section>
+  <h2>Hechos asociados</h2>
+  <table border="1">
+    <thead>
+    <tr>
+      <th>Título</th>
+      <th>Descripción</th>
+      <th>Categoría</th>
+      <th>Fecha</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="hecho : ${fuente.hechos}">
+      <td th:text="${hecho.titulo}">Título</td>
+      <td th:text="${hecho.descripcion}">Descripción</td>
+      <td th:text="${hecho.categoria}">Categoría</td>
+      <td th:text="${hecho.fechaHecho}">Fecha</td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+</body>
+</html>

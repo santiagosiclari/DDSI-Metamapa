@@ -14,9 +14,17 @@ import java.util.List;
 
 import lombok.Getter;
 import org.javatuples.Pair;
+import org.springframework.expression.spel.ast.Identifier;
 
 
 public abstract class FuenteDeDatos {
+
+
+  //para pruebas con el repositorio
+  @Getter
+  static public int contadorID = 1;
+  @Getter
+  public int id;
 
   @Getter
   public String nombre;

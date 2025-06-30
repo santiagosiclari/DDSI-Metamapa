@@ -4,28 +4,43 @@ import java.util.ArrayList;
 import lombok.Getter;
 import java.util.List;
 import domain.business.incidencias.Hecho;
+import java.util.concurrent.*;
 
 public class Agregador {
+    static public int contadorID = 1;
     @Getter
-    private List<FuenteDeDatos> fuenteDeDatos;
+    private int id;
+    @Getter
+    private ArrayList<FuenteDeDatos> fuentesDeDatos;
 
     @Getter
     private ArrayList<Hecho> listaDeHechos;
 
-    public Hecho actualizarHecho(Hecho hecho){
-        // TODO: Hacer que hecho se actualice cuando se sobreescribe o se edita (NO PARA ESTA ENNTREGA)
+    public void actualizarHechos() {
+        ArrayList<Hecho> hechos = new ArrayList<>();
+        fuentesDeDatos.forEach(f -> hechos.addAll(f.getHechos()));
+        listaDeHechos = hechos;
+    }
 
-        return hecho;
-    };
+    public Agregador() {
+        this.id = Agregador.contadorID++;
 
-    public Agregador(List<FuenteDeDatos> fuentes) {
-        this.fuenteDeDatos = fuentes;
+
+//        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//
+//        Runnable tarea = () -> this.actualizarHechos();
+//
+//        scheduler.scheduleAtFixedRate(tarea, 0, 2, TimeUnit.HOURS);
+        }
+
+    public void agregarFuenteDeDatos(FuenteDeDatos fuente){
+        this.fuentesDeDatos.add(fuente);
         this.actualizarHechos();
     }
 
-    public void actualizarHechos(){
-        var listaHechos = new ArrayList<Hecho>();
-        fuenteDeDatos.forEach(f -> listaHechos.addAll(f.getHechos()));
-        this.listaDeHechos = listaHechos;
+    public void eliminarFuenteDeDatos(FuenteDeDatos fuente){
+        this.fuentesDeDatos.remove(fuente);
+        this.actualizarHechos();
     }
+
 }

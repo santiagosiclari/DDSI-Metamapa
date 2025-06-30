@@ -10,6 +10,7 @@ import java.util.List;
 public class FuenteDinamica extends FuenteDeDatos{
 
   public FuenteDinamica() {
+    this.id = contadorID++;
     this.nombre = "Fuente Dinamica";
     this.hechos =  new ArrayList<>();
   }

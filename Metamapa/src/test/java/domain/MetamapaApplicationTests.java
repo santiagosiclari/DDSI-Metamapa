@@ -43,7 +43,7 @@ class MetamapaTests {
     ArrayList<FuenteDeDatos> lista = new ArrayList<FuenteDeDatos>();
     lista.add(fuente);
 
-    Agregador agregador = new Agregador(lista);
+    Agregador agregador =  new Agregador(lista);
 
     // creamos la coleccion
     Coleccion coleccion = new Coleccion("Incendios 2025", "incendios", new ArrayList<Criterio>(), new ArrayList<Criterio>(), agregador);

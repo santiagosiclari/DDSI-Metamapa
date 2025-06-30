@@ -30,6 +30,7 @@ public class FuenteDemo extends FuenteProxy{
         return null;
       }
      };
+    this.id = contadorID++;
   }
 
   public void actualizarHechos() {

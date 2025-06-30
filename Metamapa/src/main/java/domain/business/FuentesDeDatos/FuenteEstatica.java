@@ -18,6 +18,7 @@ public class FuenteEstatica extends FuenteDeDatos{
   private HechoParser parser;
   public FuenteEstatica( String nombre, HechoParser parser){
     this.nombre = nombre;
+    this.id = contadorID++;
    // this.pathCSV = pathCSV;
     this.parser = parser;
     this.hechos = new ArrayList<>();
@@ -34,7 +35,4 @@ public class FuenteEstatica extends FuenteDeDatos{
     }
     this.hechos = hechosParseados;
   }
-
-
-
 }

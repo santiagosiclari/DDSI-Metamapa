@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.javatuples.Pair;
 
+
 public class Hecho {
   @Getter
   private String titulo;
@@ -36,6 +37,11 @@ public class Hecho {
   private List<Multimedia> multimedia;
   @Getter @Setter
   private HashMap<String,String> metadata;
+  @Getter
+  private int id;
+
+  //para pruebas con el repositorio
+  static private int contadorID = 0;
 
 
   //TODO: Chequear si Categoria lo modelamos como string o un enum
@@ -64,6 +70,8 @@ public class Hecho {
     //ArrayList<Pair<TipoMultimedia, String>> tuplaMultimedia
     //this.multimedia = tuplaMultimedia.stream().map(p -> new Multimedia(p.getValue0(),p.getValue1())).collect(Collectors.toCollection(ArrayList::new));
     this.metadata = new HashMap<>();
+    this.id = contadorID++;
+
   }
 
   public Boolean tieneEtiqueta(String key,String value) {

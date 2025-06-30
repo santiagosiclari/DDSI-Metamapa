@@ -24,6 +24,9 @@ Hecho<-up-Solicitud
 Coleccion -down-> Agregador
 Agregador --> FuenteDeDatos
 Agregador --> Hecho
+Consenso *-right- Coleccion
+metodosNavegacion -- Perfil
+metodosNavegacion -- Coleccion
 
 '-----------------Hechos----------------
 class Hecho {
@@ -140,7 +143,9 @@ class Coleccion{
     +criterioPertenencia: List<Criterio>
     +criterioNoPertenencia: List<Criterio>
     +agregador: Agregador
+    +consenso: Consenso
     +handle: String
+
     {method}agregarCriterioPertenencia(criterio:Criterio)
     {method}eliminarCriterioPertenencia(criterio:Criterio)
     {method}agregarCriterioNoPertenencia(criterio:Criterio)
@@ -266,6 +271,32 @@ class CriterioFechaReportaje implements Criterio{
     {method}cumple(Hecho)
 }
 
+
+abstract class Consenso
+{
+    {method}consensuado(Hecho,List<FuenteDeDatos>)
+}
+
+class multiplesMenciones implements Consenso
+{
+
+}
+
+class mayoriaSimple implements Consenso
+{
+
+}
+
+class absoluto implements Consenso
+{
+
+}
+
+enum metodosNavegacion
+{
+    IRRESTRICTA
+    CURADA
+}
 'enum tipoFuenteDatos{
 '    ESTATICA
 '    DINAMICA

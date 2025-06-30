@@ -20,6 +20,7 @@ public abstract class FuenteProxy extends FuenteDeDatos {
     public FuenteProxy(URL endpointBase, HechoParser parser) {
         this.endpointBase = endpointBase;
         this.parser = parser;
+        this.id = contadorID++;
     }
     /*public void actualizarHechos() {
     }*/

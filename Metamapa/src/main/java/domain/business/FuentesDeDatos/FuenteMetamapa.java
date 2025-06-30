@@ -18,6 +18,7 @@ public class FuenteMetamapa extends FuenteProxy{
 
   public FuenteMetamapa(String nombre, URL endpointBase, HechoParser parser) {
     super(endpointBase, parser);
+    this.id = contadorID++;
     this.nombre = nombre;
     this.hechos = new ArrayList<>();
     this.restTemplate = new RestTemplate();

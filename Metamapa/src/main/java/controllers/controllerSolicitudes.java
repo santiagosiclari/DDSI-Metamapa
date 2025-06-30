@@ -1,10 +1,12 @@
 package controllers;
+import domain.Persistencia.RepositorioSolicitudEliminacion;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import domain.business.tiposSolicitudes.EstadoSolicitud;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +15,21 @@ import domain.business.incidencias.Hecho;
 import domain.business.tiposSolicitudes.SolicitudEliminacion;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
-import repositories.solicitudEliminacionRepository;
+
 
 @SpringBootApplication
 @RestController
 public class controllerSolicitudes {
-  private solicitudEliminacionRepository solicitudRepository = new solicitudEliminacionRepository();
+  private RepositorioSolicitudEliminacion solicitudRepository = new RepositorioSolicitudEliminacion();
 
   public static void main(String[] args) {
     //SpringApplication.run(testApplication.class, args);
     SpringApplication app = new SpringApplication(controllers.controllerSolicitudes.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "8082"));
 //    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
-    app.run(args);
+    var context = app.run(args);
+    // para cerrar la app, comentar cuando se prueben cosas
+    context.close();
   }
 
   @GetMapping(value = "/solicitudesEliminacion", produces = "application/json")
@@ -117,6 +121,10 @@ public class controllerSolicitudes {
     }
   }
 }
+
+//@PostMapping(value = "/responderSolicitud/{solicitud}")
+
+
 
 /*class SolicitudEliminacionDTO {
   private String motivo;

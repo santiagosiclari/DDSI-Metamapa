@@ -1,14 +1,23 @@
 package controllers;
 import domain.business.criterio.*;
 import domain.business.incidencias.Hecho;
+import domain.business.tiposSolicitudes.SolicitudEliminacion;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import java.util.Map;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
@@ -20,7 +29,9 @@ public class controllerColecciones {
     SpringApplication app = new SpringApplication(controllers.controllerColecciones.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "8083"));
 //    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
-    app.run(args);
+    var context = app.run(args);
+    // para cerrar la app, comentar cuando se prueben cosas
+    context.close();
   }
 
   @GetMapping("/colecciones/{identificador}/hechos")
@@ -69,6 +80,43 @@ public class controllerColecciones {
   }
 
   //TODO: Crear una coleccion (post /colecciones)
+  @PostMapping(value = "/colecciones", consumes = "application/json", produces = "application/json")
+  @ResponseBody
+  public ResponseEntity crearColeccion(@RequestBody Map<String, Object> requestBody){
+    try{
+      //TODO hacer mapeos de datos
+      Coleccion coleccion = new Coleccion("prueba","dummy",null,null,null);
+      System.out.println("Coleccion creada: " + coleccion);
+      //coleccionRepository.save(coleccion) // Agregar coleccion al repo
+      return ResponseEntity.ok(coleccion);
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);  // Si hay un error, se responde con un error 500
+    }
+  }
 
   //TODO: Modificar algoritmo de consenso (patch /colecciones/{id})
+/*  @PatchMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
+  @ResponseBody
+  public ResponseEntity modificarAlgoritmo(@PathVariable("id") String id, @RequestBody Map<String, Object> requestBody){
+    try{
+      Optional<Coleccion> coleccionOpt = coleccionRepository.findById(id);
+      if (coleccionOpt.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      }
+      Coleccion coleccion = coleccionOpt.get();
+
+      if (!requestBody.containsKey("algoritmo")) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Si no hay estado, devolver 400 Bad Request
+      }
+      String nuevoAlgoritmo = (String) requestBody.get("algoritmo");
+
+      // Guardar los cambios en el repositorio
+      coleccionRepository.save(coleccion);
+      // Devolver la solicitud con el estado actualizado
+      return ResponseEntity.ok(coleccion);
+    }catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);  // Si hay un error, se responde con un error 500
+    }
+  }
+  */
 }

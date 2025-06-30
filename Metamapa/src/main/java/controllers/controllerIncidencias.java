@@ -1,6 +1,7 @@
 
 package controllers;
 import java.util.Collections;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,9 @@ public class controllerIncidencias {
     SpringApplication app = new SpringApplication(controllers.controllerIncidencias.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "8081"));
 //    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
-    app.run(args);
+    var context = app.run(args);
+    // para cerrar la app, comentar cuando se prueben cosas
+    context.close();
   }
 
   /*@GetMapping("/")
