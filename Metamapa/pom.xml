@@ -9,11 +9,18 @@
         <version>3.5.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>org.example</groupId>
+    <groupId>Metamapa</groupId>
     <artifactId>Metamapa</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
     <name>Metamapa</name>
     <description>Metamapa</description>
+    <modules>
+        <module>domain-model</module>
+        <module>fuentesDeDatos-service</module>
+        <module>agregador-service</module>
+        <module>metamapa-service</module>
+    </modules>
     <url/>
     <licenses>
         <license/>
