@@ -1,4 +1,6 @@
 package Metamapa.web;
+import domain.Persistencia.RepositorioColecciones;
+import domain.business.Consenso.Consenso;
 import domain.business.criterio.Coleccion;
 import domain.business.criterio.Criterio;
 import domain.business.criterio.CriterioCategoria;
@@ -7,16 +9,19 @@ import domain.business.criterio.CriterioFecha;
 import domain.business.criterio.CriterioTitulo;
 import domain.business.criterio.CriterioUbicacion;
 import domain.business.incidencias.Hecho;
+import domain.business.Consenso.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 
 public class controllerColecciones {
+  public RepositorioColecciones repositorioColecciones = new RepositorioColecciones();
   public static void main(String[] args) {
     //SpringApplication.run(testApplication.class, args);
     SpringApplication app = new SpringApplication(controllerColecciones.class);
@@ -40,6 +46,7 @@ public class controllerColecciones {
 
   @GetMapping("/colecciones/{identificador}/hechos")
   public ArrayList<Hecho> getHechosColeccion(@PathVariable String identificador,
+                                @RequestParam(value = "modoNavegacion", required = false,defaultValue = "IRRESTRICTA") String modoNavegacion,
                                 @RequestParam(value = "tituloP",required = false) String tituloP,
                                 @RequestParam(value = "descripcionP",required = false) String descripcionP,
                                 @RequestParam(value = "categoriaP", required = false) String categoriaP,
@@ -63,7 +70,10 @@ public class controllerColecciones {
   {
     ArrayList<Criterio> criteriosP = new ArrayList<Criterio>();
     ArrayList<Criterio> criteriosNP = new ArrayList<Criterio>();
+    if (ModosDeNavegacion.valueOf(modoNavegacion) == ModosDeNavegacion.IRRESTRICTA)
 
+
+    if (modoNavegacion != null)
     if(tituloP != null)criteriosP.add(new CriterioTitulo(tituloP));
     if(descripcionP != null)criteriosNP.add(new CriterioDescripcion(descripcionP));
     if(categoriaP != null)criteriosP.add(new CriterioCategoria(categoriaP));
@@ -79,11 +89,11 @@ public class controllerColecciones {
 
     //TODO query a las colecciones cuando haya persistencia
     Coleccion coleccion = new Coleccion("prueba","dummy",null,null,null); // = query_colecciones(identificador)
-    return coleccion.filtrarPorCriterios(criteriosP,criteriosNP);
+    return coleccion.filtrarPorCriterios(criteriosP,criteriosNP,ModosDeNavegacion.valueOf(modoNavegacion));
 
   }
 
-  //TODO: Crear una coleccion (post /colecciones)
+  // Crear una coleccion (post /colecciones)
   @PostMapping(value = "/colecciones", consumes = "application/json", produces = "application/json")
   @ResponseBody
   public ResponseEntity crearColeccion(@RequestBody Map<String, Object> requestBody){
@@ -91,36 +101,34 @@ public class controllerColecciones {
       //TODO hacer mapeos de datos
       Coleccion coleccion = new Coleccion("prueba","dummy",null,null,null);
       System.out.println("Coleccion creada: " + coleccion);
-      //coleccionRepository.save(coleccion) // Agregar coleccion al repo
+      repositorioColecciones.save(coleccion); // Agregar coleccion al repo
       return ResponseEntity.ok(coleccion);
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);  // Si hay un error, se responde con un error 500
     }
   }
 
-  //TODO: Modificar algoritmo de consenso (patch /colecciones/{id})
-/*  @PatchMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
+  // Modificar algoritmo de consenso (patch /colecciones/{id})
+  @PatchMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
   @ResponseBody
   public ResponseEntity modificarAlgoritmo(@PathVariable("id") String id, @RequestBody Map<String, Object> requestBody){
     try{
-      Optional<Coleccion> coleccionOpt = coleccionRepository.findById(id);
+      Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
       if (coleccionOpt.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
       }
       Coleccion coleccion = coleccionOpt.get();
-
-      if (!requestBody.containsKey("algoritmo")) {
+      if (!requestBody.containsKey("Consenso")) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // Si no hay estado, devolver 400 Bad Request
       }
-      String nuevoAlgoritmo = (String) requestBody.get("algoritmo");
-
+      Consenso nuevoConsenso = (Consenso) Consenso.stringToConsenso((String) requestBody.get("Consenso"));
+      coleccion.setConsenso(nuevoConsenso);
       // Guardar los cambios en el repositorio
-      coleccionRepository.save(coleccion);
+      repositorioColecciones.update(coleccion);
       // Devolver la solicitud con el estado actualizado
       return ResponseEntity.ok(coleccion);
     }catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);  // Si hay un error, se responde con un error 500
     }
   }
-  */
 }

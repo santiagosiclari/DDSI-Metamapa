@@ -272,27 +272,23 @@ class CriterioFechaReportaje implements Criterio{
 }
 
 
-abstract class Consenso
-{
+abstract class Consenso{
     {method}consensuado(Hecho,List<FuenteDeDatos>)
 }
 
-class multiplesMenciones implements Consenso
-{
+class MultiplesMenciones implements Consenso{
 
 }
 
-class mayoriaSimple implements Consenso
-{
+class MayoriaSimple implements Consenso{
 
 }
 
-class absoluto implements Consenso
-{
+class Absoluto implements Consenso{
 
 }
 
-enum metodosNavegacion
+enum ModosDeNavegacion
 {
     IRRESTRICTA
     CURADA

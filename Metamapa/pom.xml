@@ -20,6 +20,8 @@
         <module>fuentesDeDatos-service</module>
         <module>agregador-service</module>
         <module>metamapa-service</module>
+        <module>solicitudes-service</module>
+        <module>colecciones-service</module>
     </modules>
     <url/>
     <licenses>

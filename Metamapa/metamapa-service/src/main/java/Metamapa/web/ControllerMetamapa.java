@@ -3,6 +3,8 @@ package Metamapa.web;
 
 import Metamapa.service.ServiceFuenteDeDatos;
 import Metamapa.service.ServiceAgregador;
+import domain.business.incidencias.Hecho;
+import java.util.ArrayList;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,5 +36,11 @@ public class ControllerMetamapa {
   @GetMapping("/metamapa/asd")
   public String mostrarAgregador(Model model) {
     return "asd";
+  }
+  //API
+  @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos")
+  public ArrayList<Hecho> consultarHechos (@PathVariable ("idColeccion")Integer id) {
+
+    return serviceColecciones.;
   }
 }
