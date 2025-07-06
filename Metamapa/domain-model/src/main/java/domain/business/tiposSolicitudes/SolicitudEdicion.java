@@ -26,12 +26,21 @@ public class SolicitudEdicion extends Solicitud{
   private String sugerencia;
 
   // Constructor
-  public SolicitudEdicion(String tituloMod, String descMod, String categoriaMod, Ubicacion ubicacionMod, Date fechaHechoMod, List<Multimedia> multimediaMod, Boolean anonimidadMod, String sugerencia, Hecho hechoAfectado) {
+  public SolicitudEdicion(String tituloMod,
+                          String descMod,
+                          String categoriaMod,
+                          Ubicacion ubicacionMod,
+                          Date fechaHechoMod,
+                          List<Multimedia> multimediaMod,
+                          Boolean anonimidadMod,
+                          String sugerencia,
+                          String hechoAfectado) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE);
+    /* //TODO: SE VERIFICA EN EL CONTROLLER SOLICITUDESEDICION, AL CREARSE UNA
     if(hechoAfectado.getFechaCarga().plusDays(7).isBefore(LocalDate.now()))
     {
         throw new RuntimeException("Paso mas de una semana de la carga del Hecho");
-    }
+    }*/
     this.tituloMod = tituloMod;
     this.descMod = descMod;
     this.categoriaMod = categoriaMod;
@@ -49,7 +58,7 @@ public class SolicitudEdicion extends Solicitud{
   @Override
   public void aceptarSolicitud(){
     super.aceptarSolicitud();
-    hechoAfectado.editarHecho(this);
+    //hechoAfectado.editarHecho(this);
   }
   public void rechazarSolicitud(){
     super.rechazarSolicitud();

@@ -51,7 +51,6 @@ public class RepositorioAgregador {
     FuenteEstatica fuenteEstaticaID2 = new FuenteEstatica(path.toString(), parser);
     fuenteEstaticaID2.cargarCSV(path);
 
-
     agregador1.agregarFuenteDeDatos(fuenteDinamicaID1);
     agregador1.agregarFuenteDeDatos(fuenteEstaticaID2);
     agregarAgregador(agregador1);

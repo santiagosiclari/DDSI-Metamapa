@@ -6,7 +6,7 @@ public class SolicitudEliminacion extends Solicitud{
   @Getter
   public String motivo;
 
-  public SolicitudEliminacion(Hecho hechoAfectado, String motivo) {
+  public SolicitudEliminacion(String hechoAfectado, String motivo) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE); //por defecto se inicializan pendientes
 
     if (motivo == null || motivo.length() < 10) { //TODO: Cambio de 500 a 10
@@ -21,14 +21,14 @@ public class SolicitudEliminacion extends Solicitud{
     this.motivo = motivo;
   }
 
-  public Hecho getHecho(){
+  public String getHecho(){
     return hechoAfectado;
   }
 
   @Override
   public void aceptarSolicitud(){
     super.aceptarSolicitud();
-    hechoAfectado.setEliminado(true);
+   // hechoAfectado.setEliminado(true);
   }
   public void rechazarSolicitud(){
     super.rechazarSolicitud();

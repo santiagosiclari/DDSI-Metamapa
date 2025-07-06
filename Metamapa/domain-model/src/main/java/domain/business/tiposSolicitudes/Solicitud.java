@@ -7,12 +7,13 @@ public abstract class Solicitud {
   // Atributos
   @Setter @Getter
   @JsonIgnore
-  Hecho hechoAfectado;  // Hecho relacionado con la solicitud
+  //Hecho hechoAfectado;  // Hecho relacionado con la solicitud
+  String hechoAfectado;
   @Setter @Getter
   EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)
 
   // Constructor
-  public Solicitud(Hecho hechoAfectado, EstadoSolicitud estado) {
+  public Solicitud(String hechoAfectado, EstadoSolicitud estado) {
     this.hechoAfectado = hechoAfectado;
     this.estado = estado;
   }
@@ -20,7 +21,6 @@ public abstract class Solicitud {
   public void aceptarSolicitud(){
     this.estado = EstadoSolicitud.APROBADA;
   }
-  public  void rechazarSolicitud(){
-    this.estado = EstadoSolicitud.RECHAZADA;
+  public  void rechazarSolicitud(){this.estado = EstadoSolicitud.RECHAZADA;
   }
 }

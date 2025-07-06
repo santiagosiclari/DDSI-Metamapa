@@ -8,7 +8,6 @@ import domain.business.incidencias.TipoMultimedia;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-
 import lombok.Getter;
 import org.javatuples.Pair;
 

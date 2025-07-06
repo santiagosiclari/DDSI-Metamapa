@@ -22,6 +22,8 @@
         <module>metamapa-service</module>
         <module>solicitudes-service</module>
         <module>colecciones-service</module>
+        <module>incidencias-service</module>
+        <module>usuarios-service</module>
     </modules>
     <url/>
     <licenses>

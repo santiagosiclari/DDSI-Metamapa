@@ -5,6 +5,7 @@ import Metamapa.service.ServiceFuenteDeDatos;
 import Metamapa.service.ServiceAgregador;
 import domain.business.incidencias.Hecho;
 import java.util.ArrayList;
+import java.util.UUID;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,11 +29,18 @@ public class ControllerMetamapa {
     return "fuenteDeDatos";
   }
 
+
+  //TODO No necesitamos conectarnos con el agregador
   @GetMapping("/metamapa/agregador/{id}/hechos")
   public String mostrarAgregador(@PathVariable("id") Integer id, Model model) {
     model.addAttribute("agregador", serviceAgregador.getAgregador(id));
     return "agregador";
   }
+
+  @GetMapping ("/metamapa/colecciones/{handler}/hechos")
+  public String mostrarColeccion(@PathVariable("handler")UUID handler,)
+
+
   @GetMapping("/")
   public String redirectRoot() {
     return "redirect:/metamapa";

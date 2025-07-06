@@ -14,9 +14,22 @@ public class ControllerAgregador {
 
   public RepositorioAgregador repositorioAgregador = new RepositorioAgregador();
 
-  @GetMapping("/{idAgregador}/hechos")
+  @GetMapping("/hechos")
   public Agregador  getAgregador(
       @PathVariable(value = "idAgregador") Integer idAgregador) {
     return repositorioAgregador.buscarAgregador(idAgregador);
   }
 }
+
+/*
+
+@PatchMapping(value = "/solicitudesElimincacion/{id}", consumes = "application/json", produces = "application/json")
+  @ResponseBody
+  public ResponseEntity actualizarEstadoSolicitud(@PathVariable("id") String id, @RequestBody Map<String, Object> requestBody) {
+    try {
+      Optional<SolicitudEliminacion> solicitudOpt = solicitudRepository.findById(id);
+      if (solicitudOpt.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      }
+
+*/

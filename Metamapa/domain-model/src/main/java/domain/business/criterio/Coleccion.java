@@ -20,8 +20,8 @@ public class Coleccion {
     private ArrayList<Criterio> criterioPertenencia;
     @Getter
     private ArrayList<Criterio> criterioNoPertenencia;
-    @Getter
-    private Agregador agregador;
+    //@Getter
+    //private Agregador agregador;
     @Getter
     private String handle;
     @Getter @Setter
@@ -29,13 +29,13 @@ public class Coleccion {
    // @Getter @Setter
    // private ModosDeNavegacion modoNavegacion;
 
-    public Coleccion(String titulo, String desc,ArrayList<Criterio> pertenencia,ArrayList<Criterio> noPertenencia,Agregador agregador){
+    public Coleccion(String titulo, String desc,ArrayList<Criterio> pertenencia,ArrayList<Criterio> noPertenencia){
         //TODO: Agregar consenso? : al crear una colección, se podrá especificar opcionalmente un algoritmo de consenso
         this.titulo=titulo;
         this.descripcion = desc;
         this.criterioPertenencia = pertenencia;
         this.criterioNoPertenencia = noPertenencia;
-        this.agregador=agregador;
+        //this.agregador=agregador;
         this.handle = String.valueOf(UUID.randomUUID());
     }
 
@@ -69,7 +69,7 @@ public class Coleccion {
     }*/
 
     public ArrayList<Hecho> filtrarPorCriterios(ArrayList<Criterio> criterioPertenenciaAdicional, ArrayList<Criterio> criterioNoPertenenciaAdicional,ModosDeNavegacion modoDeNavegacion) {
-       ArrayList<Hecho> hechos = agregador.getListaDeHechos();
+       ArrayList<Hecho> hechos = Agregador.getListaDeHechos();
 
         ArrayList<Criterio> criteriosPertenenciaCombinados = new ArrayList<Criterio>(this.getCriterioPertenencia());
         if (!criterioPertenenciaAdicional.isEmpty())
