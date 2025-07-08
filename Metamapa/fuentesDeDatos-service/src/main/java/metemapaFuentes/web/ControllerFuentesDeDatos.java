@@ -5,6 +5,7 @@ import domain.business.FuentesDeDatos.FuenteDeDatos;
 import domain.business.FuentesDeDatos.FuenteDemo;
 import domain.business.FuentesDeDatos.FuenteEstatica;
 import domain.business.FuentesDeDatos.FuenteMetamapa;
+import domain.business.FuentesDeDatos.TipoFuente;
 import java.util.Map;
 import metemapaFuentes.persistencia.RepositorioFuentes;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,24 @@ public class ControllerFuentesDeDatos {
       @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return repositorioFuentes.buscarFuente(idfuenteDeDatos);
   }
+  @PostMapping (value = "/{idFuenteDeDatos}/cargarCSV", consumes = "application/json", produces = "application/json")
+  @ResponseBody
+  public ResponseEntity agregarHechosFuenteDeDatos(
+      @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+    try{
+      if (repositorioFuentes.buscarFuente(idfuenteDeDatos).tipoFuente.equals(TipoFuente.FUENTEESTATICA)){
 
-  @PostMapping(value = "/crear", consumes = "application/json", produces = "application/json")
+      }
+
+
+
+    }catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
+    }
+  }
+
+
+  @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
   @ResponseBody
   public ResponseEntity crearFuenteDeDatos(@RequestBody Map<String, Object> requestBody) {
     try {
