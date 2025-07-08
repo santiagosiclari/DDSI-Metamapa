@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 public class FuenteMetamapa extends FuenteProxy{
   final private RestTemplate restTemplate;
 //TODO agregar el id al hecho
-  public FuenteMetamapa(String nombre, URL endpointBase, HechoParser parser) {
-    super(endpointBase, parser);
+  public FuenteMetamapa(String nombre, String endpointBase) {
+    super(nombre,endpointBase);
     this.id = contadorID++;
     this.nombre = nombre;
     this.hechos = new ArrayList<>();

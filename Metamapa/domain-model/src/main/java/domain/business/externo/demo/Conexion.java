@@ -10,7 +10,7 @@ public abstract class Conexion {
      * atributo. Si el metodo retorna null, significa que no hay nuevos hechos
      * por ahora. La fecha es opcional
      */
-    public abstract Map<String, Object> siguienteHecho(URL url, LocalDateTime fechaUltimaConsulta);
+    public abstract Map<String, Object> siguienteHecho(String url, LocalDateTime fechaUltimaConsulta);
 /*            if (Math.random() > 0.5) { // Randomiza si devuelve hecho o no
         Map<String, Object> hecho = new HashMap<>();
         hecho.put("id", "demo1");

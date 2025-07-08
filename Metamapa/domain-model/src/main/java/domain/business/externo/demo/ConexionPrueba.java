@@ -10,7 +10,7 @@ public class ConexionPrueba extends Conexion {
     private int contador = 0;
 
     @Override
-    public Map<String, Object> siguienteHecho(URL url, LocalDateTime fechaUltimaConsulta) {
+    public Map<String, Object> siguienteHecho(String url, LocalDateTime fechaUltimaConsulta) {
         if (contador > 2) return null;
         contador++;
 

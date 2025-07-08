@@ -27,10 +27,10 @@ public class RepositorioFuentes {
   public RepositorioFuentes() {
 
     // Fuente Dinamica Con 1 Hecho
-    FuenteDinamica fuenteDinamicaID1 = new FuenteDinamica();
+    FuenteDinamica fuenteDinamica = new FuenteDinamica();
     Perfil admin01 = new Perfil("Juan", "Perez", 30);
     Usuario admin = new Usuario("admin1@frba.utn.edu.ar", "algo", admin01, List.of(Rol.ADMINISTRADOR, Rol.CONTRIBUYENTE, Rol.VISUALIZADOR));
-    fuenteDinamicaID1.agregarHecho(
+    fuenteDinamica.agregarHecho(
         "Hecho demo",
         "Esto es una descripcion demo",
         "Metamapa/demo",
@@ -41,13 +41,14 @@ public class RepositorioFuentes {
         false,
         new ArrayList<Multimedia>());
 
-    agregarFuente(fuenteDinamicaID1);
+    agregarFuente(fuenteDinamica);
 
     String path ="fuentesDeDatos-service/src/main/resources/desastres_naturales_argentina.csv";
     //String path = "Metamapa/agregador-service/src/main/resources/desastres_naturales_argentina.csv";
 
     CSVHechoParser parser = new CSVHechoParser();
-    FuenteEstatica fuenteEstaticaID2 = new FuenteEstatica(path, parser);
+    FuenteEstatica fuenteEstaticaID2 = new FuenteEstatica("desastres_naturales_argentina");
+    fuenteEstaticaID2.setParser(parser);
     fuenteEstaticaID2.cargarCSV(path);
     agregarFuente(fuenteEstaticaID2);
     }

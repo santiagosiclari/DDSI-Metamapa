@@ -7,6 +7,8 @@ import domain.business.Parsers.HechoParser;
 import domain.business.incidencias.Hecho;
 import java.util.ArrayList;
 import lombok.Getter;
+import lombok.Setter;
+
 @JsonTypeName("FUENTEESTATICA")
 
 public class FuenteEstatica extends FuenteDeDatos{
@@ -14,29 +16,29 @@ public class FuenteEstatica extends FuenteDeDatos{
   //@Getter
   //private String pathCSV;
 
-  @Getter
-  @JsonIgnore
+  @Getter @Setter
   private HechoParser parser;
   public FuenteEstatica() {} // va a haber que usar dtos para no modificar la capa de negocio
-  public FuenteEstatica( String nombre, HechoParser parser){
+  public FuenteEstatica( String nombre){
     this.nombre = nombre;
     this.id = contadorID++;
    // this.pathCSV = pathCSV;
-    this.parser = parser;
     this.hechos = new ArrayList<>();
     this.tipoFuente = tipoFuente.FUENTEESTATICA;
   }
-//TODO: ver bien estas cosas. me quede sin energias, revise hasta Usuarios,tiposSolicitudes(cambiar nombre a solicitudes),Criterios ,incidencias y vi algo de fuentes.
 
   public void agregarHecho(){throw new UnsupportedOperationException("Not supported yet.");};
+
+  //TODO Agregar un metodo que actualice un hecho. y luego implementar en el metodo cargarCSV asi si matchea el titulo actualice el hecho con los datos nuevos.
 
   public void cargarCSV(String pathCSV){
     ArrayList<Hecho> hechosParseados = parser.parsearHechos(pathCSV);
     for (Hecho h : hechosParseados) {
       h.setPerfil(null);
       h.setAnonimo(false);
-      h.setFuenteId(this.id );
+      h.setFuenteId(this.id);
+      //this.hechos.removeIf(j -> j.getTitulo().equals(h.getTitulo()));
+      this.hechos.add(h);
+      }
     }
-    this.hechos = hechosParseados;
-  }
 }

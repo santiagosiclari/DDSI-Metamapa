@@ -1,10 +1,9 @@
 package domain.business.FuentesDeDatos;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import domain.business.Parsers.HechoParser;
 import domain.business.Usuarios.Perfil;
 import domain.business.incidencias.Hecho;
 import domain.business.incidencias.Multimedia;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -19,16 +18,17 @@ public class FuenteDemo extends FuenteProxy{
   @Getter
   private LocalDateTime fechaUltimaConsulta;
   @Getter
+  @JsonIgnore
   private Conexion conexion;
-
-  public FuenteDemo(String nombreFuente, URL endpointBase, Conexion conexion, HechoParser parser) {
-    super(endpointBase, parser);
+  public FuenteDemo(){}
+  public FuenteDemo(String nombreFuente, String endpointBase) {
+    super(nombreFuente, endpointBase);
     this.nombre = nombreFuente;
     this.hechos = new ArrayList<>();
     this.fechaUltimaConsulta = LocalDateTime.now(ZoneId.of("UTC")).minusHours(1);
     this.conexion = new Conexion(){
       @Override
-      public Map<String, Object> siguienteHecho(URL url, LocalDateTime fechaUltimaConsulta) {
+      public Map<String, Object> siguienteHecho(String url, LocalDateTime fechaUltimaConsulta) {
         return null;
       }
      };

@@ -18,7 +18,7 @@ public class ServiceFuenteDeDatos {
   }
 
   public FuenteDeDatos getFuenteDeDatos(Integer idFuente) {
-    String url = String.format("%s/fuentesDeDatos/%d", baseUrl, idFuente);
+    String url = String.format("%s/api-fuentesDeDatos/%d", baseUrl, idFuente);
     return restTemplate.getForObject(url, FuenteDeDatos.class);
   }
 }
