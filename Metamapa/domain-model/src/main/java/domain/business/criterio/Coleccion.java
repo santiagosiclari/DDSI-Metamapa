@@ -1,9 +1,5 @@
 package domain.business.criterio;
-
-
-
 import lombok.Getter;
-
 import domain.business.Agregador.Agregador;
 import domain.business.incidencias.Hecho;
 import java.util.*;
@@ -14,13 +10,13 @@ import domain.business.Consenso.*;
 import lombok.Setter;
 
 public class Coleccion {
-    @Getter
+    @Getter @Setter
     private String titulo;
-    @Getter
+    @Getter @Setter
     private String descripcion;
-    @Getter
+    @Getter @Setter
     private ArrayList<Criterio> criterioPertenencia;
-    @Getter
+    @Getter @Setter
     private ArrayList<Criterio> criterioNoPertenencia;
     //@Getter
     //private Agregador agregador;
