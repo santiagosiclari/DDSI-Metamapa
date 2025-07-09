@@ -19,9 +19,12 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/api-agregador")
 public class ControllerAgregador {
 
-  RestTemplate restTemplate = new RestTemplate();
-  //TODO ponerle la url posta
-  private  ServiceFuenteDeDatos servicefuenteDeDatos = new ServiceFuenteDeDatos(restTemplate,"path");
+  private  ServiceFuenteDeDatos servicefuenteDeDatos;
+
+  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos){
+    this.servicefuenteDeDatos = servicefuenteDeDatos;
+  }
+
 
   public RepositorioAgregador repositorioAgregador = new RepositorioAgregador();
 

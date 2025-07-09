@@ -3,6 +3,8 @@ package metemapaIncidencias;
 import java.util.Collections;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class IncidenciasApplication {
@@ -13,5 +15,9 @@ public class IncidenciasApplication {
     var context = app.run(args);
     // para cerrar la app, comentar cuando se prueben cosas
     //context.close();
+  }
+  @Bean
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
   }
 }

@@ -3,12 +3,10 @@ import DTO.HechoDTO;
 import domain.business.Usuarios.Perfil;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import metemapaIncidencias.persistencia.RepositorioHechos;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +22,10 @@ import domain.business.incidencias.*;
 @SpringBootApplication
 @RestController
 public class ControllerIncidencias {
-  RepositorioHechos repositorio = new RepositorioHechos();
 
-  public static void main(String[] args) {
-    //SpringApplication.run(testApplication.class, args);
-    SpringApplication app = new SpringApplication(metemapaIncidencias.web.ControllerIncidencias.class);
-    app.setDefaultProperties(Collections.singletonMap("server.port", "8081"));
-//    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
-    var context = app.run(args);
-    // para cerrar la app, comentar cuando se prueben cosas
-    context.close();
-  }
+  private final RepositorioHechos repositorio = new RepositorioHechos();
+
+  public ControllerIncidencias(){}
 
   @GetMapping(value = "/hechos", produces = "application/json")
   public ResponseEntity<ArrayList<HechoDTO>> obtenerTodosLosHechos() {
@@ -72,19 +63,6 @@ public class ControllerIncidencias {
     return ResponseEntity.ok(hecho);
   }
 
-  @GetMapping (value = "/hechos/{idFuenteDeDatos}",produces = "application/json")
-  public ResponseEntity <ArrayList<HechoDTO>> obtenerHechosXIDFuente(@PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos){
-    try{
-      ArrayList<HechoDTO> hechos =  repositorio.getHechos().stream().filter(h-> h.getFuenteId() == idFuenteDeDatos).map(HechoDTO::new).collect(Collectors.toCollection(ArrayList::new));
-      if (hechos.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); // Si no hay hechos, devuelve un 204
-    }
-      return ResponseEntity.ok(hechos);
-    }catch (Exception e)
-    {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    }
-  }
 
 @PatchMapping(value = "/hechos/{idHecho}",consumes = "application/json")
   public ResponseEntity<HechoDTO> modificarHecho(@RequestBody Map<String, Object> requestBody,@PathVariable("idHecho") Integer idHecho)
@@ -126,5 +104,20 @@ public class ControllerIncidencias {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
+
+  @GetMapping (value = "/hechos/{idFuenteDeDatos}",produces = "application/json")
+  public ResponseEntity <ArrayList<HechoDTO>> obtenerHechosXIDFuente(@PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos){
+    try{
+      ArrayList<HechoDTO> hechos =  repositorio.getHechos().stream().filter(h-> h.getFuenteId() == idFuenteDeDatos).map(HechoDTO::new).collect(Collectors.toCollection(ArrayList::new));
+      if (hechos.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); // Si no hay hechos, devuelve un 204
+      }
+      return ResponseEntity.ok(hechos);
+    }catch (Exception e)
+    {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
+
   //@GetMapping(value = )
 }

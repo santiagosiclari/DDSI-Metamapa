@@ -12,20 +12,21 @@ import java.util.ArrayList;
 @SpringBootApplication
 public class AgregadorApplication {
 
-
-  static ControllerAgregador controler = new ControllerAgregador();
+  static ServiceFuenteDeDatos serviceFuenteDeDatos = new ServiceFuenteDeDatos(new RestTemplate(),"${fuentes.service.url}");
+  static ControllerAgregador controllerAgregador = new ControllerAgregador(serviceFuenteDeDatos);
 
   private static void scheduleActualizacion()
   {
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    scheduler.scheduleAtFixedRate(() -> controler.actualizarHechos(), 0, 2, TimeUnit.HOURS);
+    scheduler.scheduleAtFixedRate(() -> controllerAgregador.actualizarHechos(), 0, 2, TimeUnit.HOURS);
   }
-
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(AgregadorApplication.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "server.port"));
     var context = app.run(args);
+
+
 
     scheduleActualizacion();
     // para cerrar la app, comentar cuando se prueben cosas
