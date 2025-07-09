@@ -1,11 +1,12 @@
 package metemapaSolicitudes.web;
-
+import lombok.Getter;
 import metemapaSolicitudes.persistencia.RepositorioSolicitudEdicion;
 import metemapaSolicitudes.persistencia.RepositorioSolicitudEliminacion;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import domain.business.tiposSolicitudes.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,11 +23,12 @@ public class controllerSolicitudes {
   private final RepositorioSolicitudEliminacion solicitudEliminacionRepository = new RepositorioSolicitudEliminacion();
   private final RepositorioSolicitudEdicion solicitudEdicionRepository = new RepositorioSolicitudEdicion();
 
-
   @GetMapping(value = "/solicitudesEliminacion", produces = "application/json")
-  public ResponseEntity<List<SolicitudEliminacion>> obtenerTodasLasSolicitudesEliminacion() {
+  public ResponseEntity<List<SolicitudEliminacionDTO>> obtenerTodasLasSolicitudesEliminacion() {
     try {
-      List<SolicitudEliminacion> solicitudes = solicitudEliminacionRepository.findAll();
+      List<SolicitudEliminacionDTO> solicitudes = solicitudEliminacionRepository.findAll().stream()
+              .map(SolicitudEliminacionDTO::new)
+              .collect(Collectors.toList());
       if (solicitudes.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); // Si no hay solicitudes, devuelve un 204
       }
@@ -36,27 +38,38 @@ public class controllerSolicitudes {
     }
   }
 
+  @GetMapping("/solicitudesEliminacion/{id}")
+  public ResponseEntity<SolicitudEliminacionDTO> obtenerSolicitudEliminacionPorId(@PathVariable("id") int id) {
+    try {
+      Optional<SolicitudEliminacion> coleccionOpt = solicitudEliminacionRepository.findById(id);
+      return coleccionOpt.map(coleccion -> ResponseEntity.ok(new SolicitudEliminacionDTO(coleccion)))
+              .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    } catch (Exception e) {
+      System.err.println("Error al obtener colección: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
+
   @PostMapping(value = "/solicitudesEliminacion", consumes = "application/json", produces = "application/json")
-  @ResponseBody
-  public ResponseEntity subirSolicitudEliminacion(@RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<SolicitudEliminacionDTO> subirSolicitudEliminacion(@RequestBody Map<String, Object> requestBody) {
     try {
       String motivo = (String) requestBody.get("motivo");
-      String hecho = (String) requestBody.get("id");
+      String hecho = (String) requestBody.get("hechoAfectado");
       // Crear la solicitud de eliminación
       SolicitudEliminacion solicitud = new SolicitudEliminacion(hecho, motivo);
       System.out.println("Solicitud de eliminacion creada: " + solicitud);
       solicitudEliminacionRepository.save(solicitud);
-      return ResponseEntity.ok(solicitud);
+      return ResponseEntity.ok(new SolicitudEliminacionDTO(solicitud));
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-
   private void responderSolicitud(Solicitud solicitud, Map<String, Object> requestBody) {
     try {
       String nuevoEstado = (String) requestBody.get("estado");
-
       solicitud.setEstado(EstadoSolicitud.valueOf(nuevoEstado));
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -64,8 +77,7 @@ public class controllerSolicitudes {
   }
 
   @PatchMapping(value = "/solicitudesElimincacion/{id}", consumes = "application/json", produces = "application/json")
-  @ResponseBody
-  public ResponseEntity actualizarEstadoSolicitudEliminacion(@PathVariable("id") String id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<SolicitudEliminacionDTO> actualizarEstadoSolicitudEliminacion(@PathVariable("id") int id, @RequestBody Map<String, Object> requestBody) {
     try {
       Optional<SolicitudEliminacion> solicitudOpt = solicitudEliminacionRepository.findById(id);
       if (solicitudOpt.isEmpty()) {
@@ -74,40 +86,35 @@ public class controllerSolicitudes {
       SolicitudEliminacion solicitud = solicitudOpt.get();
       responderSolicitud(solicitud, requestBody);
       solicitudEliminacionRepository.save(solicitud);
-
       // TODO tirar al servicio de incidencias que se elimine
 
-      return ResponseEntity.ok(solicitud);
+      return ResponseEntity.ok(new SolicitudEliminacionDTO(solicitud));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
 
   @GetMapping(value = "/solicitudesEdicion", produces = "application/json")
-  @ResponseBody
   public ResponseEntity<List<SolicitudEdicion>> obtenerTodasLasSolicitudesEdicion() {
     try {
       List<SolicitudEdicion> solicitudes = solicitudEdicionRepository.findAll();
-
       if (solicitudes.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); // Si no hay solicitudes, devuelve un 204
       }
-
       return ResponseEntity.ok(solicitudes);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // En caso de error, devuelve un 500
     }
   }
 
-  @PostMapping(value = "/solicitudesEdicion", consumes = "application/json", produces = "application/json")
-  @ResponseBody
+  /*@PostMapping(value = "/solicitudesEdicion", consumes = "application/json", produces = "application/json")
   public ResponseEntity subirSolicitudEdicion(@RequestBody Map<String, Object> requestBody) {
     try {
       String motivo = (String) requestBody.get("motivo");
       String hecho = (String) requestBody.get("id");
       // Crear la solicitud de eliminación
       //TODO cambiar las solicitudes de edicion para que usen un JSON en ves de todos los atributos por separado
-      SolicitudEdicion solicitud = new SolicitudEdicion(hecho,(String)requestBody.get("hechoModficicado") ,motivo);
+      SolicitudEdicion solicitud = new SolicitudEdicion(hecho, (String) requestBody.get("hechoModficicado"), motivo);
       System.out.println("Solicitud de eliminacion creada: " + solicitud);
 
       solicitudEdicionRepository.save(solicitud);
@@ -115,17 +122,15 @@ public class controllerSolicitudes {
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
+  }*/
 
   @PatchMapping(value = "/solicitudesEdicion/{id}", consumes = "application/json", produces = "application/json")
-  @ResponseBody
-  public ResponseEntity actualizarEstadoSolicitudEdicion(@PathVariable("id") String id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity actualizarEstadoSolicitudEdicion(@PathVariable("id") int id, @RequestBody Map<String, Object> requestBody) {
     try {
       Optional<SolicitudEdicion> solicitudOpt = solicitudEdicionRepository.findById(id);
       if (solicitudOpt.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
       }
-
       SolicitudEdicion solicitud = solicitudOpt.get();
       responderSolicitud(solicitud, requestBody);
 
@@ -139,21 +144,21 @@ public class controllerSolicitudes {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
-}
 
+  //@PostMapping(value = "/responderSolicitud/{solicitud}")
 
+  @Getter
+  public static class SolicitudEliminacionDTO {
+    private final String motivo;
+    private final String estado;
+    private final String hechoAfectado;
+    private final int id;
 
-//@PostMapping(value = "/responderSolicitud/{solicitud}")
-
-
-
-/*class SolicitudEliminacionDTO {
-  private String motivo;
-  private String estado;
-  private Hecho hechoAfectado;
-  public SolicitudEliminacionDTO(SolicitudEliminacion solicitudEliminacion) {
-    this.motivo = solicitudEliminacion.getMotivo();
-    this.estado = solicitudEliminacion.getEstado().name();
-    this.hechoAfectado = solicitudEliminacion.getHecho();
+    public SolicitudEliminacionDTO(SolicitudEliminacion solicitudEliminacion) {
+      this.motivo = solicitudEliminacion.getMotivo();
+      this.estado = solicitudEliminacion.getEstado().name();
+      this.hechoAfectado = solicitudEliminacion.getHecho();
+      this.id = solicitudEliminacion.getId();
+    }
   }
-}*/
+}

@@ -25,7 +25,6 @@ public class SolicitudEdicion extends Solicitud{
   @Getter
   private String sugerencia;
 
-  // Constructor
   public SolicitudEdicion(String tituloMod,
                           String descMod,
                           String categoriaMod,

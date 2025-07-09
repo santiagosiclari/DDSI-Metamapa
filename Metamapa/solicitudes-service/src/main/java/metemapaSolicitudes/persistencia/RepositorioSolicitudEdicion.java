@@ -22,11 +22,8 @@ public class RepositorioSolicitudEdicion {
   }
 
   // Metodo para encontrar una solicitud por ID
-  public Optional<SolicitudEdicion> findById(String id) {
-    return Optional.ofNullable(solicitudes.getFirst()); // corregir
-    //.stream()
-    //.filter(s -> s.getId().equals(id))
-    //.findFirst();
+  public Optional<SolicitudEdicion> findById(int id) {
+    return Optional.ofNullable(solicitudes.get(id));
   }
   public ArrayList<SolicitudEdicion> getSolicitudesPendientes() {
     return solicitudes.stream().filter(solicitud -> solicitud.getEstado() == EstadoSolicitud.PENDIENTE).collect(Collectors.toCollection(ArrayList::new));

@@ -2,20 +2,22 @@ package domain.business.tiposSolicitudes;
 import domain.business.incidencias.Hecho;
 import lombok.Getter;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public abstract class Solicitud {
   // Atributos
   @Setter @Getter
-  @JsonIgnore
   //Hecho hechoAfectado;  // Hecho relacionado con la solicitud
   String hechoAfectado;
   @Setter @Getter
   EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)
+  @Getter
+  int id;
+  static public int contadorID = 1;
 
-  // Constructor
   public Solicitud(String hechoAfectado, EstadoSolicitud estado) {
     this.hechoAfectado = hechoAfectado;
     this.estado = estado;
+    this.id = contadorID++;
   }
 
   public void aceptarSolicitud(){

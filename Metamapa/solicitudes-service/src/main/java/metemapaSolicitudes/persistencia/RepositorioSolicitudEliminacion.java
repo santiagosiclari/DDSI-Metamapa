@@ -1,10 +1,11 @@
 package metemapaSolicitudes.persistencia;
 
+import domain.business.criterio.Coleccion;
 import domain.business.tiposSolicitudes.EstadoSolicitud;
 import domain.business.tiposSolicitudes.SolicitudEliminacion;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class RepositorioSolicitudEliminacion {
@@ -22,11 +23,8 @@ public class RepositorioSolicitudEliminacion {
   }
 
   // Metodo para encontrar una solicitud por ID
-  public Optional<SolicitudEliminacion> findById(String id) {
-    return Optional.ofNullable(solicitudes.getFirst()); // corregir
-    //.stream()
-    //.filter(s -> s.getId().equals(id))
-    //.findFirst();
+  public Optional<SolicitudEliminacion> findById(int id) {
+    return Optional.ofNullable((SolicitudEliminacion) solicitudes.get(id));
   }
   public ArrayList<SolicitudEliminacion> getSolicitudesPendientes() {
     return solicitudes.stream().filter(solicitud -> solicitud.getEstado() == EstadoSolicitud.PENDIENTE).collect(Collectors.toCollection(ArrayList::new));
