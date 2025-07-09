@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 public abstract class Solicitud {
-  // Atributos
   @Setter @Getter
   //Hecho hechoAfectado;  // Hecho relacionado con la solicitud
   String hechoAfectado;

@@ -1,9 +1,6 @@
 package metemapaSolicitudes.persistencia;
-
-import domain.business.criterio.Coleccion;
 import domain.business.tiposSolicitudes.EstadoSolicitud;
 import domain.business.tiposSolicitudes.SolicitudEliminacion;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;

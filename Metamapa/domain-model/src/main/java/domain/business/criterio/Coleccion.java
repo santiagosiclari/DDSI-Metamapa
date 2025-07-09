@@ -30,7 +30,6 @@ public class Coleccion {
     private final Agregador agregador = Agregador.getInstance();
 
     public Coleccion(String titulo, String desc,ArrayList<Criterio> pertenencia,ArrayList<Criterio> noPertenencia){
-        //TODO: Agregar consenso? : al crear una colección, se podrá especificar opcionalmente un algoritmo de consenso
         this.titulo=titulo;
         this.descripcion = desc;
         this.criterioPertenencia = pertenencia;

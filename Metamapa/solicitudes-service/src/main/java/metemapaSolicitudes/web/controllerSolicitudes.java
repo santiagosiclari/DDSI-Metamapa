@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import domain.business.tiposSolicitudes.*;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,7 +56,6 @@ public class controllerSolicitudes {
     try {
       String motivo = (String) requestBody.get("motivo");
       String hecho = (String) requestBody.get("hechoAfectado");
-      // Crear la solicitud de eliminación
       SolicitudEliminacion solicitud = new SolicitudEliminacion(hecho, motivo);
       System.out.println("Solicitud de eliminacion creada: " + solicitud);
       solicitudEliminacionRepository.save(solicitud);
@@ -133,9 +131,7 @@ public class controllerSolicitudes {
       }
       SolicitudEdicion solicitud = solicitudOpt.get();
       responderSolicitud(solicitud, requestBody);
-
       solicitudEdicionRepository.save(solicitud);
-
       //TODO decirle al servicion de incidentes que se edite
 
 
@@ -157,7 +153,7 @@ public class controllerSolicitudes {
     public SolicitudEliminacionDTO(SolicitudEliminacion solicitudEliminacion) {
       this.motivo = solicitudEliminacion.getMotivo();
       this.estado = solicitudEliminacion.getEstado().name();
-      this.hechoAfectado = solicitudEliminacion.getHecho();
+      this.hechoAfectado = solicitudEliminacion.getHechoAfectado();
       this.id = solicitudEliminacion.getId();
     }
   }

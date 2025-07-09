@@ -21,10 +21,6 @@ public class SolicitudEliminacion extends Solicitud{
     this.motivo = motivo;
   }
 
-  public String getHecho(){
-    return hechoAfectado;
-  }
-
   @Override
   public void aceptarSolicitud(){
     super.aceptarSolicitud();
