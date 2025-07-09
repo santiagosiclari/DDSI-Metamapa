@@ -1,11 +1,5 @@
 package metemapaFuentes.web;
-
-
-import domain.business.FuentesDeDatos.FuenteDeDatos;
-import domain.business.FuentesDeDatos.FuenteDemo;
-import domain.business.FuentesDeDatos.FuenteEstatica;
-import domain.business.FuentesDeDatos.FuenteMetamapa;
-import domain.business.FuentesDeDatos.TipoFuente;
+import domain.business.FuentesDeDatos.*;
 import java.util.Map;
 import metemapaFuentes.persistencia.RepositorioFuentes;
 import org.springframework.http.HttpStatus;
@@ -23,9 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
-
 public class ControllerFuentesDeDatos {
-
   public RepositorioFuentes repositorioFuentes = new RepositorioFuentes();
 
   @GetMapping("/{idFuenteDeDatos}")
@@ -33,19 +25,19 @@ public class ControllerFuentesDeDatos {
       @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return repositorioFuentes.buscarFuente(idfuenteDeDatos);
   }
+
   @PostMapping (value = "/{idFuenteDeDatos}/cargarCSV", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-  @ResponseBody
   public ResponseEntity cargarCSV(
-      @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos,
+      @PathVariable(value = "idFuenteDeDatos") Integer idFuenteDeDatos,
       @RequestParam("file") MultipartFile file) {
     try{
-      if (!repositorioFuentes.buscarFuente(idfuenteDeDatos).getTipoFuente().equals(TipoFuente.FUENTEESTATICA)) {
+      if (!repositorioFuentes.buscarFuente(idFuenteDeDatos).getTipoFuente().equals(TipoFuente.FUENTEESTATICA)) {
         return ResponseEntity
             .badRequest()
             .body("Sólo se puede cargar CSV en fuentes estáticas");
       }
       //TODO repositorioFuentes.getParserCSV().parsearHechos(file.getInputStream()).forEach(h -> repositorioHechos.agregar(h)); para tratar directamente con el repositorio de hechos en vez de con las fuentes
-      repositorioFuentes.buscarFuente(idfuenteDeDatos).agregarHecho(repositorioFuentes.getParserCSV().parsearHechos(file.getInputStream()));
+      repositorioFuentes.buscarFuente(idFuenteDeDatos).agregarHecho(repositorioFuentes.getParserCSV().parsearHechos(file.getInputStream()));
       return ResponseEntity.ok(repositorioFuentes.getParserCSV().parsearHechos(file.getInputStream()));
 
 
@@ -55,9 +47,7 @@ public class ControllerFuentesDeDatos {
     }
   }
 
-
   @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
-  @ResponseBody
   public ResponseEntity crearFuenteDeDatos(@RequestBody Map<String, Object> requestBody) {
     try {
       switch (requestBody.get("tipo").toString()) {
@@ -88,4 +78,7 @@ public class ControllerFuentesDeDatos {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
     }
   }
+
+  @GetMapping
+
 }

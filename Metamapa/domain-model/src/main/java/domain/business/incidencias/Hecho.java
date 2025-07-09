@@ -4,6 +4,7 @@ import domain.business.tiposSolicitudes.SolicitudEdicion;
 import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,7 @@ public class Hecho {
   @Getter @Setter
   private Perfil perfil;
   @Getter @Setter
-  private Integer fuenteId;
+  private int fuenteId;
   @Getter @Setter
   private Boolean anonimo;
   @Getter @Setter
@@ -36,12 +37,8 @@ public class Hecho {
   @Getter @Setter
   private HashMap<String,String> metadata;
   @Getter
-  private int id;
-
-  //para pruebas con el repositorio
-  static private int contadorID = 1;
-
-  public Hecho() { }
+  private Integer id;
+  static public Integer contadorID = 1;
 
   //TODO: Chequear si Categoria lo modelamos como string o un enum
   public Hecho(

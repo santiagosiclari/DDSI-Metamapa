@@ -38,7 +38,7 @@ public class controllerSolicitudes {
   }
 
   @GetMapping("/solicitudesEliminacion/{id}")
-  public ResponseEntity<SolicitudEliminacionDTO> obtenerSolicitudEliminacionPorId(@PathVariable("id") int id) {
+  public ResponseEntity<SolicitudEliminacionDTO> obtenerSolicitudEliminacionPorId(@PathVariable("id") UUID id) {
     try {
       Optional<SolicitudEliminacion> coleccionOpt = solicitudEliminacionRepository.findById(id);
       return coleccionOpt.map(coleccion -> ResponseEntity.ok(new SolicitudEliminacionDTO(coleccion)))
@@ -75,7 +75,7 @@ public class controllerSolicitudes {
   }
 
   @PatchMapping(value = "/solicitudesElimincacion/{id}", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<SolicitudEliminacionDTO> actualizarEstadoSolicitudEliminacion(@PathVariable("id") int id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<SolicitudEliminacionDTO> actualizarEstadoSolicitudEliminacion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
       Optional<SolicitudEliminacion> solicitudOpt = solicitudEliminacionRepository.findById(id);
       if (solicitudOpt.isEmpty()) {
@@ -123,7 +123,7 @@ public class controllerSolicitudes {
   }*/
 
   @PatchMapping(value = "/solicitudesEdicion/{id}", consumes = "application/json", produces = "application/json")
-  public ResponseEntity actualizarEstadoSolicitudEdicion(@PathVariable("id") int id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity actualizarEstadoSolicitudEdicion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
       Optional<SolicitudEdicion> solicitudOpt = solicitudEdicionRepository.findById(id);
       if (solicitudOpt.isEmpty()) {
@@ -141,14 +141,12 @@ public class controllerSolicitudes {
     }
   }
 
-  //@PostMapping(value = "/responderSolicitud/{solicitud}")
-
   @Getter
   public static class SolicitudEliminacionDTO {
     private final String motivo;
     private final String estado;
     private final String hechoAfectado;
-    private final int id;
+    private final UUID id;
 
     public SolicitudEliminacionDTO(SolicitudEliminacion solicitudEliminacion) {
       this.motivo = solicitudEliminacion.getMotivo();

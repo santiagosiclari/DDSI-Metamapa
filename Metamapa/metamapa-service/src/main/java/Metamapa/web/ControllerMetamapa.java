@@ -1,11 +1,11 @@
 package Metamapa.web;
-
-
 import Metamapa.service.ServiceFuenteDeDatos;
 import Metamapa.service.ServiceAgregador;
 import domain.business.incidencias.Hecho;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,20 +40,30 @@ public class ControllerMetamapa {
     return "agregador";
   }
 
-  @PostMapping("/metamapa/agregador/fuentesDeDatos/agregar/{idFuente}")
-  public void agregarFuente(@PathVariable("idFuente") Integer idFuente)
+  @PostMapping("/metamapa/agregador/fuentesDeDatos/agregar/{idFuenteDeDatos}")
+  public ResponseEntity<Void>
+  agregarFuente(
+      @PathVariable("idFuenteDeDatos") Integer idFuente) throws IOException
   {
     serviceAgregador.agregarFuente(idFuente);
+    return ResponseEntity.ok().build();
   }
-  @PostMapping("/metamapa/agregador/fuentesDeDatos/remover/{idFuente}")
-  public void removerFuente(@PathVariable("idFuente") Integer idFuente)
+  @PostMapping("/metamapa/agregador/fuentesDeDatos/remover/{idFuenteDeDatos}")
+  public ResponseEntity<Void>
+  removerFuente(
+      @PathVariable("idFuenteDeDatos") Integer idFuente) throws IOException
   {
     serviceAgregador.removerFuente(idFuente);
+    return ResponseEntity.ok().build();
   }
   @PostMapping("/metamapa/fuentesDeDatos/{idFuenteDeDatos}/cargarCSV")
-  public void cargarCSV(@PathVariable("idFuenteDeDatos") Integer idFuente,@RequestParam("file") MultipartFile file)
+  public ResponseEntity<Void>
+  cargarCSV(
+      @PathVariable("idFuenteDeDatos") Integer idFuente,
+      @RequestParam("file") MultipartFile file) throws IOException
   {
     serviceFuenteDeDatos.cargarCSV(idFuente,file);
+    return ResponseEntity.ok().build();
   }
 
   //@GetMapping ("/metamapa/colecciones/{id}/hechos")

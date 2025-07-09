@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import domain.business.tiposSolicitudes.SolicitudEliminacion;
+import java.util.UUID;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.stream.Collectors;

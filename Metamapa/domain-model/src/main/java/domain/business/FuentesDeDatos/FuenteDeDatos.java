@@ -8,6 +8,7 @@ import domain.business.incidencias.TipoMultimedia;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import java.util.UUID;
 import lombok.Getter;
 import org.javatuples.Pair;
 
@@ -29,10 +30,10 @@ public abstract class FuenteDeDatos {
 
 
   //para pruebas con el repositorio
+ @Getter
+  static public Integer contadorID = 1;
   @Getter
-  static public int contadorID = 1;
-  @Getter
-  public int id;
+  public Integer id;
   @Getter
   public String nombre;
   @Getter

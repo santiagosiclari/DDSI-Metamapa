@@ -7,6 +7,7 @@ import domain.business.Parsers.HechoParser;
 import domain.business.incidencias.Hecho;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +24,7 @@ public class FuenteEstatica extends FuenteDeDatos{
   public FuenteEstatica() {} // va a haber que usar dtos para no modificar la capa de negocio
   public FuenteEstatica( String nombre){
     this.nombre = nombre;
-    this.id = contadorID++;
+    this.id =contadorID++;
    // this.pathCSV = pathCSV;
     this.hechos = new ArrayList<>();
     this.tipoFuente = tipoFuente.FUENTEESTATICA;

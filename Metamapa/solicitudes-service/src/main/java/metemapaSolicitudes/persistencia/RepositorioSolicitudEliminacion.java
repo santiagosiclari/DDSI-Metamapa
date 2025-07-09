@@ -20,8 +20,11 @@ public class RepositorioSolicitudEliminacion {
   }
 
   // Metodo para encontrar una solicitud por ID
-  public Optional<SolicitudEliminacion> findById(int id) {
-    return Optional.ofNullable((SolicitudEliminacion) solicitudes.get(id));
+  public Optional<SolicitudEliminacion> findById(UUID id) {
+    // Buscar en la lista de solicitudes usando el UUID
+    return solicitudes.stream()
+        .filter(solicitud -> solicitud.getId().equals(id))  // Compara el ID de la solicitud
+        .findFirst();  // Devuelve el primer resultado, si lo encuentra
   }
   public ArrayList<SolicitudEliminacion> getSolicitudesPendientes() {
     return solicitudes.stream().filter(solicitud -> solicitud.getEstado() == EstadoSolicitud.PENDIENTE).collect(Collectors.toCollection(ArrayList::new));

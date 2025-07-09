@@ -60,14 +60,11 @@ class Multimedia{
     +path: String
 }
 
-
 enum TipoMultimedia {
   FOTO
   VIDEO
   AUDIO
 }
-
-
 
 '----------- Agregador -------------
 class Agregador{
@@ -75,8 +72,6 @@ class Agregador{
     +hechos: List<Hecho>
     {method}actualizarHechos()
 }
-
-
 
 '-----------------Fuentes de datos----------------
 abstract class FuenteDeDatos{
@@ -109,7 +104,6 @@ class CsvHechoParser implements HechoParser{
 }
 
 '-----------------Fuentes de datos Proxy----------------
-
 abstract FuenteProxy extends FuenteDeDatos{
     +endpointBase: String
     -parser: HechoParser
@@ -136,7 +130,6 @@ class JsonHechoParser implements HechoParser{
 }
 
 '-----------------Colecciones----------------
-
 class Coleccion{
     +titulo: String
     +descripcion: String
@@ -163,7 +156,6 @@ abstract Solicitud{
     {method}aceptarSolicitud()
     {method}rechazarSolicitud()
 }
-
 
 '-----------------Solicitud de eliminacion----------------
 class SolicitudEliminacion extends Solicitud{
@@ -203,7 +195,6 @@ class SolicitudEdicion extends Solicitud{
 'end note
 
 ' ----Usuario rol perfil ----
-
 class Usuario{
     email: String
     contraseniaHasheada: String
@@ -271,25 +262,20 @@ class CriterioFechaReportaje implements Criterio{
     {method}cumple(Hecho)
 }
 
-
 abstract class Consenso{
     {method}consensuado(Hecho,List<FuenteDeDatos>)
 }
 
 class MultiplesMenciones implements Consenso{
-
 }
 
 class MayoriaSimple implements Consenso{
-
 }
 
 class Absoluto implements Consenso{
-
 }
 
-enum ModosDeNavegacion
-{
+enum ModosDeNavegacion{
     IRRESTRICTA
     CURADA
 }

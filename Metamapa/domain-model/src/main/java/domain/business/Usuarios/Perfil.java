@@ -16,7 +16,7 @@ public class Perfil {
   private List<SolicitudEliminacion> solicitudesDeEliminacion;
   @Getter
   private List<SolicitudEdicion> solicitudesDeEdicion;
-  public Perfil(){}
+
   public Perfil(String nombre, String apellido, Integer edad) {
     this.nombre = nombre;
     this.apellido = apellido;

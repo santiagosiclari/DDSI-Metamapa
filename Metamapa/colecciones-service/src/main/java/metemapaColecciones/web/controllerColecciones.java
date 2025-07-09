@@ -127,7 +127,12 @@ public class controllerColecciones {
               latitudNP, longitudNP, tipoMultimediaNP);
       ArrayList<Criterio> criteriosNP = procesarCriterios(criteriosNoPertenenciaJson);
       // Filtrar hechos usando la colección
+
+
+
+
       ArrayList<Hecho> hechos = coleccion.filtrarPorCriterios(criteriosP, criteriosNP, modo);
+
       return ResponseEntity.ok(hechos);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());

@@ -5,6 +5,7 @@ import domain.business.incidencias.Hecho;
 import domain.business.incidencias.Multimedia;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.UUID;
 
 @JsonTypeName("FUENTEDINAMICA")
 public class FuenteDinamica extends FuenteDeDatos{
