@@ -1,9 +1,9 @@
 package metemapaAgregador.persistencia;
-
 import domain.business.Agregador.Agregador;
+import java.util.ArrayList;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.util.Map;
 public class RepositorioAgregador {
   @Getter @Setter
   public  Agregador agregador;
@@ -12,6 +12,18 @@ public class RepositorioAgregador {
     this.agregador = Agregador.getInstance();
   }
 
+  ArrayList<Integer> fuentes = new ArrayList<Integer>();
+  ArrayList<Map<String,Object>> hechos = new ArrayList<Map<String,Object>>();
+
+  public ArrayList<Integer> getFuentes()
+  {
+      return fuentes;
+  }
+
+  public void persistirHechos(Map<String,Object> hecho)
+  {
+      hechos.add(hecho);
+  }
     /*
 
 

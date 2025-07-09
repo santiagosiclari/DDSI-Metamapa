@@ -23,7 +23,7 @@ public class RepositorioSolicitudEdicion {
   }
 
   // Metodo para encontrar una solicitud por ID
-  public Optional<SolicitudEdicion> findById(UUID id) {
+  public Optional<SolicitudEdicion> findById(Integer id) {
     // Buscar en la lista de solicitudes usando el UUID
     return solicitudes.stream()
         .filter(solicitud -> solicitud.getId().equals(id))  // Compara el ID de la solicitud

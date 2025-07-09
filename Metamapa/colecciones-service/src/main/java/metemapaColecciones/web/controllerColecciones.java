@@ -1,6 +1,7 @@
 package metemapaColecciones.web;
 import domain.business.criterio.*;
 import domain.business.incidencias.TipoMultimedia;
+import DTO.ColeccionDTO;
 import metemapaColecciones.persistencia.RepositorioColecciones;
 import domain.business.Consenso.Consenso;
 import domain.business.incidencias.Hecho;
@@ -13,7 +14,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import lombok.Getter;
 
 @SpringBootApplication
 @RestController
@@ -129,7 +129,7 @@ public class controllerColecciones {
       // Filtrar hechos usando la colección
 
 
-
+    // aca llamamos al servicio de agregador
 
       ArrayList<Hecho> hechos = coleccion.filtrarPorCriterios(criteriosP, criteriosNP, modo);
 
@@ -432,58 +432,5 @@ public class controllerColecciones {
   }
   private Float parseFloat(Object obj) {
     return obj != null ? Float.parseFloat(obj.toString()) : null;
-  }
-
-  @Getter
-  public static class ColeccionDTO {
-    private final String titulo;
-    private final String descripcion;
-    private final UUID handle;
-    private final String consenso;
-    private final List<CriterioDTO> criteriosPertenencia;
-    private final List<CriterioDTO> criteriosNoPertenencia;
-    public ColeccionDTO(Coleccion coleccion) {
-      this.titulo = coleccion.getTitulo();
-      this.descripcion = coleccion.getDescripcion();
-      this.handle = coleccion.getHandle();
-      this.consenso = coleccion.getConsenso() != null ? coleccion.getConsenso().getClass().getSimpleName() : null;
-      this.criteriosPertenencia = Optional.ofNullable(coleccion.getCriterioPertenencia())
-              .orElse(new ArrayList<>()).stream()
-              .map(CriterioDTO::new)
-              .collect(Collectors.toList());
-      this.criteriosNoPertenencia = Optional.ofNullable(coleccion.getCriterioNoPertenencia())
-              .orElse(new ArrayList<>()).stream()
-              .map(CriterioDTO::new)
-              .collect(Collectors.toList());
-    }
-  }
-
-  @Getter
-  public static class CriterioDTO {
-    private final String tipo;
-    private final Map<String, Object> parametros;
-    public CriterioDTO(Criterio criterio) {
-      this.tipo = criterio.getClass().getSimpleName();
-      this.parametros = new HashMap<>();
-      // Extraer parámetros específicos según el tipo de criterio
-      if (criterio instanceof CriterioTitulo ct) {
-        parametros.put("titulo", ct.getTitulo());
-      } else if (criterio instanceof CriterioDescripcion cd) {
-        parametros.put("descripcion", cd.getDescripcion());
-      } else if (criterio instanceof CriterioCategoria cc) {
-        parametros.put("categoria", cc.getCategoria());
-      } else if (criterio instanceof CriterioFecha cf) {
-        parametros.put("fechaDesde", cf.getFechaDesde());
-        parametros.put("fechaHasta", cf.getFechaHasta());
-      } else if (criterio instanceof CriterioFechaReportaje cfr) {
-        parametros.put("fechaDesde", cfr.getDesde());
-        parametros.put("fechaHasta", cfr.getHasta());
-      } else if (criterio instanceof CriterioUbicacion cu) {
-        parametros.put("latitud", cu.getLatitud());
-        parametros.put("longitud", cu.getLongitud());
-      } else if (criterio instanceof CriterioMultimedia cm) {
-        parametros.put("tipoMultimedia", cm.getTipoMultimedia().name());
-      }
-    }
   }
 }

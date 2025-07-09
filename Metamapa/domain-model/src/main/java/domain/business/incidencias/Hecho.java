@@ -1,6 +1,7 @@
 package domain.business.incidencias;
 import domain.business.Usuarios.Perfil;
 import domain.business.tiposSolicitudes.SolicitudEdicion;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
@@ -76,21 +77,28 @@ public class Hecho {
     return getMetadata().get(key).equals(value);
   }
 
-  public void editarHecho(SolicitudEdicion solicitud) {
-    if (solicitud.getTituloMod() != null) {
-      this.titulo = solicitud.getTituloMod();
+  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, Boolean anonimidad, ArrayList<Multimedia> multimedia) {
+    if (titulo != null) {
+      this.titulo = titulo;
     }
-    if (solicitud.getDescMod() != null) {
-      this.descripcion = solicitud.getDescMod();
+    if (descripcion != null) {
+      this.descripcion = descripcion;
     }
-    if (solicitud.getCategoriaMod() != null) {
-      this.categoria = solicitud.getCategoriaMod();
+    if (categoria != null) {
+      this.categoria = categoria;
     }
-    if (solicitud.getUbicacionMod() != null) {
-      this.ubicacion = solicitud.getUbicacionMod();
+    if (latitud != null & longitud != null) {
+      Ubicacion ubicacionMod = new Ubicacion(latitud,longitud);
+      this.ubicacion = ubicacionMod;
     }
-    if (solicitud.getAnonimidadMod() != null) {
-      this.anonimo = solicitud.getAnonimidadMod();
+    if (fechaHecho != null) {
+      this.fechaHecho = fechaHecho;
+    }
+    if (anonimidad != null) {
+      this.anonimo = anonimidad;
+    }
+    if (multimedia != null) {
+      this.multimedia = multimedia;
     }
     this.fechaModificacion = LocalDate.now();
   }

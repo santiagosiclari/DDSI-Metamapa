@@ -1,4 +1,4 @@
-package Metamapa.service;
+package Metamapa.Service;
 import domain.business.FuentesDeDatos.FuenteDeDatos;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Value;

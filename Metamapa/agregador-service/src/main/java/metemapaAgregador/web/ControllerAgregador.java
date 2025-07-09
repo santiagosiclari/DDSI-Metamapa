@@ -3,6 +3,9 @@ package metemapaAgregador.web;
 
 import domain.business.incidencias.Hecho;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import metemapaAgregador.Service.ServiceFuenteDeDatos;
 import metemapaAgregador.persistencia.RepositorioAgregador;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,25 +13,38 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api-agregador")
-
 public class ControllerAgregador {
 
-  private final ServiceFuenteDeDatos servicefuenteDeDatos;
+  RestTemplate restTemplate = new RestTemplate();
+  //TODO ponerle la url posta
+  private  ServiceFuenteDeDatos servicefuenteDeDatos = new ServiceFuenteDeDatos(restTemplate,"path");
 
   public RepositorioAgregador repositorioAgregador = new RepositorioAgregador();
 
-  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos) {
-    this.servicefuenteDeDatos = servicefuenteDeDatos;
+
+  public void guardarHechos(int idFuente)
+  {
+    ArrayList<Map<String,Object>> hechos = servicefuenteDeDatos.getHechosDeFuente(idFuente);
+
+    hechos.forEach(h -> repositorioAgregador.persistirHechos(h));
   }
+
+  public void actualizarHechos()
+  {
+    ArrayList<Integer> fuentes = repositorioAgregador.getFuentes();
+
+    fuentes.forEach(f -> guardarHechos(f));
+  }
+
 
   @GetMapping("/hechos")
   public ArrayList<Hecho> getAgregadorHechos() {
     return repositorioAgregador.agregador.getListaDeHechos();
   }
-
 
   @PostMapping ("/fuentesDeDatos/agregar/{idFuente}")
   public void agregarFuente(@PathVariable int idFuente) {

@@ -10,13 +10,18 @@ public abstract class Solicitud {
   String hechoAfectado;
   @Setter @Getter
   EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)
+  /*@Getter
+  UUID id;*/
   @Getter
-  UUID id;
+  private Integer id;
+  static public Integer contadorID = 1;
+
 
   public Solicitud(String hechoAfectado, EstadoSolicitud estado) {
     this.hechoAfectado = hechoAfectado;
     this.estado = estado;
-    this.id = UUID.randomUUID();
+    this.id = contadorID++;
+    //this.id = UUID.randomUUID();
   }
 
   public void aceptarSolicitud(){

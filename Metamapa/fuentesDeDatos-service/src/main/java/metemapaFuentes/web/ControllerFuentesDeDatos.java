@@ -1,7 +1,11 @@
 package metemapaFuentes.web;
+import DTO.HechoDTO;
 import domain.business.FuentesDeDatos.*;
+import domain.business.incidencias.Hecho;
+import java.util.ArrayList;
 import java.util.Map;
 import metemapaFuentes.persistencia.RepositorioFuentes;
+import metemapaFuentes.service.ServiceIncidencias;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,19 +15,32 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
+
 public class ControllerFuentesDeDatos {
+
+  private final ServiceIncidencias serviceIncidencias;
   public RepositorioFuentes repositorioFuentes = new RepositorioFuentes();
+
+  public ControllerFuentesDeDatos(ServiceIncidencias serviceIncidencias){
+    this.serviceIncidencias= serviceIncidencias;
+  }
+
+
 
   @GetMapping("/{idFuenteDeDatos}")
   public FuenteDeDatos getFuenteDeDatos(
       @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return repositorioFuentes.buscarFuente(idfuenteDeDatos);
+  }
+  @GetMapping("/{idFuenteDeDatos}/hechos")
+  public ArrayList<HechoDTO> getHechosFuenteDeDatos(
+      @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+    return serviceIncidencias.obtenerHechosXIDFuente(idfuenteDeDatos);
   }
 
   @PostMapping (value = "/{idFuenteDeDatos}/cargarCSV", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
@@ -78,7 +95,5 @@ public class ControllerFuentesDeDatos {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
     }
   }
-
-  @GetMapping
 
 }

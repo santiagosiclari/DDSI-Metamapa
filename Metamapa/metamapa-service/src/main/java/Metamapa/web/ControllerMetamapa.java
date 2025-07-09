@@ -1,10 +1,10 @@
 package Metamapa.web;
-import Metamapa.service.ServiceFuenteDeDatos;
-import Metamapa.service.ServiceAgregador;
+import Metamapa.Service.ServiceFuenteDeDatos;
+import Metamapa.Service.ServiceAgregador;
+import Metamapa.Service.ServiceIncidencias;
 import domain.business.incidencias.Hecho;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,14 +16,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class ControllerMetamapa {
-
   private final ServiceFuenteDeDatos serviceFuenteDeDatos;
   private final ServiceAgregador serviceAgregador;
+  private final ServiceIncidencias serviceIncidencias;
 
   public ControllerMetamapa(ServiceFuenteDeDatos serviceFuenteDeDatos,
-                            ServiceAgregador serviceAgregador) {
+                            ServiceAgregador serviceAgregador,
+                            ServiceIncidencias  serviceIncidencias) {
     this.serviceFuenteDeDatos = serviceFuenteDeDatos;
     this.serviceAgregador = serviceAgregador;
+    this.serviceIncidencias = serviceIncidencias;
   }
 
   @GetMapping("/metamapa/fuentesDeDatos/{id}")
