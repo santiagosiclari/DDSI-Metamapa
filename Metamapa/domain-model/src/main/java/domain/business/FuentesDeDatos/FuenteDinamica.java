@@ -16,7 +16,9 @@ public class FuenteDinamica extends FuenteDeDatos{
     this.hechos =  new ArrayList<>();
     this.tipoFuente = tipoFuente.FUENTEDINAMICA;
   }
-
+  public void agregarHecho(Hecho hecho){
+    hechos.add(hecho);
+  }
   public void agregarHecho(String titulo, String desc, String categoria, Float latitud, Float longitud, LocalDate fechaHecho,
                            Perfil autor, Boolean anonimidad, ArrayList<Multimedia> multimedia) {
     this.hechos.add(new Hecho(titulo,desc,categoria,latitud,longitud,fechaHecho,autor,this.id ,anonimidad,multimedia));

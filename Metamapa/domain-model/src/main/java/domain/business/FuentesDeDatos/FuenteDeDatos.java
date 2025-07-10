@@ -47,6 +47,7 @@ public abstract class FuenteDeDatos {
 
   public void agregarHecho(ArrayList<Hecho> hechos) {
   }
+ public void agregarHecho(Hecho hecho) {}
 }
 
 

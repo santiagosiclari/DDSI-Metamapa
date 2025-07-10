@@ -1,9 +1,12 @@
 package Metamapa.Service;
 import domain.business.FuentesDeDatos.FuenteDeDatos;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
@@ -38,6 +41,51 @@ public class ServiceFuenteDeDatos {
     return restTemplate.getForObject(url, ArrayList.class);
   }
 
+  public Integer cargarHecho(Integer idFuenteDeDatos,
+                           String titulo,
+                           String descripcion,
+                           String categoria,
+                           Float latitud,
+                           Float longitud,
+                           LocalDate fechaHecho,
+                           String autor,
+                           Boolean anonimo,
+                           String multimedia) {
+    String url = String.format("%s/api-fuentesDeDatos/%d/cargarHecho", baseUrl, idFuenteDeDatos);
+    Map<String,Object> payload = new HashMap<>();
+    payload.put("titulo", titulo);
+    if (descripcion != null) payload.put("descripcion", descripcion);
+    if (categoria != null) payload.put("categoria", categoria);
+    if (latitud != null) payload.put("latitud", latitud);
+    if (longitud != null) payload.put("longitud", longitud);
+    if (fechaHecho != null) payload.put("fechaHecho", fechaHecho);
+    if (autor != null) payload.put("autor", autor);
+    payload.put("anonimo", anonimo != null ? anonimo : false);
+    // Parsear multimedia a lista
+    if (multimedia != null && !multimedia.isBlank()) {
+      ArrayList<String> mm = Arrays.stream(multimedia.split(","))
+          .map(String::trim)
+          .filter(s -> !s.isEmpty())
+          .collect(Collectors.toCollection(ArrayList::new));
+      payload.put("multimedia", mm);
+    }
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpEntity<Map<String,Object>> request = new HttpEntity<>(payload, headers);
+
+    //restTemplate.postForObject(url, request, Void.class);
+    @SuppressWarnings("unchecked")
+    Map<String,Object> response = restTemplate.postForObject(
+        url,
+        request,
+        Map.class
+    );
+    Integer idNum = (Integer) response.get("id");
+    return idNum;
+  }
+
+
+
   public void cargarCSV(Integer idFuenteDeDatos,MultipartFile file)throws IOException {
     String url = String.format("%s/api-fuentesDeDatos/%d/cargarCSV", baseUrl, idFuenteDeDatos);
 
@@ -59,6 +107,10 @@ public class ServiceFuenteDeDatos {
     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
     restTemplate.postForObject(url, requestEntity, Void.class);
   }
+
+
+
+
   public ResponseEntity<String> crearFuente(String jsonPayload) {
     String url = baseUrl + "/api-fuentesDeDatos/";
     HttpHeaders headers = new HttpHeaders();

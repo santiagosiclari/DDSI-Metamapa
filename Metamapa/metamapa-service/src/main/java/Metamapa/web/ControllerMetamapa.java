@@ -7,12 +7,15 @@ import domain.business.FuentesDeDatos.FuenteEstatica;
 import domain.business.FuentesDeDatos.FuenteMetamapa;
 import domain.business.incidencias.Hecho;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +36,12 @@ public class ControllerMetamapa {
     this.serviceFuenteDeDatos = serviceFuenteDeDatos;
     this.serviceAgregador = serviceAgregador;
     this.serviceIncidencias = serviceIncidencias;
+  }
+
+  @ExceptionHandler(Exception.class)
+  public String handleAllExceptions(Exception ex, Model model) {
+    model.addAttribute("errorMessage", ex.getMessage());
+    return "error";  // Thymeleaf buscará templates/error.html
   }
 
   @GetMapping("/metamapa/fuentesDeDatos/{id}")
@@ -106,23 +115,46 @@ public String crearFuenteDeDatos(
   @PostMapping("/metamapa/fuentesDeDatos/{idFuenteDeDatos}/cargarCSV")
   public String
   cargarCSV(
-      @PathVariable("idFuenteDeDatos") Integer idFuente,
+      @PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos,
       @RequestParam("file") MultipartFile file, RedirectAttributes ra) throws IOException
   {
-    serviceFuenteDeDatos.cargarCSV(idFuente,file);
+    serviceFuenteDeDatos.cargarCSV(idFuenteDeDatos,file);
     ra.addFlashAttribute("success", "CSV cargado correctamente");
-    return "redirect:/metamapa/fuentesDeDatos/" + idFuente;
+    return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
   }
   @PostMapping("/metamapa/fuentesDeDatos/{idFuenteDeDatos}/cargarHecho")
-  public String
-  cargarHecho(
-      @PathVariable("idFuenteDeDatos") Integer idFuente,
-      @RequestParam("file") MultipartFile file, RedirectAttributes ra) throws IOException
-  {
-    serviceFuenteDeDatos.cargarCSV(idFuente,file);
-    ra.addFlashAttribute("success", "CSV cargado correctamente");
-    return "redirect:/metamapa/fuentesDeDatos/" + idFuente;
+  public String cargarHecho(
+      @PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos,
+      @RequestParam String titulo,
+      @RequestParam(required = false) String descripcion,
+      @RequestParam(required = false) String categoria,
+      @RequestParam(required = false) Float latitud,
+      @RequestParam(required = false) Float longitud,
+      @RequestParam(required = false)
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      LocalDate fechaHecho,
+      @RequestParam(required = false) String autor,
+      @RequestParam(name = "anonimo", defaultValue = "false") Boolean anonimo,
+      @RequestParam(required = false) String multimedia,
+      RedirectAttributes ra
+  ) {
+    serviceFuenteDeDatos.cargarHecho(
+        idFuenteDeDatos,
+        titulo,
+        descripcion,
+        categoria,
+        latitud,
+        longitud,
+        fechaHecho,
+        autor,
+        anonimo,
+        multimedia
+    );
+
+    ra.addFlashAttribute("success", "Hecho cargado correctamente");
+    return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
   }
+
 
   //@GetMapping ("/metamapa/colecciones/{id}/hechos")
   //public String mostrarColeccion(@PathVariable("handler")UUID handler,)

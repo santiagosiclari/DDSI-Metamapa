@@ -5,10 +5,42 @@ import domain.business.incidencias.Hecho;
 import domain.business.incidencias.Multimedia;
 import domain.business.incidencias.Ubicacion;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
+
+public class HechoDTO {
+  @Getter @Setter
+  private String titulo;
+  @Getter @Setter
+  private String descripcion;
+  @Getter @Setter
+  private String categoria;
+  @Getter @Setter
+  private Float latitud;
+  @Getter @Setter
+  private Float longitud;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+  @Getter @Setter
+  private LocalDate fechaHecho;
+  @Getter @Setter
+  private String autor;
+  @Getter @Setter
+  private Boolean anonimo;
+  @Getter @Setter
+  private ArrayList<String> multimedia;
+
+  // getters y setters
+}
+
+
+
+/*
 @Getter
 public class HechoDTO {
   private String titulo;
@@ -42,3 +74,4 @@ public class HechoDTO {
     this.id = hecho.getId();
   }
 }
+*/

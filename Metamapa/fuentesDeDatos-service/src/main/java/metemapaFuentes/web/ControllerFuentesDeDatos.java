@@ -1,8 +1,15 @@
 package metemapaFuentes.web;
+import DTO.HechoDTO;
 import domain.business.FuentesDeDatos.*;
+import domain.business.Usuarios.Perfil;
 import domain.business.incidencias.Hecho;
+import domain.business.incidencias.Multimedia;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import metemapaFuentes.persistencia.RepositorioFuentes;
 import metemapaFuentes.service.ServiceIncidencias;
 import org.springframework.http.HttpStatus;
@@ -44,6 +51,53 @@ public class ControllerFuentesDeDatos {
       @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return serviceIncidencias.obtenerHechosXIDFuente(idfuenteDeDatos);
   }
+
+  @PostMapping (value = "/{idFuenteDeDatos}/cargarHecho", consumes = "application/json", produces = "application/json")
+  public ResponseEntity cargarHecho(@PathVariable(value = "idFuenteDeDatos") Integer idFuenteDeDatos, Map<String, Object> requestBody) {
+    try{
+      if (!repositorioFuentes.buscarFuente(idFuenteDeDatos).getTipoFuente().equals(TipoFuente.FUENTEDINAMICA)) {
+        return ResponseEntity
+            .badRequest()
+            .body(Map.of("error", "Sólo se puede cargar un hecho manual en fuentes dinámicas"));
+      }
+
+      String titulo = (String) requestBody.get("titulo");
+      String descripcion = (String) requestBody.get("descripcion");
+      String categoria = (String) requestBody.get("categoria");
+      Float latitud = (Float) requestBody.get("latitud");
+      Float longitud = (Float) requestBody.get("longitud");
+      LocalDate fechaHecho = (LocalDate) requestBody.get("fechaHecho");
+      Perfil autor = null;
+      //Perfil autor = (Perfil) requestBody.get("autor");
+      Boolean anonimo = (Boolean) requestBody.get("anonimo");
+      ArrayList<Multimedia> multimedia = null;
+      //ArrayList<Multimedia> multimedia = (ArrayList<Multimedia>) requestBody.get("multimedia");
+
+      Hecho hecho = new Hecho(
+          titulo,
+          descripcion,
+          categoria,
+          latitud,
+          longitud,
+          fechaHecho,
+          autor,
+          idFuenteDeDatos,
+          anonimo,
+          multimedia);
+
+      repositorioFuentes.buscarFuente(idFuenteDeDatos).getHechos().add(hecho);
+      return ResponseEntity.ok(Map.of(
+          "id", hecho.getId(),
+          "message", "Hecho cargado correctamente con id" + hecho.getId()
+      ));
+
+    } catch (Exception e) {
+      return ResponseEntity
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("error", "Error interno: " + e.getMessage()));
+    }
+  }
+
 
   @PostMapping (value = "/{idFuenteDeDatos}/cargarCSV", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
   public ResponseEntity cargarCSV(
