@@ -15,7 +15,7 @@ public interface Consenso {
           case "Absoluto": return new Absoluto();
           case "MultiplesMenciones": return new MultiplesMenciones();
           case "MayoriaSimple": return new MayoriaSimple();
-          default: throw new RuntimeException("Tipo de consenso no valido");
+          default: throw new IllegalArgumentException("Tipo de consenso no valido");
         }
   }
 }

@@ -1,4 +1,5 @@
 package metemapaColecciones.web;
+import DTO.HechoDTO;
 import domain.business.criterio.*;
 import domain.business.incidencias.TipoMultimedia;
 import DTO.ColeccionDTO;
@@ -76,7 +77,7 @@ public class controllerColecciones {
 
   }*/
   @GetMapping("/colecciones/{identificador}/hechos")
-  public ResponseEntity<ArrayList<Hecho>> getHechosColeccion(
+  public ResponseEntity<ArrayList<HechoDTO>> getHechosColeccion(
           @PathVariable("identificador") UUID identificador,
           @RequestParam(value = "modoNavegacion", required = false, defaultValue = "IRRESTRICTA") String modoNavegacion,
           @RequestParam(value = "tituloP", required = false) String tituloP,
@@ -118,20 +119,20 @@ public class controllerColecciones {
               fecha_reporte_desdeP, fecha_reporte_hastaP,
               fecha_acontecimiento_desdeP, fecha_acontecimiento_hastaP,
               latitudP, longitudP, tipoMultimediaP);
-      ArrayList<Criterio> criteriosP = procesarCriterios(criteriosPertenenciaJson);
+      ArrayList<Criterio> criteriosP = (ArrayList<Criterio>) procesarCriterios(criteriosPertenenciaJson);
       // Construir criterios adicionales de NO pertenencia
       List<Map<String, Object>> criteriosNoPertenenciaJson = construirCriteriosJson(
               tituloNP, descripcionNP, categoriaNP,
               fecha_reporte_desdeNP, fecha_reporte_hastaNP,
               fecha_acontecimiento_desdeNP, fecha_acontecimiento_hastaNP,
               latitudNP, longitudNP, tipoMultimediaNP);
-      ArrayList<Criterio> criteriosNP = procesarCriterios(criteriosNoPertenenciaJson);
+      ArrayList<Criterio> criteriosNP = (ArrayList<Criterio>) procesarCriterios(criteriosNoPertenenciaJson);
       // Filtrar hechos usando la colección
 
 
     // aca llamamos al servicio de agregador
 
-      ArrayList<Hecho> hechos = coleccion.filtrarPorCriterios(criteriosP, criteriosNP, modo);
+      ArrayList<HechoDTO> hechos = coleccion.filtrarPorCriterios(criteriosP, criteriosNP, modo);
 
       return ResponseEntity.ok(hechos);
     } catch (IllegalArgumentException e) {
@@ -173,45 +174,31 @@ public class controllerColecciones {
 
   // Crear una coleccion (post /colecciones)
   @PostMapping(value = "/colecciones", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<ColeccionDTO> crearColeccion(@RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<?> crearColeccion(@RequestBody Map<String, Object> requestBody) {
     try {
       String titulo = (String) requestBody.get("titulo");
+      if (titulo == null || titulo.isBlank()) {
+        return ResponseEntity.badRequest().body(Map.of("error", "El campo 'titulo' es obligatorio"));
+      }
       String descripcion = (String) requestBody.get("descripcion");
-      if (titulo == null || titulo.trim().isEmpty()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-      }
-      // Procesar criterios de pertenencia
-      ArrayList<Criterio> criteriosPertenencia = new ArrayList<>();
-      if (requestBody.containsKey("criteriosPertenencia")) {
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> criteriosP = (List<Map<String, Object>>) requestBody.get("criteriosPertenencia");
-        criteriosPertenencia = procesarCriterios(criteriosP);
-      }
-      // Procesar criterios de no pertenencia
-      ArrayList<Criterio> criteriosNoPertenencia = new ArrayList<>();
-      if (requestBody.containsKey("criteriosNoPertenencia")) {
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> criteriosNP = (List<Map<String, Object>>) requestBody.get("criteriosNoPertenencia");
-        criteriosNoPertenencia = procesarCriterios(criteriosNP);
-      }
-      Coleccion coleccion = new Coleccion(titulo, descripcion, criteriosPertenencia, criteriosNoPertenencia);
-      if (requestBody.containsKey("consenso")) {
-        String consensoStr = (String) requestBody.get("consenso");
-        Consenso consenso = Consenso.stringToConsenso(consensoStr);
-        coleccion.setConsenso(consenso);
-      }
-      System.out.println("Colección creada: " + coleccion);
+      List<Criterio> criteriosPertenencia = parseCriterios(requestBody.get("criteriosPertenencia"));
+      List<Criterio> criteriosNoPertenencia = parseCriterios(requestBody.get("criteriosNoPertenencia"));
+      Coleccion coleccion = new Coleccion(titulo, descripcion, (ArrayList<Criterio>) criteriosPertenencia, (ArrayList<Criterio>) criteriosNoPertenencia);
+      Optional.ofNullable(requestBody.get("consenso"))
+              .filter(String.class::isInstance)
+              .map(String.class::cast)
+              .map(Consenso::stringToConsenso)
+              .ifPresent(coleccion::setConsenso);
       repositorioColecciones.save(coleccion);
       return ResponseEntity.status(HttpStatus.CREATED).body(new ColeccionDTO(coleccion));
     } catch (Exception e) {
-      System.err.println("Error al crear colección: " + e.getMessage());
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body(Map.of("error", "Error interno al crear la colección"));
     }
   }
 
-  // Actualizar una colección completa (put /colecciones/{id})
   @PutMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<ColeccionDTO> actualizarColeccion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<?> actualizarColeccion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
       Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
       if (coleccionOpt.isEmpty()) {
@@ -231,32 +218,24 @@ public class controllerColecciones {
       }
       if (requestBody.containsKey("criteriosPertenencia")) {
         List<Map<String, Object>> criteriosData = (List<Map<String, Object>>) requestBody.get("criteriosPertenencia");
-        ArrayList<Criterio> nuevosCriterios = new ArrayList<>();
-
-        for (Map<String, Object> criterioData : criteriosData) {
-          Criterio criterio = crearCriterioDesdeMap(criterioData);
-          if (criterio != null) {
-            nuevosCriterios.add(criterio);
-          }
-        }
-        coleccion.setCriterioPertenencia(nuevosCriterios);
+        List<Criterio> nuevosCriterios = criteriosData.stream()
+                .map(this::crearCriterioDesdeJson)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        coleccion.setCriterioPertenencia((ArrayList<Criterio>) nuevosCriterios);
       }
       if (requestBody.containsKey("criteriosNoPertenencia")) {
         List<Map<String, Object>> criteriosData = (List<Map<String, Object>>) requestBody.get("criteriosNoPertenencia");
-        ArrayList<Criterio> nuevosCriterios = new ArrayList<>();
-
-        for (Map<String, Object> criterioData : criteriosData) {
-          Criterio criterio = crearCriterioDesdeMap(criterioData);
-          if (criterio != null) {
-            nuevosCriterios.add(criterio);
-          }
-        }
-        coleccion.setCriterioNoPertenencia(nuevosCriterios);
+        List<Criterio> nuevosCriterios = criteriosData.stream()
+                .map(this::crearCriterioDesdeJson)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        coleccion.setCriterioNoPertenencia((ArrayList<Criterio>) nuevosCriterios);
       }
       repositorioColecciones.update(coleccion);
       return ResponseEntity.ok(new ColeccionDTO(coleccion));
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
       System.err.println("Error al actualizar colección: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -265,7 +244,7 @@ public class controllerColecciones {
 
   // Modificar algoritmo de consenso (patch /colecciones/{id})
   @PatchMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<ColeccionDTO> modificarAlgoritmo(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<?> modificarAlgoritmo(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
       Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
       if (coleccionOpt.isEmpty()) {
@@ -280,7 +259,7 @@ public class controllerColecciones {
       repositorioColecciones.update(coleccion);
       return ResponseEntity.ok(new ColeccionDTO(coleccion));
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
@@ -355,77 +334,61 @@ public class controllerColecciones {
       ));
     }
   }
-
-  // Metodo auxiliar para crear criterios desde Map
-  private Criterio crearCriterioDesdeMap(Map<String, Object> criterioData) {
+  @SuppressWarnings("unchecked")
+  private List<Criterio> parseCriterios(Object criteriosRaw) {
+    if (criteriosRaw instanceof List<?> lista) {
+      return procesarCriterios((List<Map<String, Object>>) lista);
+    }
+    return List.of();
+  }
+  private List<Criterio> procesarCriterios(List<Map<String, Object>> criteriosJson) {
+    return criteriosJson.stream()
+            .map(this::crearCriterioDesdeJson)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+  }
+  private Criterio crearCriterioDesdeJson(Map<String, Object> criterioJson) {
+    String tipo = ((String) criterioJson.get("tipo")).toLowerCase();
     try {
-      String tipo = (String) criterioData.get("tipo");
-      Map<String, Object> parametros = (Map<String, Object>) criterioData.get("parametros");
-      return switch (tipo) {
-        case "CriterioCategoria" -> new CriterioCategoria((String) parametros.get("categoria"));
-        case "CriterioTitulo" -> new CriterioTitulo((String) parametros.get("titulo"));
-        case "CriterioDescripcion" -> new CriterioDescripcion((String) parametros.get("descripcion"));
-        case "CriterioFecha" -> new CriterioFecha(
-                LocalDate.parse((String) parametros.get("fechaDesde")),
-                LocalDate.parse((String) parametros.get("fechaHasta"))
-        );
-        case "CriterioFechaReportaje" -> new CriterioFechaReportaje(
-                LocalDate.parse((String) parametros.get("fechaDesde")),
-                LocalDate.parse((String) parametros.get("fechaHasta"))
-        );
-        case "CriterioUbicacion" -> new CriterioUbicacion(((Number) parametros.get("latitud")).floatValue(), ((Number) parametros.get("longitud")).floatValue());
-        case "CriterioMultimedia" -> new CriterioMultimedia(TipoMultimedia.valueOf(((String) parametros.get("tipoMultimedia")).toUpperCase()));
-        default -> {
+      switch (tipo) {
+        case "titulo":
+          return new CriterioTitulo((String) criterioJson.get("valor"));
+        case "descripcion":
+          return new CriterioDescripcion((String) criterioJson.get("valor"));
+        case "categoria":
+          return new CriterioCategoria((String) criterioJson.get("valor"));
+        case "fecha":
+          LocalDate desde = parseFecha((String) criterioJson.get("fechaDesde"));
+          LocalDate hasta = parseFecha((String) criterioJson.get("fechaHasta"));
+          return new CriterioFecha(desde, hasta);
+        case "fechareportaje":
+          LocalDate desdeRpt = parseFecha((String) criterioJson.get("fechaDesde"));
+          LocalDate hastaRpt = parseFecha((String) criterioJson.get("fechaHasta"));
+          return new CriterioFechaReportaje(desdeRpt, hastaRpt);
+        case "ubicacion":
+          Float lat = parseFloat(criterioJson.get("latitud"));
+          Float lon = parseFloat(criterioJson.get("longitud"));
+          if (lat != null && lon != null) {
+            return new CriterioUbicacion(lat, lon);
+          } else {
+            return null;
+          }
+        case "multimedia":
+          String tipoMultimediaStr = (String) criterioJson.get("tipoMultimedia");
+          if (tipoMultimediaStr != null) {
+            TipoMultimedia tipoMultimedia = TipoMultimedia.valueOf(tipoMultimediaStr.toUpperCase());
+            return new CriterioMultimedia(tipoMultimedia);
+          } else {
+            return null;
+          }
+        default:
           System.err.println("Tipo de criterio no reconocido: " + tipo);
-          yield null;
-        }
-      };
+          return null;
+      }
     } catch (Exception e) {
-      System.err.println("Error al crear criterio: " + e.getMessage());
+      System.err.println("Error procesando criterio: " + e.getMessage());
       return null;
     }
-  }
-
-  // Metodo auxiliar para procesar criterios
-  private ArrayList<Criterio> procesarCriterios(List<Map<String, Object>> criteriosJson) {
-    ArrayList<Criterio> criterios = new ArrayList<>();
-    for (Map<String, Object> criterioJson : criteriosJson) {
-      String tipo = ((String) criterioJson.get("tipo")).toLowerCase();
-      try {
-        switch (tipo) {
-          case "titulo" -> criterios.add(new CriterioTitulo((String) criterioJson.get("valor")));
-          case "descripcion" -> criterios.add(new CriterioDescripcion((String) criterioJson.get("valor")));
-          case "categoria" -> criterios.add(new CriterioCategoria((String) criterioJson.get("valor")));
-          case "fecha" -> {
-            LocalDate desde = parseFecha((String) criterioJson.get("fechaDesde"));
-            LocalDate hasta = parseFecha((String) criterioJson.get("fechaHasta"));
-            criterios.add(new CriterioFecha(desde, hasta));
-          }
-          case "fechareportaje" -> {
-            LocalDate desde = parseFecha((String) criterioJson.get("fechaDesde"));
-            LocalDate hasta = parseFecha((String) criterioJson.get("fechaHasta"));
-            criterios.add(new CriterioFechaReportaje(desde, hasta));
-          }
-          case "ubicacion" -> {
-            Float lat = parseFloat(criterioJson.get("latitud"));
-            Float lon = parseFloat(criterioJson.get("longitud"));
-            if (lat != null && lon != null)
-              criterios.add(new CriterioUbicacion(lat, lon));
-          }
-          case "multimedia" -> {
-            String tipoMultimediaStr = (String) criterioJson.get("tipoMultimedia");
-            if (tipoMultimediaStr != null) {
-              TipoMultimedia tipoMultimedia = TipoMultimedia.valueOf(tipoMultimediaStr.toUpperCase());
-              criterios.add(new CriterioMultimedia(tipoMultimedia));
-            }
-          }
-          default -> System.err.println("Tipo de criterio no reconocido: " + tipo);
-        }
-      } catch (Exception e) {
-        System.err.println("Error procesando criterio: " + e.getMessage());
-      }
-    }
-    return criterios;
   }
   private LocalDate parseFecha(String str) {
     return str != null ? LocalDate.parse(str) : null;
