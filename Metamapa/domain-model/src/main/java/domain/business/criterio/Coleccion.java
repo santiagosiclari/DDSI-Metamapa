@@ -4,7 +4,6 @@ import lombok.Getter;
 import domain.business.Agregador.Agregador;
 import domain.business.incidencias.Hecho;
 import java.util.*;
-//import org.apache.commons.lang
 import java.util.UUID;
 import java.util.stream.Collectors;
 import domain.business.Consenso.*;
@@ -19,8 +18,6 @@ public class Coleccion {
     private ArrayList<Criterio> criterioPertenencia;
     @Getter @Setter
     private ArrayList<Criterio> criterioNoPertenencia;
-    //@Getter
-    //private Agregador agregador;
     @Getter
     private UUID handle;
     @Getter @Setter
@@ -35,7 +32,6 @@ public class Coleccion {
         this.descripcion = desc;
         this.criterioPertenencia = pertenencia;
         this.criterioNoPertenencia = noPertenencia;
-        //this.agregador=agregador;
         this.handle = UUID.randomUUID();
     }
 
@@ -53,23 +49,8 @@ public class Coleccion {
         this.criterioNoPertenencia.remove(criterio);
     }
 
-    /*publicArrayList<Hecho> filtrarPorCriterios(){
-       ArrayList<Hecho> hechos = agregador.getListaDeHechos();
-        return hechos.stream()
-            .filter(h -> this.getCriterioPertenencia().stream().allMatch(c -> c.cumple(h)))
-            .filter(h -> this.getCriterioNoPertenencia().stream().noneMatch(c -> c.cumple(h)))
-            .toList();
-    }
-    publicArrayList<Hecho> filtrarPorCriterios(List<Criterio> criterioPertenenciaAdicional,ArrayList<Criterio> criterioNoPertenenciaAdicional){
-       ArrayList<Hecho> hechos = agregador.getListaDeHechos();
-        return hechos.stream()
-            .filter(h -> this.getCriterioPertenencia().add(criterioPertenenciaAdicional).stream().allMatch(c -> c.cumple(h)))
-            .filter(h -> this.getCriterioNoPertenencia().add(criterioNoPertenenciaAdicional).stream().noneMatch(c -> c.cumple(h)))
-            .toList();
-    }*/
-
-    public ArrayList<Hecho> filtrarPorCriterios(ArrayList<Criterio> criterioPertenenciaAdicional, ArrayList<Criterio> criterioNoPertenenciaAdicional,ModosDeNavegacion modoDeNavegacion) {
-        ArrayList<Hecho> hechos = agregador.getListaDeHechos();
+    public ArrayList<Hecho> filtrarPorCriterios(ArrayList<Hecho> hechos,ArrayList<Criterio> criterioPertenenciaAdicional, ArrayList<Criterio> criterioNoPertenenciaAdicional,ModosDeNavegacion modoDeNavegacion) {
+        //ArrayList<Hecho> hechos = agregador.getListaDeHechos();
 
         ArrayList<Criterio> criteriosPertenenciaCombinados = new ArrayList<Criterio>(this.getCriterioPertenencia());
         if (!criterioPertenenciaAdicional.isEmpty())
@@ -83,19 +64,19 @@ public class Coleccion {
             .filter(h -> criteriosPertenenciaCombinados.stream().allMatch(c -> c.cumple(h)))
             .filter(h -> criteriosNoPertenenciaCombinados.stream().noneMatch(c -> c.cumple(h))).collect(Collectors.toCollection(ArrayList::new));
 
-        //if(modoDeNavegacion == ModosDeNavegacion.IRRESTRICTA) return hechos;
-        return curarHechos(hechos);
+       // if(modoDeNavegacion == ModosDeNavegacion.IRRESTRICTA)
+            return hechos;
+        //return curarHechos(hechos);
     }
 
-    public ArrayList<Hecho> getHechos(ModosDeNavegacion modo){
-        ArrayList<Hecho> hechos = filtrarPorCriterios(new ArrayList<Criterio>(), new ArrayList<Criterio>(),modo);
-        if(modo == ModosDeNavegacion.IRRESTRICTA) return hechos;
+    public ArrayList<Hecho> getHechos(ArrayList<Hecho> hechos, ModosDeNavegacion modo){
+        ArrayList<Hecho> hechosFiltrados = filtrarPorCriterios(hechos,new ArrayList<Criterio>(), new ArrayList<Criterio>(),modo);
+        if(modo == ModosDeNavegacion.IRRESTRICTA) return hechosFiltrados;
 
-        return curarHechos(hechos);
+        return curarHechos(hechosFiltrados);
     }
 
-    public ArrayList<Hecho> curarHechos(ArrayList<Hecho> hechos)
-    {
+    public ArrayList<Hecho> curarHechos(ArrayList<Hecho> hechos){
         return hechos.stream().filter(h -> consenso.esConsensuado(h, agregador.getFuentesDeDatos())).collect(Collectors.toCollection(ArrayList::new));
     }
 }

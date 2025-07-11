@@ -1,10 +1,11 @@
 package domain.business.incidencias;
 import lombok.Getter;
+import lombok.Setter;
 
 public class Multimedia {
-  @Getter
+  @Getter @Setter
   public TipoMultimedia tipoMultimedia;
-  @Getter
+  @Getter @Setter
   String path;
   public Multimedia(){}
 

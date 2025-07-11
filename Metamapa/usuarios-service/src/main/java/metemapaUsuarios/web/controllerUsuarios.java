@@ -1,14 +1,19 @@
 package metemapaUsuarios.web;
+import DTO.SolicitudEliminacionDTO;
 import domain.business.Usuarios.Perfil;
 import domain.business.Usuarios.Rol;
 import domain.business.Usuarios.Usuario;
+import domain.business.tiposSolicitudes.SolicitudEliminacion;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import DTO.UsuarioDTO;
 import metemapaUsuarios.persistencia.RepositorioUsuarios;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,13 +35,24 @@ public class controllerUsuarios {
           .collect(Collectors.toList());
 
       Usuario user = new Usuario(email, contraseniaHasheada,perfil,roles);
-      System.out.println("User creadao " + user);
+      System.out.println("User creado " + user);
       usersRepository.save(user);
       return ResponseEntity.ok(new UsuarioDTO(user));
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-
+  @GetMapping(value = "/usuarios/{id}", produces = "application/json")
+  public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Integer id){
+    try{
+      Optional<Usuario> usuarioOpt = usersRepository.findById(id);
+      return usuarioOpt.map(usuario -> ResponseEntity.ok(new UsuarioDTO(usuario)))
+          .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    } catch (Exception e) {
+      System.err.println("Error al obtener el usuario: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
 }

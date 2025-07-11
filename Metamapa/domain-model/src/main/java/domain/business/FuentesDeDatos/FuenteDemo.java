@@ -20,6 +20,7 @@ public class FuenteDemo extends FuenteProxy{
   @Getter
   @JsonIgnore
   private Conexion conexion;
+  static private Integer contadorID = 1;
   public FuenteDemo(){}
   public FuenteDemo(String nombreFuente, String endpointBase) {
     super(nombreFuente, endpointBase);

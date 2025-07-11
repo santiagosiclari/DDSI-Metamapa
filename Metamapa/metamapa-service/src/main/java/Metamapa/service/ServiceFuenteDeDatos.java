@@ -1,10 +1,12 @@
 package Metamapa.Service;
 import domain.business.FuentesDeDatos.FuenteDeDatos;
+import domain.business.incidencias.Multimedia;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +52,7 @@ public class ServiceFuenteDeDatos {
                            LocalDate fechaHecho,
                            String autor,
                            Boolean anonimo,
-                           String multimedia) {
+                           List<Multimedia> multimedia) {
     String url = String.format("%s/api-fuentesDeDatos/%d/cargarHecho", baseUrl, idFuenteDeDatos);
     Map<String,Object> payload = new HashMap<>();
     payload.put("titulo", titulo);
@@ -62,11 +64,16 @@ public class ServiceFuenteDeDatos {
     if (autor != null) payload.put("autor", autor);
     payload.put("anonimo", anonimo != null ? anonimo : false);
     // Parsear multimedia a lista
-    if (multimedia != null && !multimedia.isBlank()) {
-      ArrayList<String> mm = Arrays.stream(multimedia.split(","))
-          .map(String::trim)
-          .filter(s -> !s.isEmpty())
-          .collect(Collectors.toCollection(ArrayList::new));
+
+    if (multimedia != null && !multimedia.isEmpty()) {
+      List<Map<String,Object>> mm = multimedia.stream()
+          .map(mdto -> {
+            Map<String,Object> entry = new HashMap<>();        // <-- Map<String,Object>
+            entry.put("tipoMultimedia", mdto.getTipoMultimedia().name());
+            entry.put("path",           mdto.getPath());
+            return entry;
+          })
+          .collect(Collectors.toList());                      // List<Map<String,Object>>
       payload.put("multimedia", mm);
     }
     HttpHeaders headers = new HttpHeaders();

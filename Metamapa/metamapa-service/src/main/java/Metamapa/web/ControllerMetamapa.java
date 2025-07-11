@@ -1,4 +1,5 @@
 package Metamapa.web;
+import Metamapa.Service.ServiceColecciones;
 import Metamapa.Service.ServiceFuenteDeDatos;
 import Metamapa.Service.ServiceAgregador;
 import Metamapa.Service.ServiceIncidencias;
@@ -6,10 +7,14 @@ import domain.business.FuentesDeDatos.FuenteDemo;
 import domain.business.FuentesDeDatos.FuenteEstatica;
 import domain.business.FuentesDeDatos.FuenteMetamapa;
 import domain.business.incidencias.Hecho;
+import domain.business.incidencias.Multimedia;
+import domain.business.incidencias.TipoMultimedia;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +24,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -29,13 +33,16 @@ public class ControllerMetamapa {
   private final ServiceFuenteDeDatos serviceFuenteDeDatos;
   private final ServiceAgregador serviceAgregador;
   private final ServiceIncidencias serviceIncidencias;
+  private final ServiceColecciones serviceColecciones;
 
   public ControllerMetamapa(ServiceFuenteDeDatos serviceFuenteDeDatos,
                             ServiceAgregador serviceAgregador,
-                            ServiceIncidencias  serviceIncidencias) {
+                            ServiceIncidencias  serviceIncidencias,
+                            ServiceColecciones serviceColecciones) {
     this.serviceFuenteDeDatos = serviceFuenteDeDatos;
     this.serviceAgregador = serviceAgregador;
     this.serviceIncidencias = serviceIncidencias;
+    this.serviceColecciones = serviceColecciones;
   }
 
   @ExceptionHandler(Exception.class)
@@ -69,7 +76,7 @@ public String crearFuenteDeDatos(
     @RequestParam("nombre") String nombre,
     @RequestParam(value="url", required=false) String url,
     RedirectAttributes ra
-) {
+  ) {
   Integer idFuente = serviceFuenteDeDatos.crearFuenteYRetornarId(tipo, nombre, url);
   ra.addFlashAttribute("success", "Fuente creada correctamente con id: " + idFuente);
   //return "redirect:/metamapa/fuentesDeDatos/" + idFuente; //Te lleva a la pagina de la nueva fuente
@@ -135,29 +142,58 @@ public String crearFuenteDeDatos(
       LocalDate fechaHecho,
       @RequestParam(required = false) String autor,
       @RequestParam(name = "anonimo", defaultValue = "false") Boolean anonimo,
-      @RequestParam(required = false) String multimedia,
+      @RequestParam(required=false) List<TipoMultimedia> tipoMultimedia,
+      @RequestParam(required=false) List<String> path,
       RedirectAttributes ra
   ) {
-    serviceFuenteDeDatos.cargarHecho(
-        idFuenteDeDatos,
-        titulo,
-        descripcion,
-        categoria,
-        latitud,
-        longitud,
-        fechaHecho,
-        autor,
-        anonimo,
-        multimedia
-    );
 
-    ra.addFlashAttribute("success", "Hecho cargado correctamente");
-    return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
-  }
+    List<Multimedia> multimedia = new ArrayList<>();
+    if (tipoMultimedia != null && path != null) {
+      for (int i = 0; i < tipoMultimedia.size(); i++) {
+        TipoMultimedia tipo = tipoMultimedia.get(i);
+        String p = i < path.size() ? path.get(i).trim() : null;
+        if (tipo != null && p != null && !p.isEmpty()) {
+          Multimedia dto = new Multimedia();
+          dto.setTipoMultimedia(tipo);
+          dto.setPath(p);
+          multimedia.add(dto);
+        }
+      }
+    }
+          serviceFuenteDeDatos.cargarHecho(
+              idFuenteDeDatos,
+              titulo,
+              descripcion,
+              categoria,
+              latitud,
+              longitud,
+              fechaHecho,
+              autor,
+              anonimo,
+              multimedia
+          );
+
+          ra.addFlashAttribute("success", "Hecho cargado correctamente");
+          return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
+        }
+
 
 
   //@GetMapping ("/metamapa/colecciones/{id}/hechos")
   //public String mostrarColeccion(@PathVariable("handler")UUID handler,)
+
+
+  @GetMapping("/metamapa/colecciones/")
+  public String obtenerColecciones(Model model) {
+    model.addAttribute("colcecciones", serviceColecciones.getColecciones());
+    return "colecciones";
+  }
+  @GetMapping("/metamapa/colecciones/{uuid}")
+  public String obtenerColeccion(@PathVariable ("uuid") UUID uuid, Model model) {
+    model.addAttribute("colceccion", serviceColecciones.getColeccion(uuid));
+    return "coleccion";
+  }
+
 
 
   @GetMapping("/")
@@ -170,10 +206,7 @@ public String crearFuenteDeDatos(
     return "home";
   }
 
-  @GetMapping("/metamapa/consultas")
-  public String mostrarConsultas(Model model) {
-    return "consultas";
-  }
+
   //API
   @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos")
   public ArrayList<Hecho> consultarHechos (@PathVariable ("idColeccion")Integer id) {

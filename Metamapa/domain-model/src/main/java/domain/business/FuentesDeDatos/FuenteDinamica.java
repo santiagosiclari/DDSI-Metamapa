@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @JsonTypeName("FUENTEDINAMICA")
 public class FuenteDinamica extends FuenteDeDatos{
-
+  static private Integer contadorID = 1;
   public FuenteDinamica() {
     this.id = contadorID++;
     this.nombre = "Fuente Dinamica";

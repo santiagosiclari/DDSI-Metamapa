@@ -24,7 +24,6 @@ public class ServiceIncidencia {
 
   public void aplicarEdicionIncidencia(SolicitudEdicion sol) {
     //Creo que se deberia usar el modificar hecho controller
-
     String url = String.format("%s/api/hechos/%s", baseUrl,sol.getHechoAfectado());
     //Deberia andar bien
     Map<String, Object> updates = new HashMap<>();

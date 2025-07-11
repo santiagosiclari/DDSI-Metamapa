@@ -18,6 +18,11 @@ public class RepositorioUsuarios {
         .filter(usuario -> usuario.getEmail().equals(email))
         .findFirst();  // Devuelve el primer usuario que coincide con el email
   }
+  public Optional<Usuario> findById(Integer id) {
+    return usuarios.stream()
+        .filter(usuario -> usuario.getId().equals(id))
+        .findFirst();  // Devuelve el primer usuario que coincide con el email
+  }
 
   // Obtener todos los usuarios
   public List<Usuario> findAll() {

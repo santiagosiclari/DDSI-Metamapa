@@ -11,6 +11,10 @@ public class Usuario {
   private Perfil perfil;
   @Getter
   private List<Rol> roles;
+  @Getter
+  static public Integer contadorID = 1;
+  @Getter
+  public Integer id;
 
   public Usuario(String email, String contraseniaHasheada, Perfil perfil, List<Rol> roles) {
     this.email = email;
@@ -22,5 +26,4 @@ public class Usuario {
   public Boolean tieneRol(Rol rol) {
     return this.getRoles().contains(rol);
   }
-
 }

@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RepositorioSolicitudEdicion {
   // Lista en memoria para almacenar las solicitudes
   private List<SolicitudEdicion> solicitudes = new ArrayList<>();
@@ -26,7 +28,6 @@ public class RepositorioSolicitudEdicion {
 
   // Metodo para encontrar una solicitud por ID
   public Optional<SolicitudEdicion> findById(Integer id) {
-    // Buscar en la lista de solicitudes usando el UUID
     return solicitudes.stream()
         .filter(solicitud -> solicitud.getId().equals(id))  // Compara el ID de la solicitud
         .findFirst();  // Devuelve el primer resultado, si lo encuentra

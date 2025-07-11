@@ -1,0 +1,337 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+skinparam linetype ortho
+skinparam arrowthickness 3
+skinparam classFontSize 17
+skinparam classAttributeFontSize 15
+
+
+'' Criterio
+Incidencias.Hecho o-- Incidencias.Multimedia
+Incidencias.Hecho o-left- GestorUsuarios.Perfil
+Incidencias.Hecho --* FuenteDeDatos.FuenteDeDatos
+Incidencias.Hecho *-- Incidencias.Ubicacion
+Incidencias.Multimedia -down- Incidencias.TipoMultimedia
+GestorUsuarios.Perfil *-down- GestorUsuarios.Usuario
+GestorUsuarios.Usuario -down- GestorUsuarios.Rol
+GestorUsuarios.Perfil -left-> GestorSolicitudes.TiposSolicitudes.SolicitudEliminacion
+GestorUsuarios.Perfil -up-> GestorSolicitudes.TiposSolicitudes.SolicitudEdicion
+GestorSolicitudes.TiposSolicitudes.Solicitud -right- GestorSolicitudes.TiposSolicitudes.EstadoSolicitud
+GestorSolicitudes.TiposSolicitudes.SolicitudEliminacion <-- GestorSolicitudes.DetectorDeSpam
+FuenteDeDatos.FuenteProxy *-- Incidencias.HechoParser
+FuenteDeDatos.FuenteEstatica *-- Incidencias.HechoParser
+GestorColecciones.Criterio -up-* GestorColecciones.Coleccion
+Incidencias.Hecho <-up- GestorSolicitudes.TiposSolicitudes.Solicitud
+GestorColecciones.Coleccion -down-> Agregador.Agregador
+Agregador.Agregador --> FuenteDeDatos.FuenteDeDatos
+Agregador.Agregador --> Incidencias.Hecho
+GestorColecciones.Consenso *-right- GestorColecciones.Coleccion
+GestorColecciones.ModosDeNavegacion -left- GestorColecciones.Coleccion
+
+package Incidencias <<Rectangle>>{
+class Hecho{
+    +titulo: String
+    +descripcion: String
+    +categoria: String
+    +ubicacion: Ubicacion
+    +fechaHecho: Date
+    +fechaCarga: Date
+    +fechaModificacion: Date
+    +fuenteId: int
+    +perfil: Perfil
+    -anonimo: Boolean
+    -eliminado: Boolean
+    +multimedia : List<Multimedia>
+    +metadata: HashMap<key:String,value:String>
+    {method}tieneEtiqueta(String key, String value)
+    {method}editarHecho(SolicitudEdicion solicitud)
+    {method}aniadirEtiqueta(String key, String value)
+}
+class Ubicacion{
+    +latitud: Float
+    +longitud: Float
+    {method}esIgual(latitud:Float, longitud:Float)
+}
+
+class Multimedia{
+    tipo: TipoMultimedia
+    +path: String
+}
+
+enum TipoMultimedia{
+  FOTO
+  VIDEO
+  AUDIO
+}
+    interface HechoParser{
+    {method}parsearHechos(path:String, fuenteID: Integer)
+    {method}parsearHechos(in: InputStream, fuenteID: Integer);
+}
+
+class CsvHechoParser implements HechoParser{
+    {method}parsearHechos(path:String, fuenteID: Integer)
+    {method}parsearHechos(in: InputStream, fuenteID: Integer);
+}
+
+class JsonHechoParser implements HechoParser{
+    {method}parsearHechos(path: String, fuenteID: Integer)
+}
+
+}
+
+
+
+package GestorSolicitudes <<Rectangle>>
+{
+package TiposSolicitudes <<Rectangle>>{
+abstract Solicitud{
+    +hechoAfectado: Hecho
+    -estado: EstadoSolicitud
+    {method}aceptarSolicitud()
+    {method}rechazarSolicitud()
+}
+
+enum EstadoSolicitud{
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+}
+
+class SolicitudEliminacion extends Solicitud{
+    +motivo: String
+    {method}aceptarSolicitud()
+    {method}rechazarSolicitud()
+}
+
+class SolicitudEdicion extends Solicitud{
+    +tituloMod: String
+    +descMod: String
+    +categoriaMod: String
+    +ubicacionMod: Ubicacion
+    +FechaHechoMod: Fecha
+    +MultimediaMod: list<Multimedia>
+    +anonimidadMod: Boolean
+    +Sugerencia: String
+    {method}agregarSugerencia(String: Sugerencia)
+    {method}aceptarSolicitud()
+    {method}rechazarSolicitud()
+}
+}
+
+interface DetectorDeSpam {
+    +esSpam(texto: String): Boolean
+}
+}
+
+'-----------------Hechos----------------
+
+
+
+
+'----------- Agregador -------------
+
+package Agregador <<Rectangle>>
+{
+    class Agregador{
+    +fuentesDeDatos: List<FuenteDeDatos>
+    +listaDeHechos: List<Hecho>
+    {method}actualizarHechos()
+    {method}agregarFuenteDeDatos(fuente: FuenteDeDatos)
+    {method}actualizarFuentesDeDatos(fuentesDeDatos: List<FuenteDeDatos>)
+    {method}removerFuenteDeDatos(idFuente: Integer)
+}
+
+}
+
+
+'-----------------Fuentes de datos----------------
+
+package FuenteDeDatos <<Rectangle>>{
+
+    abstract class FuenteDeDatos{
+    +nombre: String
+    +hechos: List<Hecho>
+    +tipoFuente: TipoFuente
+    {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, FuenteDeDatos fuenteDeDatos, Perfil autor, Boolean anonimo, Boolean eliminado, ArrayList<Pair<TipoMultimedia,String>> multimedia)
+}
+
+'-----------------Fuentes de datos Dinamica----------------
+    class FuenteDinamica extends FuenteDeDatos{
+    {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, Perfil
+                  autor, Boolean anonimidad, FuenteDeDatos Self, ArrayList<Multimedia> multimedia)
+}
+'-----------------Fuentes de datos Estatica----------------
+    class FuenteEstatica extends FuenteDeDatos{
+        -parser: HechoParser
+        {method}agregarHecho()
+        {method}cargarCSV(path: String)
+    }
+'-----------------Fuentes de datos Proxy----------------
+    abstract FuenteProxy extends FuenteDeDatos{
+        +endpointBase: String
+        -parser: HechoParser
+        {method}agregarHecho()
+        {method}getHechosDeColeccion()
+        {method}solicitarEliminacion()
+    }
+
+    class FuenteDemo extends FuenteProxy{
+        +conexion: Conexion
+        +fechaUltimaConsulta: LocalDateTime
+        {method}actualizarHechos()
+    }
+
+    class FuenteMetamapa extends FuenteProxy{
+        {method}actualizarHechos(filtros: Map<String, String>)
+        {method}actualizarHechosDeColeccion(idColeccion: String , filtros: Map<String, String>)
+        {method}obtenerHechosDesdeURL(url: String)
+        {method}solicitarEliminacion(solicitud: SolicitudEliminacion)
+        /'Nuevos'/
+        {method}construirQuery(filtros: Map<String, String>): String
+        {method}obtenerHechosDesdeURL(String url): List<Hecho>
+        {method}actualizarLista(nuevosHechos: List<Hecho>)
+}
+}
+
+
+
+
+'-----------------Colecciones----------------
+
+package GestorColecciones <<Rectangle>>
+{
+class Coleccion{
+    +titulo: String
+    +descripcion: String
+    +criterioPertenencia: List<Criterio>
+    +criterioNoPertenencia: List<Criterio>
+    +agregador: Agregador
+    +consenso: Consenso
+    +handle: UUID
+    {method}agregarCriterioPertenencia(criterio:Criterio)
+    {method}eliminarCriterioPertenencia(criterio:Criterio)
+    {method}agregarCriterioNoPertenencia(criterio:Criterio)
+    {method}eliminarCriterioNoPertenencia(criterio:Criterio)
+    {method}filtrarPorCriterios(criterioPertenenciaAdicional: List<Criterio>,  criterioNoPertenenciaAdicional: List<Criterio>, modo: ModosDeNavegacion)
+    {method}getHechos(modo: ModosDeNavegacion)
+    {method}curarHechos(hechos: ArrayList<Hecho>)
+}
+'note top of Coleccion
+'se agrego el criterio de no pertenencia para poder incluir por ejemplo si se
+'quiere filtrar por fechas que no sean 2012 o filtrar por fuentes que no sean estaticas
+'end note
+'-------------------Interfaz solicitud--------------------
+
+
+'-----------------Solicitud de eliminacion----------------
+
+'-----------------Solicitud de Edicion----------------
+
+
+' -----------Criterios-----------------
+interface Criterio{
+    {method}cumple(Hecho)
+}
+class CriterioFecha implements Criterio{
+    +fechaDesde:Date
+    +fechaHasta:Date
+    {method}cumple(Hecho)
+}
+class CriterioTitulo implements Criterio{
+    +titulo:String
+    {method}cumple(Hecho)
+}
+class CriterioDescripcion implements Criterio{
+    +descripcion:String
+    {method}cumple(Hecho)
+}
+class CriterioCategoria implements Criterio{
+    +categoria:String
+    {method}cumple(Hecho)
+}
+class CriterioUbicacion implements Criterio{
+    +ubicacion:Ubicacion
+    {method}cumple(Hecho)
+}
+class CriterioOrigen implements Criterio{
+    +origen: String
+    {method}cumple(Hecho)
+}
+class CriterioFuenteDeDatos implements Criterio{
+    +origen: FuenteDeDatos
+    {method}cumple(Hecho)
+}
+class CriterioMultimedia implements Criterio{
+    +tipoMultimedia:TipoMultimedia
+    {method}cumple(Hecho)
+}
+class CriterioFechaReportaje implements Criterio{
+    +desde:Date
+    +hasta:Date
+    {method}cumple(Hecho)
+}
+
+' -----------Consenso-----------------
+interface Consenso{
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
+    {method}stringToConsenso(String algoritmo): Consenso
+}
+
+class MultiplesMenciones implements Consenso{
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
+}
+
+class MayoriaSimple implements Consenso{
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
+}
+
+class Absoluto implements Consenso{
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
+}
+
+enum ModosDeNavegacion{
+    IRRESTRICTA
+    CURADA
+}
+'enum tipoFuenteDatos{
+'    ESTATICA
+'    DINAMICA
+'    PROXY
+'}
+}
+
+
+'note top of SolicitudEdicion
+'anonimidadMod es para que si cargue un hecho como anónimo, pueda modificarlo para que deje de ser anónimo
+'anonimidad es distinto de registrado. Nosotros entendemos que si un usuario no está registado, no puede editar hechos.
+'end note
+
+' ----Usuario rol perfil ----
+package GestorUsuarios <<Rectangle>>
+{
+class Usuario{
+    email: String
+    contraseniaHasheada: String
+    perfil: Perfil
+    rol: List<Rol>
+    {method}tieneRol(rol:Rol)
+}
+
+enum Rol{
+    VISUALIZADOR
+    CONTRIBUYENTE
+    ADMINISTRADOR
+}
+
+class Perfil{
+    nombre: String
+    apellido: String
+    edad: Int
+    solicitudesEliminacion: List<SolicitudEliminacion>
+    solicitudesEdicion: List<SolicitudEdicion>
+    {method}agregarSolicitudEliminacion(SolicitudEliminacion)
+    {method}agregarSolicitudEdicion(SolicitudEdicion)
+}
+}
+
+@enduml

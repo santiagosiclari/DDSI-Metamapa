@@ -1,8 +1,8 @@
 package metemapaColecciones.web;
-import DTO.HechoDTO;
 import domain.business.criterio.*;
 import domain.business.incidencias.TipoMultimedia;
 import DTO.ColeccionDTO;
+import metemapaColecciones.Service.ServiceAgregador;
 import metemapaColecciones.persistencia.RepositorioColecciones;
 import domain.business.Consenso.Consenso;
 import domain.business.incidencias.Hecho;
@@ -10,24 +10,19 @@ import domain.business.Consenso.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@SpringBootApplication
+
 @RestController
-public class controllerColecciones {
+@RequestMapping("/api-colecciones")
+public class ControllerColecciones {
   public RepositorioColecciones repositorioColecciones = new RepositorioColecciones();
-  public static void main(String[] args) {
-    //SpringApplication.run(testApplication.class, args);
-    SpringApplication app = new SpringApplication(controllerColecciones.class);
-    app.setDefaultProperties(Collections.singletonMap("server.port", "9004"));
-//    app.setDefaultProperties(Collections.singletonMap("server.address", "192.168.0.169"));
-    var context = app.run(args);
-    // para cerrar la app, comentar cuando se prueben cosas
-    // context.close();
+  ServiceAgregador serviceAgregador;
+  public ControllerColecciones(ServiceAgregador serviceAgregador) {
+  this.serviceAgregador = serviceAgregador;
   }
   /*public ArrayList<Hecho> getHechosColeccion(@PathVariable String identificador,
                                 @RequestParam(value = "modoNavegacion", required = false,defaultValue = "IRRESTRICTA") String modoNavegacion,
@@ -76,8 +71,8 @@ public class controllerColecciones {
     return coleccion.filtrarPorCriterios(criteriosP,criteriosNP,ModosDeNavegacion.valueOf(modoNavegacion));
 
   }*/
-  @GetMapping("/colecciones/{identificador}/hechos")
-  public ResponseEntity<ArrayList<HechoDTO>> getHechosColeccion(
+  @GetMapping("/{identificador}")
+  public ResponseEntity<ArrayList<Hecho>> getHechosColeccion(
           @PathVariable("identificador") UUID identificador,
           @RequestParam(value = "modoNavegacion", required = false, defaultValue = "IRRESTRICTA") String modoNavegacion,
           @RequestParam(value = "tituloP", required = false) String tituloP,
@@ -101,12 +96,13 @@ public class controllerColecciones {
           @RequestParam(value = "longitudNP", required = false) String longitudNP,
           @RequestParam(value = "tipoMultimediaNP", required = false) String tipoMultimediaNP) {
     try {
-      Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(identificador);
-      if (coleccionOpt.isEmpty()) {
+      Coleccion coleccion = repositorioColecciones.buscarXUUID(identificador);
+      /*if (coleccionOpt.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
       }
       Coleccion coleccion = coleccionOpt.get();
       // Validar modo de navegación
+      */
       ModosDeNavegacion modo;
       try {
         modo = ModosDeNavegacion.valueOf(modoNavegacion.toUpperCase());
@@ -132,7 +128,7 @@ public class controllerColecciones {
 
     // aca llamamos al servicio de agregador
 
-      ArrayList<HechoDTO> hechos = coleccion.filtrarPorCriterios(criteriosP, criteriosNP, modo);
+      ArrayList<Hecho> hechos = coleccion.filtrarPorCriterios(serviceAgregador.getAgregadorHechos(),criteriosP, criteriosNP, modo);
 
       return ResponseEntity.ok(hechos);
     } catch (IllegalArgumentException e) {
@@ -144,13 +140,11 @@ public class controllerColecciones {
   }
 
   // Obtener todas las colecciones (get /colecciones)
-  @GetMapping("/colecciones")
-  public ResponseEntity<List<ColeccionDTO>> obtenerTodasLasColecciones() {
+  @GetMapping("/")
+  public ResponseEntity<ArrayList<Coleccion>> obtenerTodasLasColecciones() {
     try {
-      List<ColeccionDTO> coleccionesDTO = repositorioColecciones.obtenerTodas().stream()
-              .map(ColeccionDTO::new)
-              .collect(Collectors.toList());
-      return ResponseEntity.ok(coleccionesDTO);
+      ArrayList<Coleccion> colecciones = repositorioColecciones.getColecciones();
+      return ResponseEntity.ok(colecciones);
     } catch (Exception e) {
       System.err.println("Error al obtener colecciones: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -159,11 +153,10 @@ public class controllerColecciones {
 
   // Obtener una colección por ID (get /colecciones/{id})
   @GetMapping("/colecciones/{id}")
-  public ResponseEntity<ColeccionDTO> obtenerColeccionPorId(@PathVariable("id") UUID id) {
+  public ResponseEntity<Coleccion> obtenerColeccionPorId(@PathVariable("id") UUID id) {
     try {
-      Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
-      return coleccionOpt.map(coleccion -> ResponseEntity.ok(new ColeccionDTO(coleccion)))
-              .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
+      return ResponseEntity.ok(coleccion);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     } catch (Exception e) {
@@ -189,22 +182,22 @@ public class controllerColecciones {
               .map(String.class::cast)
               .map(Consenso::stringToConsenso)
               .ifPresent(coleccion::setConsenso);
-      repositorioColecciones.save(coleccion);
+      repositorioColecciones.getColecciones().add(coleccion);
       return ResponseEntity.status(HttpStatus.CREATED).body(new ColeccionDTO(coleccion));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body(Map.of("error", "Error interno al crear la colección"));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al crear la colección"));
     }
   }
 
   @PutMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
   public ResponseEntity<?> actualizarColeccion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
-      Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
-      if (coleccionOpt.isEmpty()) {
+      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
+      /*if (coleccionOpt.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
       }
       Coleccion coleccion = coleccionOpt.get();
+      */
       if (requestBody.containsKey("titulo")) {
         coleccion.setTitulo((String) requestBody.get("titulo"));
       }
@@ -232,7 +225,6 @@ public class controllerColecciones {
                 .collect(Collectors.toList());
         coleccion.setCriterioNoPertenencia((ArrayList<Criterio>) nuevosCriterios);
       }
-      repositorioColecciones.update(coleccion);
       return ResponseEntity.ok(new ColeccionDTO(coleccion));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -246,17 +238,14 @@ public class controllerColecciones {
   @PatchMapping(value = "/colecciones/{id}", consumes = "application/json", produces = "application/json")
   public ResponseEntity<?> modificarAlgoritmo(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
-      Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
-      if (coleccionOpt.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-      }
-      Coleccion coleccion = coleccionOpt.get();
+      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
+
       if (!requestBody.containsKey("Consenso")) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
       }
       Consenso nuevoConsenso = Consenso.stringToConsenso((String) requestBody.get("Consenso"));
       coleccion.setConsenso(nuevoConsenso);
-      repositorioColecciones.update(coleccion);
+
       return ResponseEntity.ok(new ColeccionDTO(coleccion));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
@@ -269,10 +258,7 @@ public class controllerColecciones {
   @DeleteMapping("/colecciones/{id}")
   public ResponseEntity<Void> eliminarColeccion(@PathVariable("id") UUID id) {
     try {
-      Optional<Coleccion> coleccionOpt = repositorioColecciones.findById(id);
-      if (coleccionOpt.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-      }
+      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
       boolean eliminada = repositorioColecciones.eliminar(id);
       if (eliminada) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content

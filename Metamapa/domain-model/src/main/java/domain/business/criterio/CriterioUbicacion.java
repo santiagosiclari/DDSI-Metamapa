@@ -1,5 +1,4 @@
 package domain.business.criterio;
-
 import domain.business.incidencias.Hecho;
 import domain.business.incidencias.Ubicacion;
 import lombok.Getter;
@@ -11,7 +10,6 @@ public class CriterioUbicacion implements Criterio{
   private Float longitud;
 
   public CriterioUbicacion(Float latitud, Float longitud) {
-
     this.latitud = latitud;
     this.longitud = longitud;
   }
@@ -19,7 +17,6 @@ public class CriterioUbicacion implements Criterio{
   @Override
   public boolean cumple(Hecho hechoAValidar) {
     Ubicacion ubicacionAValidar = hechoAValidar.getUbicacion();
-
     return ubicacionAValidar.esIgual(this.getLatitud(), this.getLongitud());
   }
 }

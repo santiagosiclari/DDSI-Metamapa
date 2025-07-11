@@ -27,13 +27,11 @@ import org.javatuples.Pair;
 })
 
 public abstract class FuenteDeDatos {
-
-
   //para pruebas con el repositorio
- @Getter
-  static public Integer contadorID = 1;
   @Getter
-  public Integer id;
+  static protected  Integer contadorID = 1;
+  @Getter
+  protected Integer id;
   @Getter
   public String nombre;
   @Getter

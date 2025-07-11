@@ -3,13 +3,11 @@ import DTO.HechoDTO;
 import domain.business.incidencias.Hecho;
 import lombok.Getter;
 
-
 public class CriterioCategoria implements Criterio{
   @Getter
   private String categoria;
 
   public CriterioCategoria(String categoria) {
-
     this.categoria = categoria;
   }
   @Override

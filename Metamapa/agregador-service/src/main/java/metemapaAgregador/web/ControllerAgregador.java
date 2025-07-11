@@ -18,15 +18,13 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 @RequestMapping("/api-agregador")
 public class ControllerAgregador {
+  private final ServiceFuenteDeDatos servicefuenteDeDatos;
+  private final RepositorioAgregador repositorioAgregador = new RepositorioAgregador();
 
-  private  ServiceFuenteDeDatos servicefuenteDeDatos;
-
-  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos){
+  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos) {
     this.servicefuenteDeDatos = servicefuenteDeDatos;
   }
 
-
-  public RepositorioAgregador repositorioAgregador = new RepositorioAgregador();
 
 /*
   public void guardarHechos(int idFuente)
@@ -48,32 +46,66 @@ public class ControllerAgregador {
   }
 
   @GetMapping("/")
-  public Agregador getAgregador() {
-    return repositorioAgregador.getAgregador();
+  public ResponseEntity<Agregador> getAgregador() {
+    Agregador agregador = repositorioAgregador.getAgregador();
+    if (agregador == null) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(agregador);
   }
 
 
   @PostMapping ("/fuentes/actualizar")
   public ResponseEntity<Void> actualizarAgregador() {
-    repositorioAgregador.getAgregador().actualizarFuentesDeDatos(servicefuenteDeDatos.obtenerFuenteDeDatos());
-    return ResponseEntity.noContent().build();
+    try {
+      var fuentes = servicefuenteDeDatos.obtenerFuenteDeDatos();
+      if (fuentes == null || fuentes.isEmpty()) {
+        return ResponseEntity.noContent().build();
+      }
+      repositorioAgregador.getAgregador().actualizarFuentesDeDatos(fuentes);
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      // Se puede usar un logger para loguear el error
+      return ResponseEntity.status(500).build();
+    }
   }
 
 
   //TODO esto se va a comunicar con el servicio de colecciones
   //TODO y las colecciones filtran estos hechos
   @GetMapping("/hechos")
-  public ArrayList<Hecho> getAgregadorHechos() {
-    return repositorioAgregador.getAgregador().getListaDeHechos();
+  public ResponseEntity<ArrayList<Hecho>> getAgregadorHechos() {
+    ArrayList<Hecho> hechos = repositorioAgregador.getAgregador().getListaDeHechos();
+
+    if (hechos == null || hechos.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(hechos);
   }
 
+
   @PostMapping ("/fuentesDeDatos/agregar/{idFuente}")
-  public void agregarFuente(@PathVariable int idFuente) {
-    repositorioAgregador.getAgregador().agregarFuenteDeDatos(servicefuenteDeDatos.getFuenteDeDatos(idFuente));
+  public ResponseEntity<Void> agregarFuente(@PathVariable int idFuente) {
+    try {
+      var fuente = servicefuenteDeDatos.getFuenteDeDatos(idFuente);
+      if (fuente == null) {
+        return ResponseEntity.notFound().build();
+      }
+      repositorioAgregador.getAgregador().agregarFuenteDeDatos(fuente);
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.status(500).build();
+    }
   }
+
   @PostMapping ("/fuentesDeDatos/remover/{idFuente}")
-  public void eliminarFuente(@PathVariable int idFuente) {
-    repositorioAgregador.getAgregador().removerFuenteDeDatos(idFuente);
+  public ResponseEntity<Void> eliminarFuente(@PathVariable int idFuente) {
+    try {
+      repositorioAgregador.getAgregador().removerFuenteDeDatos(idFuente);
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.status(500).build();
+    }
   }
 }
 

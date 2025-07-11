@@ -1,6 +1,4 @@
 package domain.business.criterio;
-
-
 import domain.business.incidencias.Hecho;
 import lombok.Getter;
 import lombok.Setter;

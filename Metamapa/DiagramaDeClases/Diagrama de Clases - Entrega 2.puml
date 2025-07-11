@@ -28,7 +28,7 @@ Consenso *-right- Coleccion
 ModosDeNavegacion -left- Coleccion
 
 '-----------------Hechos----------------
-class Hecho {
+class Hecho{
     +titulo: String
     +descripcion: String
     +categoria: String
@@ -36,7 +36,7 @@ class Hecho {
     +fechaHecho: Date
     +fechaCarga: Date
     +fechaModificacion: Date
-    '+fuente: FuenteDeDatos
+    '+fuenteId: int
     +perfil: Perfil
     -anonimo: Boolean
     -eliminado: Boolean
@@ -45,7 +45,7 @@ class Hecho {
     {method}tieneEtiqueta(String key, String value)
     {method}editarHecho(SolicitudEdicion solicitud)
     {method}aniadirEtiqueta(String key, String value)
-    {method}getNombreAutor()
+    '{method}getNombreAutor() no esta en la clase
 }
 
 class Ubicacion{
@@ -59,7 +59,7 @@ class Multimedia{
     +path: String
 }
 
-enum TipoMultimedia {
+enum TipoMultimedia{
   FOTO
   VIDEO
   AUDIO
@@ -68,19 +68,24 @@ enum TipoMultimedia {
 '----------- Agregador -------------
 class Agregador{
     +fuentesDeDatos: List<FuenteDeDatos>
-    +hechos: List<Hecho>
+    +listaDeHechos: List<Hecho>
     {method}actualizarHechos()
+    {method}agregarFuenteDeDatos(fuente: FuenteDeDatos)
+    {method}actualizarFuentesDeDatos(fuentesDeDatos: List<FuenteDeDatos>)
+    {method}removerFuenteDeDatos(idFuente: Integer)
 }
 
 '-----------------Fuentes de datos----------------
 abstract class FuenteDeDatos{
     +nombre: String
     +hechos: List<Hecho>
+    +tipoFuente: TipoFuente
     {method}agregarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, FuenteDeDatos fuenteDeDatos, Perfil autor, Boolean anonimo, Boolean eliminado, ArrayList<Pair<TipoMultimedia,String>> multimedia)
 }
 
 interface HechoParser{
-    {method}parsearHecho(path:String)
+    {method}parsearHechos(path:String, fuenteID: Integer)
+    {method}parsearHechos(in: InputStream, fuenteID: Integer);
 }
 
 '-----------------Fuentes de datos Dinamica----------------
@@ -97,7 +102,8 @@ class FuenteEstatica extends FuenteDeDatos{
 }
 
 class CsvHechoParser implements HechoParser{
-    {method}parsearHecho(path:String)
+    {method}parsearHechos(path:String, fuenteID: Integer)
+    {method}parsearHechos(in: InputStream, fuenteID: Integer);
 }
 
 '-----------------Fuentes de datos Proxy----------------
@@ -120,10 +126,14 @@ class FuenteMetamapa extends FuenteProxy{
     {method}actualizarHechosDeColeccion(idColeccion: String , filtros: Map<String, String>)
     {method}obtenerHechosDesdeURL(url: String)
     {method}solicitarEliminacion(solicitud: SolicitudEliminacion)
+    /'Nuevos'/
+    {method}construirQuery(filtros: Map<String, String>): String
+    {method}obtenerHechosDesdeURL(String url): List<Hecho>
+    {method}actualizarLista(nuevosHechos: List<Hecho>)
 }
 
 class JsonHechoParser implements HechoParser{
-    {method}parsearHecho(path: String)
+    {method}parsearHechos(path: String, fuenteID: Integer)
 }
 
 '-----------------Colecciones----------------
@@ -134,7 +144,7 @@ class Coleccion{
     +criterioNoPertenencia: List<Criterio>
     +agregador: Agregador
     +consenso: Consenso
-    +handle: String
+    +handle: UUID
     {method}agregarCriterioPertenencia(criterio:Criterio)
     {method}eliminarCriterioPertenencia(criterio:Criterio)
     {method}agregarCriterioNoPertenencia(criterio:Criterio)
@@ -155,17 +165,17 @@ abstract Solicitud{
     {method}rechazarSolicitud()
 }
 
+enum EstadoSolicitud{
+    PENDIENTE
+    APROBADA
+    RECHAZADA
+}
+
 '-----------------Solicitud de eliminacion----------------
 class SolicitudEliminacion extends Solicitud{
     +motivo: String
     {method}aceptarSolicitud()
     {method}rechazarSolicitud()
-}
-
-enum EstadoSolicitud{
-    PENDIENTE
-    APROBADA
-    RECHAZADA
 }
 
 interface DetectorDeSpam {
@@ -177,7 +187,7 @@ class SolicitudEdicion extends Solicitud{
     +tituloMod: String
     +descMod: String
     +categoriaMod: String
-    +UbicacionMod: Ubicacion
+    +ubicacionMod: Ubicacion
     +FechaHechoMod: Fecha
     +MultimediaMod: list<Multimedia>
     +anonimidadMod: Boolean
@@ -262,19 +272,20 @@ class CriterioFechaReportaje implements Criterio{
 
 ' -----------Consenso-----------------
 interface Consenso{
-    {method}consensuado(Hecho, List<FuenteDeDatos>)
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
+    {method}stringToConsenso(String algoritmo): Consenso
 }
 
 class MultiplesMenciones implements Consenso{
-    {method}consensuado(Hecho, List<FuenteDeDatos>)
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
 }
 
 class MayoriaSimple implements Consenso{
-    {method}consensuado(Hecho, List<FuenteDeDatos>)
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
 }
 
 class Absoluto implements Consenso{
-    {method}consensuado(Hecho, List<FuenteDeDatos>)
+    {method}esConsensuado(Hecho, List<FuenteDeDatos>)
 }
 
 enum ModosDeNavegacion{

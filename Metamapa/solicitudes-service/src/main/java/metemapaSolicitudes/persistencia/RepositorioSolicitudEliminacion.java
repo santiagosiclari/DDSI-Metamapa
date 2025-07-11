@@ -4,7 +4,9 @@ import domain.business.tiposSolicitudes.SolicitudEliminacion;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RepositorioSolicitudEliminacion {
   // Lista en memoria para almacenar las solicitudes
   private List<SolicitudEliminacion> solicitudes = new ArrayList<>();

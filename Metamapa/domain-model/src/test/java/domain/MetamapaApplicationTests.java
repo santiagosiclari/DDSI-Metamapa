@@ -289,5 +289,162 @@ class MetamapaTests {
     assertEquals(EstadoSolicitud.RECHAZADA, solicitudEliminacion1.getEstado());
     System.out.println("Solicitud rechazada por Spam: " + solicitudEliminacion1);
   }
+  // TODO: Modificación del algoritmo de consenso.
+  @Test
+  public void modificarAlgoritmoDeConsensoCambiaResultado() {
+    // Arrange
+    Perfil perfil = new Perfil("Luis", "Fernández", 40);
+    FuenteDinamica fuente = new FuenteDinamica();
+
+    fuente.agregarHecho("Contaminación Sonora", "", "urbano", 1f, 1f,
+        LocalDate.of(2023, 6, 1), perfil, false, new ArrayList<>());
+
+    List<FuenteDeDatos> fuentes = List.of(fuente);
+    Agregador.getInstance().setFuentesDeDatos(fuentes);
+
+    Coleccion coleccion = new Coleccion("Problemas Urbanos", "Eventos en la ciudad",
+        new ArrayList<>(), new ArrayList<>());
+
+    // Paso 1 – aplicar algoritmo que aprueba todos (simulado con lambda)
+    coleccion.setConsenso((hecho, fuentesDeDatos) -> true);
+    List<Hecho> resultadoTrue = coleccion.getHechos(ModosDeNavegacion.RESTRINGIDA);
+
+    System.out.println("🔹 Consenso inicial: 'acepta todos'");
+    resultadoTrue.forEach(h -> System.out.println("   - " + h.getTitulo()));
+    assertThat(resultadoTrue).hasSize(1); // Debería devolver el hecho
+
+    // Paso 2 – aplicar algoritmo real que requiere múltiples menciones (ej: Absoluto)
+    coleccion.setConsenso(Consenso.stringToConsenso("Absoluto"));
+    List<Hecho> resultadoAbsoluto = coleccion.getHechos(ModosDeNavegacion.RESTRINGIDA);
+
+    System.out.println("🔸 Consenso cambiado a: 'Absoluto'");
+    resultadoAbsoluto.forEach(h -> System.out.println("   - " + h.getTitulo()));
+    assertThat(resultadoAbsoluto).isEmpty(); // Debería devolver vacío porque solo hay una fuente
+  }
+
+  // TODO: ● Navegación curada o irrestricta sobre una colección.
+  @Test
+  public void testNavegacionCuradaOIrrestricta() {
+    // Arrange
+    Perfil perfil = new Perfil("Ana", "González", 28);
+    FuenteDinamica fuente = new FuenteDinamica();
+
+    fuente.agregarHecho("Contaminación Río", "", "contaminacion", 1f, 1f,
+        LocalDate.of(2023, 1, 15), perfil, false, new ArrayList<>());
+
+    fuente.agregarHecho("Fuga Química", "", "industria", 2f, 2f,
+        LocalDate.of(2023, 2, 10), perfil, false, new ArrayList<>());
+
+    List<FuenteDeDatos> fuentes = List.of(fuente);
+    Agregador.getInstance().setFuentesDeDatos(fuentes);
+
+    Coleccion coleccion = new Coleccion("Medioambiente", "Hechos ambientales",
+        new ArrayList<>(), new ArrayList<>());
+
+    // Consenso que aprueba solo hechos cuyo título contiene "Río"
+    Consenso consensoPersonalizado = (hecho, listaFuentes) -> hecho.getTitulo().contains("Río");
+    coleccion.setConsenso(consensoPersonalizado);
+
+    // Act
+    List<Hecho> hechosIrrestrictos = coleccion.getHechos(ModosDeNavegacion.IRRESTRICTA);
+    List<Hecho> hechosCurados = coleccion.getHechos(ModosDeNavegacion.RESTRINGIDA);
+
+    // Log
+    System.out.println("🔹 Modo IRRESTRICTA:");
+    hechosIrrestrictos.forEach(h -> System.out.println("   - " + h.getTitulo()));
+    System.out.println("   Total: " + hechosIrrestrictos.size());
+
+    System.out.println("🔸 Modo RESTRINGIDA:");
+    hechosCurados.forEach(h -> System.out.println("   - " + h.getTitulo()));
+    System.out.println("   Total: " + hechosCurados.size());
+
+    // Assert
+    assertThat(hechosIrrestrictos).hasSize(2); // Ambos hechos deberían estar
+    assertThat(hechosCurados).hasSize(1); // Solo el que tiene "Río" en el título
+    assertThat(hechosCurados.get(0).getTitulo()).isEqualTo("Contaminación Río");
+  }
+
+  //TODO: Como persona administradora, quiero asociar un algoritmo de consenso a una colección.
+  // Arrange
+    Perfil perfil = new Perfil("Lucía", "Martínez", 35);
+    Usuario admin = new Usuario("admin@frba.utn.edu.ar", "secreta", perfil,
+        List.of(Rol.ADMINISTRADOR));
+
+    assertTrue(admin.tieneRol(Rol.ADMINISTRADOR), "El usuario debe tener rol de ADMINISTRADOR");
+
+    // Crear fuente con 2 hechos
+    FuenteDinamica fuente = new FuenteDinamica();
+    fuente.agregarHecho("Inundación", "", "clima", 1f, 1f,
+        LocalDate.of(2023, 4, 5), perfil, false, new ArrayList<>());
+    fuente.agregarHecho("Sequía", "", "clima", 2f, 2f,
+        LocalDate.of(2023, 5, 10), perfil, false, new ArrayList<>());
+
+    List<FuenteDeDatos> fuentes = List.of(fuente);
+    Agregador.getInstance().setFuentesDeDatos(fuentes);
+
+    // Crear colección sin criterios
+    Coleccion coleccion = new Coleccion("Eventos Climáticos", "Fenómenos extremos",
+        new ArrayList<>(), new ArrayList<>());
+
+    // Act: el admin asocia un algoritmo de consenso
+    Consenso algoritmo = Consenso.stringToConsenso("Absoluto"); // o "MayoriaSimple"
+    coleccion.setConsenso(algoritmo);
+
+    // Obtener hechos curados
+    List<Hecho> hechos = coleccion.getHechos(ModosDeNavegacion.CURADA);
+
+    // Assert
+    System.out.println("🔹 Hechos consensuados usando 'Absoluto':");
+    hechos.forEach(h -> System.out.println("   - " + h.getTitulo()));
+
+    // Como solo hay una fuente, tal vez "Absoluto" devuelva 0
+    assertNotNull(coleccion.getConsenso());
+    assertThat(coleccion.getConsenso()).isEqualTo(algoritmo);
+  }
+  
+  // TODO: Como visualizador o contribuyente, deseo poder seleccionar el modo de navegación de los hechos.
+  @Test
+  public void visualizadorOContribuyentePuedeElegirModoDeNavegacion() {
+    // Arrange
+    Perfil perfil = new Perfil("Emi", "Siclari", 25);
+    Usuario visualizador = new Usuario("emi@frba.utn.edu.ar", "clave",
+        perfil, List.of(Rol.VISUALIZADOR));
+
+    Usuario contribuyente = new Usuario("colab@frba.utn.edu.ar", "clave",
+        perfil, List.of(Rol.CONTRIBUYENTE));
+
+    assertTrue(visualizador.tieneRol(Rol.VISUALIZADOR));
+    assertTrue(contribuyente.tieneRol(Rol.CONTRIBUYENTE));
+
+    FuenteDinamica fuente = new FuenteDinamica();
+    fuente.agregarHecho("Derrame Petrolero", "", "medioambiente", 1f, 1f,
+        LocalDate.of(2023, 3, 20), perfil, false, new ArrayList<>());
+
+    fuente.agregarHecho("Incendio Forestal", "", "medioambiente", 2f, 2f,
+        LocalDate.of(2023, 4, 5), perfil, false, new ArrayList<>());
+
+    List<FuenteDeDatos> fuentes = List.of(fuente);
+    Agregador.getInstance().setFuentesDeDatos(fuentes);
+
+    Coleccion coleccion = new Coleccion("Catástrofes Naturales", "Eventos ambientales",
+        new ArrayList<>(), new ArrayList<>());
+
+    // Setear consenso que aprueba solo hechos con "Incendio"
+    coleccion.setConsenso((hecho, fuentesDatos) -> hecho.getTitulo().contains("Incendio"));
+
+    // Act
+    List<Hecho> hechosModoIrrestricto = coleccion.getHechos(ModosDeNavegacion.IRRESTRICTA);
+    List<Hecho> hechosModoRestringido = coleccion.getHechos(ModosDeNavegacion.CURADA);
+
+    // Assert
+    System.out.println("🔹 IRRESTRICTA (Visualizador/Contribuyente):");
+    hechosModoIrrestricto.forEach(h -> System.out.println("   - " + h.getTitulo()));
+    assertThat(hechosModoIrrestricto).hasSize(2); // Se ven todos
+
+    System.out.println("🔸 CURADA (Curado por consenso):");
+    hechosModoRestringido.forEach(h -> System.out.println("   - " + h.getTitulo()));
+    assertThat(hechosModoRestringido).hasSize(1); // Solo el "Incendio"
+    assertThat(hechosModoRestringido.get(0).getTitulo()).contains("Incendio");
+  }
 }
 */

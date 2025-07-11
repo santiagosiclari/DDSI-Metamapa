@@ -6,10 +6,8 @@ import domain.business.incidencias.Hecho;
 
 public class Agregador {
     private static Agregador agregador = null;
-
     @Getter
     public ArrayList<FuenteDeDatos> fuentesDeDatos;
-
     @Getter
     public ArrayList<Hecho> listaDeHechos;
 
@@ -34,7 +32,7 @@ public class Agregador {
         public static Agregador getInstance() {
         if (agregador == null)
             agregador = new Agregador();
-            return agregador;
+        return agregador;
         }
 
     public void agregarFuenteDeDatos(FuenteDeDatos fuente){
@@ -47,7 +45,6 @@ public class Agregador {
     public void actualizarFuentesDeDatos(ArrayList<FuenteDeDatos> fuentesDeDatos){
         this.fuentesDeDatos = fuentesDeDatos;
     }
-
 
     public void removerFuenteDeDatos(Integer idFuente){
         this.fuentesDeDatos.removeIf(f -> f.getId() == idFuente);

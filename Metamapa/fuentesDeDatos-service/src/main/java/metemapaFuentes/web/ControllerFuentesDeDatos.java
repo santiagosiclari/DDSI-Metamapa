@@ -4,6 +4,7 @@ import domain.business.FuentesDeDatos.*;
 import domain.business.Usuarios.Perfil;
 import domain.business.incidencias.Hecho;
 import domain.business.incidencias.Multimedia;
+import domain.business.incidencias.TipoMultimedia;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,7 +54,7 @@ public class ControllerFuentesDeDatos {
   }
 
   @PostMapping (value = "/{idFuenteDeDatos}/cargarHecho", consumes = "application/json", produces = "application/json")
-  public ResponseEntity cargarHecho(@PathVariable(value = "idFuenteDeDatos") Integer idFuenteDeDatos, Map<String, Object> requestBody) {
+  public ResponseEntity cargarHecho(@PathVariable(value = "idFuenteDeDatos") Integer idFuenteDeDatos, @RequestBody Map<String, Object> requestBody) {
     try{
       if (!repositorioFuentes.buscarFuente(idFuenteDeDatos).getTipoFuente().equals(TipoFuente.FUENTEDINAMICA)) {
         return ResponseEntity
@@ -64,14 +65,43 @@ public class ControllerFuentesDeDatos {
       String titulo = (String) requestBody.get("titulo");
       String descripcion = (String) requestBody.get("descripcion");
       String categoria = (String) requestBody.get("categoria");
-      Float latitud = (Float) requestBody.get("latitud");
-      Float longitud = (Float) requestBody.get("longitud");
-      LocalDate fechaHecho = (LocalDate) requestBody.get("fechaHecho");
+      //Float latitud = (Float) requestBody.get("latitud");
+      //Float longitud = (Float) requestBody.get("longitud");
+      //LocalDate fechaHecho = (LocalDate) requestBody.get("fechaHecho");
+
+
+      Number latNum = (Number) requestBody.get("latitud");
+      Float latitud = latNum != null ? latNum.floatValue() : null;
+      Number lonNum = (Number) requestBody.get("longitud");
+      Float longitud = lonNum != null ? lonNum.floatValue() : null;
+
+      String fechaStr = (String) requestBody.get("fechaHecho");
+      LocalDate fechaHecho = (fechaStr != null && !fechaStr.isBlank())
+          ? LocalDate.parse(fechaStr)
+          : null;
+
       Perfil autor = null;
       //Perfil autor = (Perfil) requestBody.get("autor");
-      Boolean anonimo = (Boolean) requestBody.get("anonimo");
-      ArrayList<Multimedia> multimedia = null;
+      //Boolean anonimo = (Boolean) requestBody.get("anonimo");
+      //ArrayList<Multimedia> multimedia = null;
       //ArrayList<Multimedia> multimedia = (ArrayList<Multimedia>) requestBody.get("multimedia");
+
+      Boolean anonimo = false;
+      if (requestBody.get("anonimo") instanceof Boolean) {
+        anonimo = (Boolean) requestBody.get("anonimo");
+      }
+      @SuppressWarnings("unchecked")
+      List<Map<String,Object>> mmMaps = (List<Map<String,Object>>) requestBody.get("multimedia");
+      List<Multimedia> multimedia = mmMaps != null
+          ? mmMaps.stream().map(m -> {
+        // extraigo tipo y ruta
+        String tipoStr = (String) m.get("tipoMultimedia");
+        String path    = (String) m.get("path");
+        // convierto la cadena al enum
+        TipoMultimedia tipo = TipoMultimedia.valueOf(tipoStr);
+        return new Multimedia(tipo, path);
+      }).collect(Collectors.toList())
+          : new ArrayList<>();
 
       Hecho hecho = new Hecho(
           titulo,
