@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>Metamapa</groupId>
-    <artifactId>metamapa-service</artifactId>
+    <artifactId>metamapa-service-d</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 

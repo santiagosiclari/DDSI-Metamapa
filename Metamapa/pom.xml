@@ -16,14 +16,13 @@
     <name>Metamapa</name>
     <description>Metamapa</description>
     <modules>
-        <module>domain-model</module>
-        <module>fuentesDeDatos-service</module>
-        <module>agregador-service</module>
-        <module>metamapa-service</module>
-        <module>solicitudes-service</module>
-        <module>colecciones-service</module>
-        <module>incidencias-service</module>
-        <module>usuarios-service</module>
+        <module>Domain-model</module>
+        <module>M-Agregador-Service</module>
+        <module>Metamapa-service</module>
+        <module>M-Usuarios-Service</module>
+        <module>M-FuenteDinamica-Service</module>
+        <module>M-FuenteEstatica-Service</module>
+        <module>M-FuenteProxy-Service</module>
     </modules>
     <url/>
     <licenses>
