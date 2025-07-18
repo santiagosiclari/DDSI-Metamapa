@@ -1,8 +1,8 @@
 package FuenteProxy.business.FuentesDeDatos;
+import FuenteProxy.DTO.SolicitudEliminacionDTO;
 import FuenteProxy.business.Hechos.Hecho;
 //import FuenteProxy.business.tiposSolicitudes.SolicitudEliminacion;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import domain.business.FuentesDeDatos.FuenteProxy;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,19 +16,21 @@ import org.springframework.web.client.RestTemplate;
 public class FuenteMetamapa extends FuenteProxy {
   final private RestTemplate restTemplate;
   static private Integer contadorID = 4000000;
-//TODO agregar el id al hecho
+
+  //TODO agregar el id al hecho
   public FuenteMetamapa(String nombre, String endpointBase) {
-    super(nombre,endpointBase);
+    super(nombre, endpointBase);
     if (contadorID > 4999999) {
-      throw new RuntimeException("No hay mas espacio para nuevas Fuentes Metamapa :(" );
-    }else {
-    this.id = contadorID++;
-    this.nombre = nombre;
-    this.hechos = new ArrayList<>();
-    this.restTemplate = new RestTemplate();
-    this.tipoFuente = tipoFuente.FUENTEMETAMAPA;
+      throw new RuntimeException("No hay mas espacio para nuevas Fuentes Metamapa :(");
+    } else {
+      this.id = contadorID++;
+      this.nombre = nombre;
+      this.hechos = new ArrayList<>();
+      this.restTemplate = new RestTemplate();
+      this.tipoFuente = TipoFuente.FUENTEMETAMAPA;
+    }
   }
-  }
+
   public void actualizarHechos(Map<String, String> filtros) {
     try {
       String url = getEndpointBase() + "/hechos" + construirQuery(filtros);
@@ -76,11 +78,11 @@ public class FuenteMetamapa extends FuenteProxy {
     }
   }
 
- /* public void solicitarEliminacion(SolicitudEliminacion solicitud) {
+  public void solicitarEliminacion(SolicitudEliminacionDTO solicitud) {
     try {
       restTemplate.postForEntity(getEndpointBase() + "/solicitudes", solicitud, Void.class);
     } catch (Exception e) {
       System.err.println("Error al enviar solicitud de eliminación: " + e.getMessage());
     }
-  }*/
+  }
 }

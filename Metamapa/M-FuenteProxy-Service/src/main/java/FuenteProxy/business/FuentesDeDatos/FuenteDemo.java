@@ -1,10 +1,9 @@
 package FuenteProxy.business.FuentesDeDatos;
 
 import FuenteProxy.business.Hechos.Hecho;
-import FuenteProxy.business.externo.demo.Conexion;
+import FuenteProxy.business.Conexiones.Conexion;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -21,38 +20,37 @@ public class FuenteDemo extends FuenteProxy {
   private Conexion conexion;
   static private Integer contadorID = 5000000;
 
-
   public FuenteDemo(String nombreFuente, String endpointBase) {
     super(nombreFuente, endpointBase);
     if (contadorID > 5999999) {
-      throw new RuntimeException("No hay mas espacio para nuevas Fuentes Demo :(" );
-    }else {
-    this.nombre = nombreFuente;
-    this.hechos = new ArrayList<>();
-    this.fechaUltimaConsulta = LocalDateTime.now(ZoneId.of("UTC")).minusHours(1);
-    this.conexion = new Conexion(){
-      @Override
-      public Map<String, Object> siguienteHecho(String url, LocalDateTime fechaUltimaConsulta) {
-        return null;
-      }
-     };
-    this.id = contadorID++;
-    this.tipoFuente = tipoFuente.FUENTEDEMO;
-  }
+      throw new RuntimeException("No hay mas espacio para nuevas Fuentes Demo :(");
+    } else {
+      this.nombre = nombreFuente;
+      this.hechos = new ArrayList<>();
+      this.fechaUltimaConsulta = LocalDateTime.now(ZoneId.of("UTC")).minusHours(1);
+      this.conexion = new Conexion() {
+        @Override
+        public Map<String, Object> siguienteHecho(String url, LocalDateTime fechaUltimaConsulta) {
+          return null;
+        }
+      };
+      this.id = contadorID++;
+      this.tipoFuente = TipoFuente.FUENTEDEMO;
+    }
   }
 
   public void actualizarHechos() {
     Map<String, Object> datos = conexion.siguienteHecho(this.getEndpointBase(), this.getFechaUltimaConsulta());
     while (datos != null) {
       Hecho nuevoHecho = new Hecho(
-          (String) datos.get("titulo"),
-          (String) datos.get("descripcion"),
-          (String) datos.get("categoria"),
-          (Float) datos.get("latitud"),
-          (Float) datos.get("longitud"),
-          (LocalDate) datos.get("fechaHecho"),
-          this.id
-          //Metamapa?
+              (String) datos.get("titulo"),
+              (String) datos.get("descripcion"),
+              (String) datos.get("categoria"),
+              (Float) datos.get("latitud"),
+              (Float) datos.get("longitud"),
+              (LocalDate) datos.get("fechaHecho"),
+              this.id
+              //Metamapa?
       );
       // Asignar perfil y anonimato según convenga
       //nuevoHecho.setPerfil(null);
