@@ -1,6 +1,6 @@
 package FuenteEstatica.business.Parsers;
 
-import FuenteEstatica.business.incidencias.Hecho;
+import FuenteEstatica.business.Hechos.Hecho;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

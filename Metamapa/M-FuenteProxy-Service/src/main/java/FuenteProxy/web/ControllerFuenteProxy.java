@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
-public class ControllerFuentesDeDatos {
+public class ControllerFuenteProxy{
   private final ServiceFuenteProxy fuenteProxyService;
 
-  public ControllerFuentesDeDatos(ServiceFuenteProxy fuenteProxyService) {
+  public ControllerFuenteProxy(ServiceFuenteProxy fuenteProxyService) {
     this.fuenteProxyService = fuenteProxyService;
   }
 

@@ -1,4 +1,4 @@
-package FuenteEstatica.business.incidencias;
+package FuenteEstatica.business.Hechos;
 import lombok.Getter;
 
 public class Ubicacion {

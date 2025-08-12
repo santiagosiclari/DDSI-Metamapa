@@ -1,4 +1,4 @@
-package metemapaFuentes;
+package FuenteEstatica;
 
 import java.util.Collections;
 import org.springframework.boot.SpringApplication;
@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-public class FuentesDeDatosApplication {
+public class FuenteEstatica {
   public static void main(String[] args) {
-    SpringApplication app = new SpringApplication(FuentesDeDatosApplication.class);
+    SpringApplication app = new SpringApplication(FuenteEstatica.class);
     app.setDefaultProperties(Collections.singletonMap("server.port", "server.port"));
     var context = app.run(args);
     // para cerrar la app, comentar cuando se prueben cosas

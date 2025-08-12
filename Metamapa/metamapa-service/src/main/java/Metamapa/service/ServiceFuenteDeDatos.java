@@ -1,6 +1,6 @@
-package Metamapa.Service;
-import domain.business.FuentesDeDatos.FuenteDeDatos;
-import domain.business.incidencias.Multimedia;
+package Metamapa.service;
+import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
+import Metamapa.business.incidencias.Multimedia;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;

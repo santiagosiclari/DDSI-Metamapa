@@ -1,14 +1,12 @@
 package Usuarios.web;
-import DTO.SolicitudEliminacionDTO;
-import domain.business.Usuarios.Perfil;
-import domain.business.Usuarios.Rol;
-import domain.business.Usuarios.Usuario;
-import domain.business.tiposSolicitudes.SolicitudEliminacion;
+
+import Usuarios.business.Usuarios.Rol;
+import Usuarios.business.Usuarios.Usuario;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import DTO.UsuarioDTO;
+import Usuarios.DTO.UsuarioDTO;
 import Usuarios.persistencia.RepositorioUsuarios;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +26,13 @@ public class controllerUsuarios {
       String nombre = (String) requestBody.get("nombre");
       String apellido = (String) requestBody.get("apellido");
       Integer edad = (Integer) requestBody.get("edad");
-      Perfil perfil = new Perfil(nombre,apellido,edad);
+      //Perfil perfil = new Perfil(nombre,apellido,edad);
       List<String> rolesInput = (List<String>) requestBody.get("roles");  // Recibe roles como lista de strings
       List<Rol> roles = rolesInput.stream()
           .map(Rol::valueOf)  // Convierte el string a un Rol
           .collect(Collectors.toList());
 
-      Usuario user = new Usuario(email, contraseniaHasheada,perfil,roles);
+      Usuario user = new Usuario(email, contraseniaHasheada,nombre, apellido, edad,roles);
       System.out.println("User creado " + user);
       usersRepository.save(user);
       return ResponseEntity.ok(new UsuarioDTO(user));
@@ -42,6 +40,7 @@ public class controllerUsuarios {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
   @GetMapping(value = "/usuarios/{id}", produces = "application/json")
   public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Integer id){
     try{

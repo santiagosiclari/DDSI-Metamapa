@@ -1,12 +1,8 @@
-package FuenteEstatica.business.incidencias;
+package FuenteEstatica.business.Hechos;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
 
 public class Hecho {
   @Getter
@@ -48,10 +44,6 @@ public class Hecho {
     this.fuenteId = fuenteId;
   }
 
-
-
-
-
   public void editarHecho(String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho) {
     if (descripcion != null) {
       this.descripcion = descripcion;
@@ -60,8 +52,7 @@ public class Hecho {
       this.categoria = categoria;
     }
     if (latitud != null & longitud != null) {
-      Ubicacion ubicacionMod = new Ubicacion(latitud,longitud);
-      this.ubicacion = ubicacionMod;
+      this.ubicacion = new Ubicacion(latitud,longitud);
     }
     if (fechaHecho != null) {
       this.fechaHecho = fechaHecho;

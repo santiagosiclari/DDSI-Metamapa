@@ -1,4 +1,4 @@
-package FuenteDinamica.service;
+/*package FuenteDinamica.service;
 
 
 import domain.business.incidencias.Hecho;
@@ -24,4 +24,4 @@ public class ServiceIncidencias {
     String url = String.format("%s/api-incidencias/hechos/%d", baseUrl,idFuenteDeDatos);
     return restTemplate.getForObject(url, ArrayList.class);
   }
-}
+}*/

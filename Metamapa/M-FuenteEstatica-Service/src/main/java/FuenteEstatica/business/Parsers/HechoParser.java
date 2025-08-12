@@ -1,6 +1,6 @@
 package FuenteEstatica.business.Parsers;
 
-import FuenteEstatica.business.incidencias.Hecho;
+import FuenteEstatica.business.Hechos.Hecho;
 import java.io.InputStream;
 import java.util.ArrayList;
 

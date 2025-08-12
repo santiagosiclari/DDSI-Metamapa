@@ -1,5 +1,5 @@
 package Usuarios.persistencia;
-import domain.business.Usuarios.Usuario;
+import Usuarios.business.Usuarios.Usuario;
 import java.util.*;
 import java.util.stream.Collectors;
 

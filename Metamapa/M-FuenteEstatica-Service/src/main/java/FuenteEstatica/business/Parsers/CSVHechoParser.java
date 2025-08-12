@@ -1,7 +1,7 @@
 package FuenteEstatica.business.Parsers;
 //import infrastructure.dto.HechoDTO;
 
-import FuenteEstatica.business.incidencias.Hecho;
+import FuenteEstatica.business.Hechos.Hecho;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import java.io.BufferedReader;

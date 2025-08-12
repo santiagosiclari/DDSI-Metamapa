@@ -1,8 +1,8 @@
-package Metamapa.Service;
+package Metamapa.service;
 
-import domain.business.FuentesDeDatos.FuenteDeDatos;
-import domain.business.criterio.Coleccion;
-import domain.business.criterio.Criterio;
+import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
+import Metamapa.business.criterio.Coleccion;
+import Metamapa.business.criterio.Criterio;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

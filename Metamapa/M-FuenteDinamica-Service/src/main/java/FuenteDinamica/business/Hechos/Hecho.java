@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-
 public class Hecho {
   @Getter
   private String titulo;
@@ -91,8 +90,7 @@ public class Hecho {
       this.categoria = categoria;
     }
     if (latitud != null & longitud != null) {
-      Ubicacion ubicacionMod = new Ubicacion(latitud,longitud);
-      this.ubicacion = ubicacionMod;
+      this.ubicacion = new Ubicacion(latitud,longitud);
     }
     if (fechaHecho != null) {
       this.fechaHecho = fechaHecho;

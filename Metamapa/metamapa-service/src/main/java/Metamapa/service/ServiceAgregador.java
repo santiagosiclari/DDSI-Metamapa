@@ -1,8 +1,6 @@
-package Metamapa.Service;
-import DTO.AgregadorDTO;
-import DTO.HechoDTO;
-import domain.business.Agregador.Agregador;
-import domain.business.incidencias.Hecho;
+package Metamapa.service;
+import Metamapa.business.Agregador.Agregador;
+import Metamapa.business.incidencias.Hecho;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

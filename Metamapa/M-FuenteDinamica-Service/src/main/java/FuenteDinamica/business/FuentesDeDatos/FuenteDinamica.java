@@ -18,20 +18,20 @@ public class FuenteDinamica {
 
   public FuenteDinamica() {
     if (contadorID > 1999998) {
-      throw new RuntimeException("No hay mas espacio para nuevas fuentes :(" );
-    }else {
-    this.fuenteId = contadorID++;
-    this.nombre = "Fuente Dinamica";
-    this.hechos =  new ArrayList<>();
-  }
+      throw new RuntimeException("No hay mas espacio para nuevas fuentes :(");
+    } else {
+      this.fuenteId = contadorID++;
+      this.nombre = "Fuente Dinamica";
+      this.hechos = new ArrayList<>();
+    }
   }
 
-  public void agregarHecho(Hecho hecho){
+  public void agregarHecho(Hecho hecho) {
     hechos.add(hecho);
   }
   //TODO: revisar Integer idAutor
   public void agregarHecho(String titulo, String desc, String categoria, Float latitud, Float longitud, LocalDate fechaHecho,
                            Integer idAutor, Boolean anonimidad, ArrayList<Multimedia> multimedia) {
-    this.hechos.add(new Hecho(titulo,desc,categoria,latitud,longitud,fechaHecho,idAutor,this.fuenteId ,anonimidad,multimedia));
+    this.hechos.add(new Hecho(titulo, desc, categoria, latitud, longitud, fechaHecho, idAutor, this.fuenteId, anonimidad, multimedia));
   }
 }

@@ -1,11 +1,10 @@
 package FuenteEstatica.persistencia;
 
 import FuenteEstatica.business.FuentesDeDatos.*;
-import FuenteEstatica.business.incidencias.*;
 import FuenteEstatica.business.Parsers.*;
-import java.time.LocalDate;
+
 import java.util.ArrayList;
-import java.util.List;
+
 import lombok.Getter;
 
 public class RepositorioFuentes {
