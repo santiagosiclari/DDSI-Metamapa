@@ -1,6 +1,6 @@
 package Metamapa.business.FuentesDeDatos;
 import Metamapa.business.Parsers.CSVHechoParser;
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import lombok.Getter;

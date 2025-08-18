@@ -1,5 +1,5 @@
-package Metamapa.business.criterio;
-import Metamapa.business.incidencias.Hecho;
+package Metamapa.business.Colecciones;
+import Metamapa.business.Hechos.Hecho;
 import java.util.Objects;
 import lombok.Getter;
 

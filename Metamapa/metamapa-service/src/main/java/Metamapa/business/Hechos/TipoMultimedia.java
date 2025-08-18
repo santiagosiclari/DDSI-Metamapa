@@ -1,4 +1,4 @@
-package Metamapa.business.incidencias;
+package Metamapa.business.Hechos;
 
 public enum TipoMultimedia {
   FOTO,

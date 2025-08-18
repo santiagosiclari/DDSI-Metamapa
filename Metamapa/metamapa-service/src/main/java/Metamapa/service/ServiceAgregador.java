@@ -1,6 +1,6 @@
-package Metamapa.Service;
+package Metamapa.service;
 import Metamapa.business.Agregador.Agregador;
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

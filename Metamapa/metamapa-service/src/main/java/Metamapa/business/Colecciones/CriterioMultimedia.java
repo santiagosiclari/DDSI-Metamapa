@@ -1,6 +1,6 @@
-package Metamapa.business.criterio;
-import Metamapa.business.incidencias.Hecho;
-import Metamapa.business.incidencias.TipoMultimedia;
+package Metamapa.business.Colecciones;
+import Metamapa.business.Hechos.Hecho;
+import Metamapa.business.Hechos.TipoMultimedia;
 import lombok.Getter;
 
 public class CriterioMultimedia implements Criterio {

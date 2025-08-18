@@ -1,8 +1,6 @@
-package Metamapa.Service;
-
-import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
-import Metamapa.business.criterio.Coleccion;
-import Metamapa.business.criterio.Criterio;
+package Metamapa.service;
+import Metamapa.business.Colecciones.Coleccion;
+import Metamapa.business.Colecciones.Criterio;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

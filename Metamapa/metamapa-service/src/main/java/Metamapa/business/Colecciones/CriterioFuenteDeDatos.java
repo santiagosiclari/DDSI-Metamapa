@@ -1,6 +1,6 @@
-package Metamapa.business.criterio;
+package Metamapa.business.Colecciones;
 
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import lombok.Getter;
 
 

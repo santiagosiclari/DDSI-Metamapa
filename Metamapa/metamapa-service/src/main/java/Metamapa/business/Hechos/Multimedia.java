@@ -1,4 +1,4 @@
-package Metamapa.business.incidencias;
+package Metamapa.business.Hechos;
 import lombok.Getter;
 import lombok.Setter;
 

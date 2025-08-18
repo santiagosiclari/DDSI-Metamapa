@@ -1,9 +1,9 @@
-package Metamapa.business.criterio;
+package Metamapa.business.Colecciones;
 
 import Metamapa.business.Agregador.Agregador;
 import Metamapa.business.Consenso.Consenso;
 import Metamapa.business.Consenso.ModosDeNavegacion;
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Collectors;

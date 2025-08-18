@@ -1,6 +1,6 @@
 package Metamapa.business.Parsers;
 
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import java.io.InputStream;
 import java.util.ArrayList;
 

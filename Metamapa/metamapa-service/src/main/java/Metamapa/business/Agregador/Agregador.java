@@ -1,6 +1,6 @@
 package Metamapa.business.Agregador;
 import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import java.util.ArrayList;
 import lombok.Getter;
 

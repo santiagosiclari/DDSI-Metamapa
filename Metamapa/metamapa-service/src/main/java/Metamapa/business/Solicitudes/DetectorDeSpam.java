@@ -1,4 +1,4 @@
-package Metamapa.business.tiposSolicitudes;
+package Metamapa.business.Solicitudes;
 
 public interface DetectorDeSpam {
     static boolean esSpam(String texto) {

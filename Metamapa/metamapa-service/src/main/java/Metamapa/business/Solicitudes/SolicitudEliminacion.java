@@ -1,4 +1,4 @@
-package Metamapa.business.tiposSolicitudes;
+package Metamapa.business.Solicitudes;
 import lombok.Getter;
 
 public class SolicitudEliminacion extends Solicitud {

@@ -1,4 +1,4 @@
-package Metamapa.business.incidencias;
+package Metamapa.business.Hechos;
 
 import Metamapa.business.Usuarios.Usuario;
 import java.math.BigInteger;

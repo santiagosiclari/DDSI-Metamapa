@@ -1,4 +1,4 @@
-package Metamapa.business.tiposSolicitudes;
+package Metamapa.business.Solicitudes;
 
 public enum EstadoSolicitud {
   PENDIENTE,  // La solicitud está pendiente de revisión

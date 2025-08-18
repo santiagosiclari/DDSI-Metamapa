@@ -1,7 +1,7 @@
 package Metamapa.business.Parsers;
 //import infrastructure.dto.HechoDTO;
 
-import Metamapa.business.incidencias.Hecho;
+import Metamapa.business.Hechos.Hecho;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import java.io.BufferedReader;
@@ -48,7 +48,7 @@ public class CSVHechoParser implements HechoParser {
                 Float longitud = Float.parseFloat(campos[4].trim());
                 LocalDate fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-                Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,null,fuenteID,null, new ArrayList<>());
+                Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,null,fuenteID,null,null, new ArrayList<>());
                 // TODO: revisar Deberiamos inicializar en NULL el resto de los campos del contructor del hecho???
                 listaHecho.add(hecho);
             }
@@ -79,7 +79,7 @@ public class CSVHechoParser implements HechoParser {
                 Float longitud = Float.parseFloat(campos[4].trim());
                 LocalDate fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-                Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,null,fuenteID,null, new ArrayList<>());
+                Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,null,fuenteID,null,null, new ArrayList<>());
                 // TODO: revisar Deberiamos inicializar en NULL el resto de los campos del contructor del hecho???
                 listaHecho.add(hecho);
             }

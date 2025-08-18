@@ -1,6 +1,6 @@
-package Metamapa.business.tiposSolicitudes;
+package Metamapa.business.Solicitudes;
 
-import Metamapa.business.incidencias.Multimedia;
+import Metamapa.business.Hechos.Multimedia;
 import java.util.Date;
 import java.util.List;
 import lombok.Getter;

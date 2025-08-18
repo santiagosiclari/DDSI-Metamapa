@@ -1,4 +1,4 @@
-package Metamapa.business.externo.demo;
+package Metamapa.business.Conexiones;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

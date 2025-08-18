@@ -1,6 +1,4 @@
 package Metamapa.business.Usuarios;
-import Metamapa.business.tiposSolicitudes.SolicitudEdicion;
-import Metamapa.business.tiposSolicitudes.SolicitudEliminacion;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;

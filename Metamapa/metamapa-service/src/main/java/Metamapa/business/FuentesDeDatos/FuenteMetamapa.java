@@ -1,7 +1,7 @@
 package Metamapa.business.FuentesDeDatos;
 
-import Metamapa.business.incidencias.Hecho;
-import Metamapa.business.tiposSolicitudes.SolicitudEliminacion;
+import Metamapa.business.Hechos.Hecho;
+import Metamapa.business.Solicitudes.SolicitudEliminacion;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

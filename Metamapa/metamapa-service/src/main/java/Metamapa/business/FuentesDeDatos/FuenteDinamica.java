@@ -1,6 +1,6 @@
 package Metamapa.business.FuentesDeDatos;
-import Metamapa.business.incidencias.Hecho;
-import Metamapa.business.incidencias.Multimedia;
+import Metamapa.business.Hechos.Hecho;
+import Metamapa.business.Hechos.Multimedia;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
 import java.util.ArrayList;
