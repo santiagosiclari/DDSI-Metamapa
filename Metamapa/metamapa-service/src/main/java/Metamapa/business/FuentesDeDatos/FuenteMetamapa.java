@@ -5,10 +5,7 @@ import Metamapa.business.Solicitudes.SolicitudEliminacion;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.web.client.RestTemplate;
 

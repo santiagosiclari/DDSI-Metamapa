@@ -1,12 +1,6 @@
 package Metamapa.web;
-
-import Metamapa.business.Hechos.Hecho;
-import Metamapa.business.Hechos.Multimedia;
-import Metamapa.business.Hechos.TipoMultimedia;
-import Metamapa.service.ServiceAgregador;
-import Metamapa.service.ServiceColecciones;
-import Metamapa.service.ServiceFuenteDeDatos;
-import Metamapa.service.ServiceIncidencias;
+import Metamapa.business.Hechos.*;
+import Metamapa.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,13 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class ControllerMetamapa {
@@ -124,10 +114,8 @@ public class ControllerMetamapa {
 
   // API Pública para otras instancias de MetaMapa
   //● Consulta de hechos dentro de una colección.
-  //@GetMapping ("/metamapa/colecciones/{id}/hechos")
-  //public String mostrarColeccion(@PathVariable("handler")UUID handler,)
   @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos")
-  public ArrayList<Hecho> consultarHechos(@PathVariable("idColeccion") Integer id) {
+  public ArrayList<Hecho> consultarHechos(@PathVariable("idColeccion") UUID id) {
     return new ArrayList<>();
     //return serviceColecciones.getColeccion(idColeccion);
   }

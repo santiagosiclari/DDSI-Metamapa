@@ -1,7 +1,7 @@
 package Agregador.business.Colecciones;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
-import Agregador.business.deprecado.incidencias.TipoMultimedia;
+import Agregador.business.Hechos.TipoMultimedia;
 
 public class CriterioMultimedia implements Criterio {
   @Getter

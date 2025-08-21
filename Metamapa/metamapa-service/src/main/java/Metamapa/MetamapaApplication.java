@@ -6,10 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-
 @SpringBootApplication
 public class MetamapaApplication {
-
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(MetamapaApplication.class);
 		app.setDefaultProperties(Collections.singletonMap("server.port", "${server.port}"));
@@ -23,4 +21,3 @@ public class MetamapaApplication {
 		return new RestTemplate();
 	}
 }
-

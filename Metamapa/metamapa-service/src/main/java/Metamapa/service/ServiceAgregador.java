@@ -3,19 +3,14 @@ import Metamapa.business.Agregador.Agregador;
 import Metamapa.business.Hechos.Hecho;
 import java.util.ArrayList;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.xml.transform.Result;
-
 @Service
 public class ServiceAgregador {
-
   private final RestTemplate restTemplate;
   private final String baseUrl;
 
