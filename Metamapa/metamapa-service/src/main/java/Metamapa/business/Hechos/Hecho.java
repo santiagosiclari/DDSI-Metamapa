@@ -1,12 +1,13 @@
 package Metamapa.business.Hechos;
 
 import Metamapa.business.Usuarios.Usuario;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import lombok.Getter;
-import lombok.Setter;
 
 public class Hecho {
   @Getter
@@ -38,8 +39,6 @@ public class Hecho {
   @Getter @Setter
   private HashMap<String, String> metadata;
 
-
-  //TODO: Chequear si Categoria lo modelamos como string o un enum
   public Hecho(){}
   public Hecho(
       String titulo,

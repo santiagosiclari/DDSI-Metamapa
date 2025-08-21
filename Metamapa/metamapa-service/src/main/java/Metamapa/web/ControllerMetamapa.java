@@ -1,10 +1,12 @@
 package Metamapa.web;
-import Metamapa.business.Solicitudes.EstadoSolicitud;
-import Metamapa.service.*;
-import Metamapa.business.Hechos.*;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
+
+import Metamapa.business.Hechos.Hecho;
+import Metamapa.business.Hechos.Multimedia;
+import Metamapa.business.Hechos.TipoMultimedia;
+import Metamapa.service.ServiceAgregador;
+import Metamapa.service.ServiceColecciones;
+import Metamapa.service.ServiceFuenteDeDatos;
+import Metamapa.service.ServiceIncidencias;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class ControllerMetamapa {
@@ -50,6 +59,37 @@ public class ControllerMetamapa {
     return "coleccion";
   }
 
+  @PostMapping("/metamapa/colecciones/")
+  public String crearColeccion(@RequestParam String titulo, @RequestParam String descripcion, @RequestParam String consenso,
+                               @RequestParam(required = false) List<String> pertenenciaTitulos,
+                               @RequestParam(required = false) List<String> noPertenenciaTitulos,
+                               RedirectAttributes ra) {
+    List<Map<String, Object>> pertenencia = new ArrayList<>();
+    if (pertenenciaTitulos != null) {
+      for (String t : pertenenciaTitulos) {
+        if (!t.isBlank())
+          pertenencia.add(Map.of("tipo", "titulo", "valor", t));
+      }
+    }
+    List<Map<String, Object>> noPertenencia = new ArrayList<>();
+    if (noPertenenciaTitulos != null) {
+      for (String t : noPertenenciaTitulos) {
+        if (!t.isBlank())
+          noPertenencia.add(Map.of("tipo", "titulo", "valor", t));
+      }
+    }
+    UUID id = serviceColecciones.crearColeccion(titulo, descripcion, consenso, pertenencia, noPertenencia);
+    ra.addFlashAttribute("mensaje", "Colección creada con ID " + id);
+    return "redirect:/metamapa/colecciones/";
+  }
+
+  @DeleteMapping("/metamapa/colecciones/{uuid}")
+  public String eliminarColeccion(@PathVariable("uuid") UUID uuid, RedirectAttributes ra) {
+    serviceColecciones.deleteColeccion(uuid);
+    ra.addFlashAttribute("mensaje", "Colección eliminada correctamente");
+    return "redirect:/metamapa/colecciones/";
+  }
+
   //● Modificación del algoritmo de consenso.
   @PatchMapping("/metamapa/colecciones/{uuid}/consenso/{algoritmo:Absoluto|MultiplesMenciones|MayoriaSimple}")
   @ResponseBody
@@ -64,7 +104,7 @@ public class ControllerMetamapa {
 
   // ● Aprobar o denegar una solicitud de eliminación (endpoint único)
   //TODO: CHEQUEAR
-  enum Accion { APROBAR, RECHAZAR }
+  enum Accion {APROBAR, RECHAZAR}
 
   @PatchMapping("/metamapa/solicitudes/{id}")
   @ResponseBody
@@ -75,10 +115,10 @@ public class ControllerMetamapa {
             : serviceAgregador.rechazarSolicitudEliminacion(id);
 
     return switch (r) {
-      case OK        -> ResponseEntity.noContent().build();
+      case OK -> ResponseEntity.noContent().build();
       case NOT_FOUND -> ResponseEntity.notFound().build();
-      case CONFLICT  -> ResponseEntity.status(409).build();
-      default        -> ResponseEntity.unprocessableEntity().build();
+      case CONFLICT -> ResponseEntity.status(409).build();
+      default -> ResponseEntity.unprocessableEntity().build();
     };
   }
 
@@ -92,13 +132,16 @@ public class ControllerMetamapa {
     //return serviceColecciones.getColeccion(idColeccion);
   }
 
-  //● Generar una solicitud de eliminación a un hecho.
+  //● TODO Generar una solicitud de eliminación a un hecho.
+  //@PostMapping("/metamapa/api/solicitudesEliminacion/")
 
-  //● Navegación filtrada sobre una colección.
+  //● TODO: Navegación filtrada sobre una colección.
+  //@GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/")
 
-  //● Navegación curada o irrestricta sobre una colección.
+  //● TODO: Navegación curada o irrestricta sobre una colección.
+  //@GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/")
 
-  //● Reportar un hecho.
+  //● TODO: Reportar un hecho.
 
 
   @GetMapping("/metamapa/fuentesDeDatos/{id}")

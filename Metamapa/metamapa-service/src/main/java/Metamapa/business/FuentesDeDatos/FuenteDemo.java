@@ -1,15 +1,16 @@
 package Metamapa.business.FuentesDeDatos;
 
-import Metamapa.business.externo.demo.Conexion;
+import Metamapa.business.Conexiones.Conexion;
 import Metamapa.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.Getter;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Map;
-import lombok.Getter;
 
 
 @JsonTypeName("FUENTEDEMO")
