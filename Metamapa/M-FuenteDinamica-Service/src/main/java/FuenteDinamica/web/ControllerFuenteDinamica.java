@@ -1,13 +1,9 @@
 package FuenteDinamica.web;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import FuenteDinamica.business.Hechos.Multimedia;
-import FuenteDinamica.business.Hechos.TipoMultimedia;
 import FuenteDinamica.persistencia.RepositorioFuentes;
-import FuenteDinamica.business.Hechos.Hecho;
+import FuenteDinamica.business.Hechos.*;
 import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

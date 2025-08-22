@@ -14,7 +14,7 @@ public class ServiceColecciones {
   private final String baseUrl;
 
   public ServiceColecciones(RestTemplate restTemplate,
-                            @Value("${colecciones.service.url}") String baseUrl) {
+                            @Value("${M.Agregador.service.url}") String baseUrl) {
     this.restTemplate = restTemplate;
     this.baseUrl = baseUrl;
   }

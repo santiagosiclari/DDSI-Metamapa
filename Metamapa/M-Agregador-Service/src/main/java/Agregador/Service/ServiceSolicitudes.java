@@ -1,5 +1,7 @@
 package Agregador.Service;
+import Agregador.DTO.SolicitudEliminacionDTO;
 import Agregador.business.Solicitudes.EstadoSolicitud;
+import Agregador.business.Solicitudes.SolicitudEliminacion;
 import Agregador.persistencia.RepositorioAgregador;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,12 @@ public class ServiceSolicitudes {
         s.rechazarSolicitud();
         //repositorioAgregador.save(s);
         return Result.OK;
+    }
+
+    public SolicitudEliminacionDTO crearSolicitud(SolicitudEliminacionDTO dto) {
+        SolicitudEliminacion solicitud = new SolicitudEliminacion(dto.getHechoAfectado(), dto.getMotivo());
+        //repositorioAgregador.save(solicitud); TODO: guardar en la base de datos
+        return new SolicitudEliminacionDTO(solicitud);
     }
 }
 

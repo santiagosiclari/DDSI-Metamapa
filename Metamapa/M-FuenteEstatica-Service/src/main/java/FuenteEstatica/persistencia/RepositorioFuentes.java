@@ -2,11 +2,11 @@ package FuenteEstatica.persistencia;
 
 import FuenteEstatica.business.FuentesDeDatos.*;
 import FuenteEstatica.business.Parsers.*;
-
 import java.util.ArrayList;
-
 import lombok.Getter;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RepositorioFuentes {
   @Getter
   public ArrayList<FuenteEstatica> fuentesDeDatos = new ArrayList<>();

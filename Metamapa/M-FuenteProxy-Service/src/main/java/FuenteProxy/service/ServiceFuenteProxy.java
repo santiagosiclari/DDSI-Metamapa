@@ -1,7 +1,5 @@
 package FuenteProxy.service;
-import FuenteProxy.business.FuentesDeDatos.FuenteDemo;
-import FuenteProxy.business.FuentesDeDatos.FuenteMetamapa;
-import FuenteProxy.business.FuentesDeDatos.FuenteProxy;
+import FuenteProxy.business.FuentesDeDatos.*;
 import FuenteProxy.business.Hechos.Hecho;
 import FuenteProxy.persistencia.RepositorioFuentes;
 import org.springframework.stereotype.Service;

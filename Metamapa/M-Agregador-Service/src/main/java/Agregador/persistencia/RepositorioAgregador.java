@@ -2,10 +2,11 @@ package Agregador.persistencia;
 import Agregador.business.Agregador.Agregador;
 import Agregador.business.Solicitudes.SolicitudEliminacion;
 import lombok.Getter;
+import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
-
+@Repository
 public class RepositorioAgregador {
   @Getter
   public  Agregador agregador;

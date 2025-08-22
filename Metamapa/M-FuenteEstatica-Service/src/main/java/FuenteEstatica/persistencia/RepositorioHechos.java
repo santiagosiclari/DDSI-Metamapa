@@ -1,12 +1,11 @@
 package FuenteEstatica.persistencia;
 
-
 import FuenteEstatica.business.Hechos.*;
-
-
 import java.util.*;
 import lombok.Getter;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RepositorioHechos {
   @Getter
   private ArrayList<Hecho> hechos = new ArrayList<>();
@@ -15,14 +14,11 @@ public class RepositorioHechos {
     hechos.add(h);
   }
 
-
-  public Hecho findHecho(int id)
-  {
+  public Hecho findHecho(int id) {
     return (hechos.stream().filter(h -> h.getId() == id).findFirst()).get();
   }
 
-  public void modificarHecho(Hecho hecho)
-  {
+  public void modificarHecho(Hecho hecho) {
     //TODO implementar, no creo que haga falta
   }
 }

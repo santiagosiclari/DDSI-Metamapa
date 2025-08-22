@@ -4,10 +4,11 @@ import Agregador.business.Colecciones.Coleccion;
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Colecciones.CriterioFuenteDeDatos;
 import lombok.Getter;
-
+import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@Repository
 public class RepositorioColecciones {
   @Getter
   public ArrayList<Coleccion> colecciones = new ArrayList<>();

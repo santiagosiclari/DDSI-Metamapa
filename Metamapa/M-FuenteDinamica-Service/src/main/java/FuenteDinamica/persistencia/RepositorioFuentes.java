@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.text.html.parser.Parser;
 import lombok.Getter;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RepositorioFuentes {
   @Getter
   public ArrayList<FuenteDinamica> fuentesDinamicas = new ArrayList<>();
