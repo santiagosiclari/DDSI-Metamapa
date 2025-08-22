@@ -1,19 +1,20 @@
 package Agregador.web;
+import Agregador.Service.ServiceColecciones;
 import Agregador.business.Colecciones.*;
 //import DTO.ColeccionDTO;
-import Agregador.persistencia.RepositorioColecciones;
 import Agregador.business.Hechos.*;
-import Agregador.business.Consenso.*;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api-colecciones")
 public class ControllerColecciones {
-  public RepositorioColecciones repositorioColecciones = new RepositorioColecciones();
+  private final ServiceColecciones serviceColecciones;
+
+  public ControllerColecciones(ServiceColecciones serviceColecciones) {
+    this.serviceColecciones = serviceColecciones;
+  }
 
   @GetMapping("/{identificador}")
   public ResponseEntity<ArrayList<Hecho>> getHechosColeccion(
@@ -40,37 +41,30 @@ public class ControllerColecciones {
           @RequestParam(value = "longitudNP", required = false) String longitudNP,
           @RequestParam(value = "tipoMultimediaNP", required = false) String tipoMultimediaNP) {
     try {
-      Coleccion coleccion = repositorioColecciones.buscarXUUID(identificador);
-      /*if (coleccionOpt.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
-      }
-      Coleccion coleccion = coleccionOpt.get();
-      // Validar modo de navegación
-      */
-      ModosDeNavegacion modo;
-      try {
-        modo = ModosDeNavegacion.valueOf(modoNavegacion.toUpperCase());
-      } catch (IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
-      }
-      // Construir criterios adicionales de pertenencia
-      List<Map<String, Object>> criteriosPertenenciaJson = construirCriteriosJson(
-              tituloP, descripcionP, categoriaP,
-              fecha_reporte_desdeP, fecha_reporte_hastaP,
-              fecha_acontecimiento_desdeP, fecha_acontecimiento_hastaP,
-              latitudP, longitudP, tipoMultimediaP);
-      ArrayList<Criterio> criteriosP = (ArrayList<Criterio>) procesarCriterios(criteriosPertenenciaJson);
-      // Construir criterios adicionales de NO pertenencia
-      List<Map<String, Object>> criteriosNoPertenenciaJson = construirCriteriosJson(
-              tituloNP, descripcionNP, categoriaNP,
-              fecha_reporte_desdeNP, fecha_reporte_hastaNP,
-              fecha_acontecimiento_desdeNP, fecha_acontecimiento_hastaNP,
-              latitudNP, longitudNP, tipoMultimediaNP);
-      ArrayList<Criterio> criteriosNP = (ArrayList<Criterio>) procesarCriterios(criteriosNoPertenenciaJson);
-      // Filtrar hechos usando la colección
-      //TODO
-      //ArrayList<Hecho> hechos = coleccion.filtrarPorCriterios(serviceAgregador.getAgregadorHechos(),criteriosP, criteriosNP, modo);
-
+      // Construir los mapas de parámetros
+      Map<String, String> paramsP = new HashMap<>();
+      paramsP.put("titulo", tituloP);
+      paramsP.put("descripcion", descripcionP);
+      paramsP.put("categoria", categoriaP);
+      paramsP.put("fecha_reporte_desde", fecha_reporte_desdeP);
+      paramsP.put("fecha_reporte_hasta", fecha_reporte_hastaP);
+      paramsP.put("fecha_acontecimiento_desde", fecha_acontecimiento_desdeP);
+      paramsP.put("fecha_acontecimiento_hasta", fecha_acontecimiento_hastaP);
+      paramsP.put("latitud", latitudP);
+      paramsP.put("longitud", longitudP);
+      paramsP.put("tipoMultimedia", tipoMultimediaP);
+      Map<String, String> paramsNP = new HashMap<>();
+      paramsNP.put("titulo", tituloNP);
+      paramsNP.put("descripcion", descripcionNP);
+      paramsNP.put("categoria", categoriaNP);
+      paramsNP.put("fecha_reporte_desde", fecha_reporte_desdeNP);
+      paramsNP.put("fecha_reporte_hasta", fecha_reporte_hastaNP);
+      paramsNP.put("fecha_acontecimiento_desde", fecha_acontecimiento_desdeNP);
+      paramsNP.put("fecha_acontecimiento_hasta", fecha_acontecimiento_hastaNP);
+      paramsNP.put("latitud", latitudNP);
+      paramsNP.put("longitud", longitudNP);
+      paramsNP.put("tipoMultimedia", tipoMultimediaNP);
+      ArrayList<Hecho> hechos = this.serviceColecciones.getHechosColeccion(identificador, modoNavegacion, paramsP, paramsNP);
       return ResponseEntity.ok(hechos);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
@@ -84,8 +78,7 @@ public class ControllerColecciones {
   @GetMapping("/")
   public ResponseEntity<ArrayList<Coleccion>> obtenerTodasLasColecciones() {
     try {
-      ArrayList<Coleccion> colecciones = repositorioColecciones.getColecciones();
-      return ResponseEntity.ok(colecciones);
+      return ResponseEntity.ok(this.serviceColecciones.obtenerTodasLasColecciones());
     } catch (Exception e) {
       System.err.println("Error al obtener colecciones: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -96,8 +89,7 @@ public class ControllerColecciones {
   @GetMapping("/{id}")
   public ResponseEntity<Coleccion> obtenerColeccionPorId(@PathVariable("id") UUID id) {
     try {
-      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
-      return ResponseEntity.ok(coleccion);
+      return ResponseEntity.ok(serviceColecciones.obtenerColeccionPorId(id));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     } catch (Exception e) {
@@ -110,21 +102,7 @@ public class ControllerColecciones {
   @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
   public ResponseEntity<?> crearColeccion(@RequestBody Map<String, Object> requestBody) {
     try {
-      String titulo = (String) requestBody.get("titulo");
-      if (titulo == null || titulo.isBlank()) {
-        return ResponseEntity.badRequest().body(Map.of("error", "El campo 'titulo' es obligatorio"));
-      }
-      String descripcion = (String) requestBody.get("descripcion");
-      List<Criterio> criteriosPertenencia = parseCriterios(requestBody.get("criteriosPertenencia"));
-      List<Criterio> criteriosNoPertenencia = parseCriterios(requestBody.get("criteriosNoPertenencia"));
-      Coleccion coleccion = new Coleccion(titulo, descripcion, (ArrayList<Criterio>) criteriosPertenencia, (ArrayList<Criterio>) criteriosNoPertenencia);
-      Optional.ofNullable(requestBody.get("consenso"))
-              .filter(String.class::isInstance)
-              .map(String.class::cast)
-              .map(Consenso::stringToConsenso)
-              .ifPresent(coleccion::setConsenso);
-      repositorioColecciones.getColecciones().add(coleccion);
-      return ResponseEntity.status(HttpStatus.CREATED).body(null);
+      return ResponseEntity.status(HttpStatus.CREATED).body(this.serviceColecciones.crearColeccion(requestBody));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al crear la colección"));
     }
@@ -133,40 +111,7 @@ public class ControllerColecciones {
   @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
   public ResponseEntity<?> actualizarColeccion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
-      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
-      /*if (coleccionOpt.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-      }
-      Coleccion coleccion = coleccionOpt.get();
-      */
-      if (requestBody.containsKey("titulo")) {
-        coleccion.setTitulo((String) requestBody.get("titulo"));
-      }
-      if (requestBody.containsKey("descripcion")) {
-        coleccion.setDescripcion((String) requestBody.get("descripcion"));
-      }
-      if (requestBody.containsKey("consenso")) {
-        String consensoStr = (String) requestBody.get("consenso");
-        Consenso nuevoConsenso = Consenso.stringToConsenso(consensoStr);
-        coleccion.setConsenso(nuevoConsenso);
-      }
-      if (requestBody.containsKey("criteriosPertenencia")) {
-        List<Map<String, Object>> criteriosData = (List<Map<String, Object>>) requestBody.get("criteriosPertenencia");
-        List<Criterio> nuevosCriterios = criteriosData.stream()
-                .map(this::crearCriterioDesdeJson)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        coleccion.setCriterioPertenencia((ArrayList<Criterio>) nuevosCriterios);
-      }
-      if (requestBody.containsKey("criteriosNoPertenencia")) {
-        List<Map<String, Object>> criteriosData = (List<Map<String, Object>>) requestBody.get("criteriosNoPertenencia");
-        List<Criterio> nuevosCriterios = criteriosData.stream()
-                .map(this::crearCriterioDesdeJson)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        coleccion.setCriterioNoPertenencia((ArrayList<Criterio>) nuevosCriterios);
-      }
-      return ResponseEntity.ok(null);
+      return ResponseEntity.ok(this.serviceColecciones.actualizarColeccion(id, requestBody));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
@@ -179,13 +124,7 @@ public class ControllerColecciones {
   @PatchMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
   public ResponseEntity<?> modificarAlgoritmo(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
     try {
-      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
-      if (!requestBody.containsKey("Consenso")) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-      }
-      Consenso nuevoConsenso = Consenso.stringToConsenso((String) requestBody.get("Consenso"));
-      coleccion.setConsenso(nuevoConsenso);
-      return ResponseEntity.ok(null);
+      return ResponseEntity.ok(this.serviceColecciones.modificarAlgoritmo(id, requestBody));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
@@ -197,8 +136,7 @@ public class ControllerColecciones {
   @DeleteMapping("/colecciones/{id}")
   public ResponseEntity<Void> eliminarColeccion(@PathVariable("id") UUID id) {
     try {
-      Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
-      boolean eliminada = repositorioColecciones.eliminar(id);
+      boolean eliminada = serviceColecciones.eliminarColeccion(id);
       if (eliminada) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
       } else {
@@ -211,7 +149,7 @@ public class ControllerColecciones {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
-
+/*
   // Metodo auxiliar para construir criterios JSON desde parámetros
   private List<Map<String, Object>> construirCriteriosJson(
           String titulo, String descripcion, String categoria,
@@ -258,13 +196,6 @@ public class ControllerColecciones {
               claveValor, valor
       ));
     }
-  }
-  @SuppressWarnings("unchecked")
-  private List<Criterio> parseCriterios(Object criteriosRaw) {
-    if (criteriosRaw instanceof List<?> lista) {
-      return procesarCriterios((List<Map<String, Object>>) lista);
-    }
-    return List.of();
   }
   private List<Criterio> procesarCriterios(List<Map<String, Object>> criteriosJson) {
     return criteriosJson.stream()
@@ -320,5 +251,5 @@ public class ControllerColecciones {
   }
   private Float parseFloat(Object obj) {
     return obj != null ? Float.parseFloat(obj.toString()) : null;
-  }
+  }*/
 }
