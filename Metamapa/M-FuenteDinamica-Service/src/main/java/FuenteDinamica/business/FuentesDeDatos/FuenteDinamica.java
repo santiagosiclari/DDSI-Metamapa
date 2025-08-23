@@ -1,6 +1,5 @@
 package FuenteDinamica.business.FuentesDeDatos;
-import FuenteDinamica.business.Hechos.Hecho;
-import FuenteDinamica.business.Hechos.Multimedia;
+import FuenteDinamica.business.Hechos.*;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,28 +26,27 @@ public class FuenteDinamica {
   }
 
   public void agregarHecho(
-      String titulo,
-      String desc,
-      String categoria,
-      Float latitud,
-      Float longitud,
-      LocalDate fechaHecho,
-      Integer idAutor,
-      Boolean anonimidad,
-      ArrayList<Multimedia> multimedia) {
-
+          String titulo,
+          String desc,
+          String categoria,
+          Float latitud,
+          Float longitud,
+          LocalDate fechaHecho,
+          Integer idAutor,
+          Boolean anonimidad,
+          ArrayList<Multimedia> multimedia) {
     this.hechos.add(new Hecho(
-                              titulo,
-                              desc,
-                              categoria,
-                              latitud,
-                              longitud,
-                              fechaHecho,
-                              idAutor,
-                              this.fuenteId,
-                              anonimidad,
-                              multimedia
-                              )
+                    titulo,
+                    desc,
+                    categoria,
+                    latitud,
+                    longitud,
+                    fechaHecho,
+                    idAutor,
+                    this.fuenteId,
+                    anonimidad,
+                    multimedia
+            )
     );
   }
 }

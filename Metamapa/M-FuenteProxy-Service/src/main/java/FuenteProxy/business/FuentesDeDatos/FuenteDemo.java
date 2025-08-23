@@ -2,13 +2,9 @@ package FuenteProxy.business.FuentesDeDatos;
 
 import FuenteProxy.business.Hechos.Hecho;
 import FuenteProxy.business.Conexiones.Conexion;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.*;
+import java.time.*;
+import java.util.*;
 import lombok.Getter;
 
 @JsonTypeName("FUENTEDEMO")

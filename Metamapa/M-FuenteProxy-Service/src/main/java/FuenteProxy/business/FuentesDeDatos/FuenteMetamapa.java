@@ -13,7 +13,6 @@ public class FuenteMetamapa extends FuenteProxy {
   final private RestTemplate restTemplate;
   static private Integer contadorID = 4000000;
 
-  //TODO agregar el id al hecho
   public FuenteMetamapa(String nombre, String endpointBase) {
     super(nombre, endpointBase);
     if (contadorID > 4999999) {

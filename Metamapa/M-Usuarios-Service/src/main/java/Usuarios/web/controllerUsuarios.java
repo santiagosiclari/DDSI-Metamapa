@@ -1,15 +1,11 @@
 package Usuarios.web;
 
-import Usuarios.business.Usuarios.Rol;
-import Usuarios.business.Usuarios.Usuario;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import Usuarios.business.Usuarios.*;
+import java.util.*;
 import java.util.stream.Collectors;
 import Usuarios.DTO.UsuarioDTO;
 import Usuarios.persistencia.RepositorioUsuarios;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 public class controllerUsuarios {

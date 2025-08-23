@@ -1,11 +1,8 @@
 package FuenteEstatica.business.FuentesDeDatos;
-import FuenteEstatica.business.Parsers.CSVHechoParser;
+import FuenteEstatica.business.Parsers.*;
 import FuenteEstatica.business.Hechos.Hecho;
-import FuenteEstatica.business.Parsers.HechoParser;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.Getter;
 
 @JsonTypeName("FUENTEESTATICA")

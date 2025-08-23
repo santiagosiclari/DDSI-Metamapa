@@ -5,8 +5,7 @@ import java.util.stream.Collectors;
 import FuenteDinamica.persistencia.RepositorioFuentes;
 import FuenteDinamica.business.Hechos.*;
 import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -68,8 +67,7 @@ public class ControllerFuenteDinamica {
       Float longitud = lonNum != null ? lonNum.floatValue() : null;
       String fechaStr = (String) requestBody.get("fechaHecho");
       LocalDate fechaHecho = (fechaStr != null && !fechaStr.isBlank())
-          ? LocalDate.parse(fechaStr)
-          : null;
+          ? LocalDate.parse(fechaStr) : null;
       Integer autor = (Integer) requestBody.get("idUsuario");
       //Perfil autor = null;
       //Perfil autor = (Perfil) requestBody.get("autor");
@@ -106,9 +104,7 @@ public class ControllerFuenteDinamica {
       repositorioFuentes.buscarFuente(idFuenteDeDatos).getHechos().add(hecho);
       return ResponseEntity.ok(hecho);
     } catch (Exception e) {
-      return ResponseEntity
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(Map.of("error", "Error interno: " + e.getMessage()));
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno: " + e.getMessage()));
     }
   }
 }

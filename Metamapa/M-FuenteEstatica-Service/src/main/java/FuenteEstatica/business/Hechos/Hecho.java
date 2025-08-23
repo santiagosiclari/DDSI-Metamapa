@@ -21,11 +21,11 @@ public class Hecho {
   private LocalDate fechaCarga;
   @Getter
   private int fuenteId;
-  /*
+
   @Getter @Setter
   private Integer id;
   static public Integer contadorID = 1;
-*/
+
   public Hecho(
           String titulo,
           String descripcion,
@@ -41,7 +41,7 @@ public class Hecho {
     this.longitud = longitud;
     this.fechaHecho = fechaHecho;
     this.fechaCarga = LocalDate.now();
-    //this.id = contadorID++;
+    this.id = contadorID++;
     this.fuenteId = fuenteId;
   }
 }

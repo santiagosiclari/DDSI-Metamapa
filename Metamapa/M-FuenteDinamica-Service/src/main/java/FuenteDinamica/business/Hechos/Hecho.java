@@ -1,9 +1,7 @@
 package FuenteDinamica.business.Hechos;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
 
