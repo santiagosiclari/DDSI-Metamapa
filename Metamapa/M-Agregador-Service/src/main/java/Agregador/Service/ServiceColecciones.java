@@ -1,10 +1,9 @@
 package Agregador.Service;
+import Agregador.DTO.*;
 import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
-import Agregador.persistencia.RepositorioColecciones;
-import Agregador.persistencia.RepositorioHechos;
-import org.springframework.http.ResponseEntity;
+import Agregador.persistencia.*;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
@@ -20,8 +19,9 @@ public class ServiceColecciones {
     this.repositorioColecciones = repositorioColecciones;
   }
 
-  public ArrayList<Hecho> getHechosColeccion(UUID identificador, String modoNavegacion, Map<String, String> paramsP, Map<String, String> paramsNP) {
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(identificador);
+  public ArrayList<Hecho> getHechosColeccion(UUID id, String modoNavegacion, Map<String, String> paramsP, Map<String, String> paramsNP) {
+    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     ModosDeNavegacion modo = ModosDeNavegacion.valueOf(modoNavegacion.toUpperCase());
     ArrayList<Criterio> criteriosP = (ArrayList<Criterio>) procesarCriterios(
             construirCriteriosJson(
@@ -54,71 +54,62 @@ public class ServiceColecciones {
      return coleccion.filtrarPorCriterios((ArrayList<Hecho>) repositorioHechos.getHechos(), criteriosP, criteriosNP, modo);
   }
 
-  public ArrayList<Coleccion> obtenerTodasLasColecciones() {return repositorioColecciones.getColecciones();}
-
-  public Coleccion obtenerColeccionPorId(UUID id) {
-    return repositorioColecciones.buscarXUUID(id);
+  public List<ColeccionDTO> obtenerTodasLasColecciones() {
+    return repositorioColecciones.getColecciones().stream()
+            .map(ColeccionDTO::new) // convierte cada Coleccion a DTO
+            .collect(Collectors.toList());
   }
 
-  public ResponseEntity<?> crearColeccion(Map<String, Object> requestBody) {
-    String titulo = (String) requestBody.get("titulo");
-    if (titulo == null || titulo.isBlank())
-      return ResponseEntity.badRequest().body(Map.of("error", "El campo 'titulo' es obligatorio"));
-    String descripcion = (String) requestBody.get("descripcion");
-    List<Criterio> criteriosPertenencia = parseCriterios(requestBody.get("criteriosPertenencia"));
-    List<Criterio> criteriosNoPertenencia = parseCriterios(requestBody.get("criteriosNoPertenencia"));
-    Coleccion coleccion = new Coleccion(titulo, descripcion, (ArrayList<Criterio>) criteriosPertenencia, (ArrayList<Criterio>) criteriosNoPertenencia);
-    Optional.ofNullable(requestBody.get("consenso"))
-            .filter(String.class::isInstance)
-            .map(String.class::cast)
-            .map(Consenso::stringToConsenso)
-            .ifPresent(coleccion::setConsenso);
+  public ColeccionDTO obtenerColeccionPorId(UUID id) {
+    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+    return new ColeccionDTO(coleccion);
+  }
+
+  public ColeccionDTO crearColeccion(ColeccionDTO coleccionDTO) {
+    ArrayList<Criterio> pertenencia = coleccionDTO.getCriteriosPertenencia().stream()
+            .map(CriterioDTO::toDomain)
+            .collect(Collectors.toCollection(ArrayList::new));
+    ArrayList<Criterio> noPertenencia = coleccionDTO.getCriteriosNoPertenencia().stream()
+            .map(CriterioDTO::toDomain)
+            .collect(Collectors.toCollection(ArrayList::new));
+    Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), pertenencia, noPertenencia);
+    if (coleccionDTO.getConsenso() != null) {
+      coleccion.setConsenso(Consenso.stringToConsenso(coleccionDTO.getConsenso()));
+    }
     repositorioColecciones.getColecciones().add(coleccion);
-    return ResponseEntity.status(201).body(coleccion);
+    return new ColeccionDTO(coleccion);
   }
 
-  public ResponseEntity<?> actualizarColeccion(UUID id, Map<String, Object> requestBody) {
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
-    /* if (coleccionOpt.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+  public ColeccionDTO actualizarColeccion(UUID id, ColeccionDTO coleccionDTO) {
+    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+    if (coleccionDTO.getTitulo() != null) coleccion.setTitulo(coleccionDTO.getTitulo());
+    if (coleccionDTO.getDescripcion() != null) coleccion.setDescripcion(coleccionDTO.getDescripcion());
+    if (coleccionDTO.getConsenso() != null) coleccion.setConsenso(Consenso.stringToConsenso(coleccionDTO.getConsenso()));
+    if (coleccionDTO.getCriteriosPertenencia() != null) {
+      List<Criterio> nuevosCriterios = coleccionDTO.getCriteriosPertenencia().stream()
+              .map(CriterioDTO::toDomain)
+              .toList();
+      coleccion.setCriterioPertenencia(new ArrayList<>(nuevosCriterios));
     }
-    Coleccion coleccion = coleccionOpt.get();*/
-    if (requestBody.containsKey("titulo")) coleccion.setTitulo((String) requestBody.get("titulo"));
-    if (requestBody.containsKey("descripcion")) coleccion.setDescripcion((String) requestBody.get("descripcion"));
-    if (requestBody.containsKey("consenso")) {
-      String consensoStr = (String) requestBody.get("consenso");
-      coleccion.setConsenso(Consenso.stringToConsenso(consensoStr));
+    if (coleccionDTO.getCriteriosNoPertenencia() != null) {
+      List<Criterio> nuevosCriterios = coleccionDTO.getCriteriosNoPertenencia().stream()
+              .map(CriterioDTO::toDomain)
+              .toList();
+      coleccion.setCriterioNoPertenencia(new ArrayList<>(nuevosCriterios));
     }
-    if (requestBody.containsKey("criteriosPertenencia")) {
-      List<Map<String, Object>> criteriosData = (List<Map<String, Object>>) requestBody.get("criteriosPertenencia");
-      List<Criterio> nuevosCriterios = criteriosData.stream()
-              .map(this::crearCriterioDesdeJson)
-              .filter(Objects::nonNull)
-              .collect(Collectors.toList());
-      coleccion.setCriterioPertenencia((ArrayList<Criterio>) nuevosCriterios);
-    }
-    if (requestBody.containsKey("criteriosNoPertenencia")) {
-      List<Map<String, Object>> criteriosData = (List<Map<String, Object>>) requestBody.get("criteriosNoPertenencia");
-      List<Criterio> nuevosCriterios = criteriosData.stream()
-              .map(this::crearCriterioDesdeJson)
-              .filter(Objects::nonNull)
-              .collect(Collectors.toList());
-      coleccion.setCriterioNoPertenencia((ArrayList<Criterio>) nuevosCriterios);
-    }
-    return ResponseEntity.ok(coleccion);
+    return new ColeccionDTO(coleccion);
   }
 
-  public ResponseEntity<?> modificarAlgoritmo(UUID id, Map<String, Object> requestBody) {
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(id);
-    if (coleccion == null)
-      return ResponseEntity.status(404).body(Map.of("error", "Colección no encontrada"));
-    if (requestBody.containsKey("consenso")) {
-      String consensoStr = (String) requestBody.get("consenso");
-      coleccion.setConsenso(Consenso.stringToConsenso(consensoStr));
-    } else {
-      return ResponseEntity.badRequest().body(Map.of("error", "El campo 'consenso' es obligatorio"));
-    }
-    return ResponseEntity.ok(coleccion);
+  public String modificarAlgoritmo(UUID id, Map<String, Object> requestBody) {
+    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+    String consensoStr = (String) requestBody.get("consenso");
+    //if (consensoStr == null)
+    //  return ResponseEntity.badRequest().body(Map.of("error", "El campo 'consenso' es obligatorio"));
+    coleccion.setConsenso(Consenso.stringToConsenso(consensoStr));
+    return "Algoritmo de consenso actualizado a " + consensoStr;
   }
 
   public boolean eliminarColeccion(UUID id) {
@@ -172,14 +163,6 @@ public class ServiceColecciones {
               claveValor, valor
       ));
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private List<Criterio> parseCriterios(Object criteriosRaw) {
-    if (criteriosRaw instanceof List<?> lista) {
-      return procesarCriterios((List<Map<String, Object>>) lista);
-    }
-    return List.of();
   }
 
   private List<Criterio> procesarCriterios(List<Map<String, Object>> criteriosJson) {

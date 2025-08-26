@@ -92,8 +92,8 @@ public class ControllerAgregador {
   @PostMapping("/fuentesDeDatos/{idColeccion}/{idFuente}")
   public ResponseEntity<Void> agregarFuente(@PathVariable Integer idFuente, @PathVariable String idColeccion) {
     try {
-      Coleccion col = repositorioColecciones.buscarXUUID(UUID.fromString(idColeccion));
-      if (col == null) return ResponseEntity.notFound().build();
+      Coleccion col = repositorioColecciones.buscarXUUID(UUID.fromString(idColeccion))
+                      .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
       col.agregarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
       return ResponseEntity.noContent().build();
     } catch (Exception e) {
@@ -104,7 +104,8 @@ public class ControllerAgregador {
   @PostMapping("/fuentesDeDatos/{idColeccion}/remover/{idFuente}")
   public ResponseEntity<Void> eliminarFuente(@PathVariable Integer idFuente,@PathVariable String idColeccion) {
     try {
-      Coleccion col = repositorioColecciones.buscarXUUID(UUID.fromString(idColeccion));
+      Coleccion col = repositorioColecciones.buscarXUUID(UUID.fromString(idColeccion))
+              .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
       if (col == null) return ResponseEntity.notFound().build();
       col.eliminarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
       return ResponseEntity.noContent().build();

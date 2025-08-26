@@ -1,9 +1,9 @@
 package Agregador.web;
+import Agregador.DTO.ColeccionDTO;
 import Agregador.Service.ServiceColecciones;
-import Agregador.business.Colecciones.*;
-//import DTO.ColeccionDTO;
 import Agregador.business.Hechos.*;
 import java.util.*;
+import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +16,7 @@ public class ControllerColecciones {
     this.serviceColecciones = serviceColecciones;
   }
 
-  @GetMapping("/{identificador}")
+  @GetMapping("/{identificador}/hechos")
   public ResponseEntity<ArrayList<Hecho>> getHechosColeccion(
           @PathVariable("identificador") UUID identificador,
           @RequestParam(value = "modoNavegacion", required = false, defaultValue = "IRRESTRICTA") String modoNavegacion,
@@ -76,9 +76,9 @@ public class ControllerColecciones {
 
   // Obtener todas las colecciones (get /colecciones)
   @GetMapping("/")
-  public ResponseEntity<ArrayList<Coleccion>> obtenerTodasLasColecciones() {
+  public ResponseEntity<List<ColeccionDTO>> obtenerTodasLasColecciones() {
     try {
-      return ResponseEntity.ok(this.serviceColecciones.obtenerTodasLasColecciones());
+      return ResponseEntity.ok(serviceColecciones.obtenerTodasLasColecciones());
     } catch (Exception e) {
       System.err.println("Error al obtener colecciones: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -87,7 +87,7 @@ public class ControllerColecciones {
 
   // Obtener una colección por ID (get /colecciones/{id})
   @GetMapping("/{id}")
-  public ResponseEntity<Coleccion> obtenerColeccionPorId(@PathVariable("id") UUID id) {
+  public ResponseEntity<ColeccionDTO> obtenerColeccionPorId(@PathVariable("id") UUID id) {
     try {
       return ResponseEntity.ok(serviceColecciones.obtenerColeccionPorId(id));
     } catch (IllegalArgumentException e) {
@@ -100,16 +100,17 @@ public class ControllerColecciones {
 
   // Crear una coleccion (post /colecciones)
   @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<?> crearColeccion(@RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<?> crearColeccion(@Valid @RequestBody ColeccionDTO requestBody) {
     try {
-      return ResponseEntity.status(HttpStatus.CREATED).body(this.serviceColecciones.crearColeccion(requestBody));
+      ColeccionDTO dto = this.serviceColecciones.crearColeccion(requestBody);
+      return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error interno al crear la colección"));
     }
   }
 
   @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<?> actualizarColeccion(@PathVariable("id") UUID id, @RequestBody Map<String, Object> requestBody) {
+  public ResponseEntity<?> actualizarColeccion(@PathVariable("id") UUID id, @Valid @RequestBody ColeccionDTO requestBody) {
     try {
       return ResponseEntity.ok(this.serviceColecciones.actualizarColeccion(id, requestBody));
     } catch (IllegalArgumentException e) {

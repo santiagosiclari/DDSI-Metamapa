@@ -10,8 +10,10 @@ public class RepositorioColecciones {
   @Getter
   public ArrayList<Coleccion> colecciones = new ArrayList<>();
 
-  public Coleccion buscarXUUID(UUID uuid){
-    return this.getColecciones().stream().filter(c -> c.getHandle().equals(uuid)).toList().get(0);
+  public Optional<Coleccion> buscarXUUID(UUID uuid){
+    return this.getColecciones().stream()
+            .filter(c -> c.getHandle().equals(uuid))
+            .findFirst();
   }
 
   public void update(Coleccion coleccion) {
