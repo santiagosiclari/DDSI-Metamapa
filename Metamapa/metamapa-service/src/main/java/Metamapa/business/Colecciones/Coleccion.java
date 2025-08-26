@@ -23,9 +23,9 @@ public class Coleccion {
     private UUID handle;
     @Getter @Setter
     private Consenso consenso;
-   // @Getter @Setter
-   // private ModosDeNavegacion modoNavegacion;
-
+   @Getter @Setter
+   private ModosDeNavegacion modoNavegacion;
+    @Getter
     private final Agregador agregador = Agregador.getInstance();
 
     public Coleccion(String titulo, String desc, ArrayList<Criterio> pertenencia, ArrayList<Criterio> noPertenencia){

@@ -2,6 +2,8 @@ package Metamapa.service;
 import Metamapa.business.Agregador.Agregador;
 import Metamapa.business.Hechos.Hecho;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -59,4 +61,25 @@ public class ServiceAgregador {
     } catch (HttpClientErrorException.Conflict e) { return Result.CONFLICT;
     } catch (HttpClientErrorException.UnprocessableEntity e) { return Result.INVALID; }
   }
+    public Integer crearSolicitudYRetornarId(String hechoAfectado, String motivo, String url) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("hechoAfectado", hechoAfectado);
+        payload.put("motivo", motivo);
+        if (url != null && !url.isBlank()) {
+            payload.put("url", url);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = restTemplate.postForObject(
+                baseUrl + "/api-solcitudEliminacion/",
+                request,
+                Map.class
+        );
+        return (Integer) response.get("id");
+    }
 }

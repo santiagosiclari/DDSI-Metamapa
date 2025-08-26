@@ -1,4 +1,6 @@
 package Metamapa.web;
+import Metamapa.business.Colecciones.Coleccion;
+import Metamapa.business.Consenso.ModosDeNavegacion;
 import Metamapa.business.Hechos.*;
 import Metamapa.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -121,13 +124,70 @@ public class ControllerMetamapa {
   }
 
   //● TODO Generar una solicitud de eliminación a un hecho.
-  //@PostMapping("/metamapa/api/solicitudesEliminacion/")
+  @PostMapping("/metamapa/api/solicitudesEliminacion/")
+  public String generarSolicitudEliminacion(@RequestParam("hechoAfectado") String hechoAfectado,
+                                            @RequestParam("motivo") String motivo,
+                                            @RequestParam(value = "url", required = false) String url,
+                                            RedirectAttributes ra ){
+      Integer idSolicitud = serviceAgregador.crearSolicitudYRetornarId(hechoAfectado, motivo, url);
+      ra.addFlashAttribute("success", "Fuente creada correctamente con id: " + idSolicitud);
+      //return "redirect:/metamapa/solicitudesEliminacion/" + idSolicitud; //Te lleva a la pagina de la nueva fuente
+      return "redirect:/metamapa/solicitudesEliminacion/";
+  }
 
   //● TODO: Navegación filtrada sobre una colección.
-  //@GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/")
+  @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/")
+  public List<Hecho> navegarFiltrado(
+          @PathVariable UUID idColeccion,
+          // filtros opcionales
+          @RequestParam(required = false) String categoria,
+          @RequestParam(required = false) String titulo,
+          @RequestParam(required = false) String descripcion,
+          // fechas (LocalDate)
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate fecha_reporte_desde,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate fecha_reporte_hasta,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate fecha_acontecimiento_desde,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate fecha_acontecimiento_hasta,
+          // ubicación
+          @RequestParam(required = false) Float ubicacion_latitud,
+          @RequestParam(required = false) Float ubicacion_longitud,
+          @RequestParam(required = false) Double radio_km, //Haversine en el agregador
+          // otros
+          @RequestParam(required = false) Integer id_fuente,
+          @RequestParam(required = false) TipoMultimedia tipo_multimedia,
 
-  //● TODO: Navegación curada o irrestricta sobre una colección.
-  //@GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/")
+          // modo de navegación (default CURADA)
+          @RequestParam(defaultValue = "CURADA") ModosDeNavegacion modo
+  ) {
+      return serviceColecciones.navegarFiltrado(
+              idColeccion,
+              modo,
+              categoria,
+              titulo,
+              descripcion,
+              fecha_reporte_desde,
+              fecha_reporte_hasta,
+              fecha_acontecimiento_desde,
+              fecha_acontecimiento_hasta,
+              ubicacion_latitud,
+              ubicacion_longitud,
+              radio_km,
+              id_fuente,
+              tipo_multimedia
+      );
+  }
+
+    //● TODO: Navegación curada o irrestricta sobre una colección.
+  @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/{modo}")
+  public ArrayList<Hecho> obtenerHechosNavegacion(@PathVariable("idColeccion") UUID id,
+                                                  @PathVariable("modo") ModosDeNavegacion modosDeNavegacion) {
+      Coleccion coleccion = serviceColecciones.getColeccion(id);
+      return coleccion.getHechos(coleccion.getAgregador().getListaDeHechos(), modosDeNavegacion);
+  }
 
   //● TODO: Reportar un hecho.
 
