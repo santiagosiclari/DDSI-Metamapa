@@ -1,14 +1,12 @@
 package Agregador.persistencia;
 
+import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
-import lombok.Getter;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class RepositorioHechos {
-  @Getter
   private ArrayList<Hecho> hechos = new ArrayList<>();
 
   public List<Hecho> getHechos() {
@@ -24,5 +22,12 @@ public class RepositorioHechos {
 
   public void modificarHecho(Hecho hecho) {
     //TODO implementar, no creo que haga falta
+  }
+
+  public List<Hecho> filtrarPorCriterios(List<Criterio> inclusion, List<Criterio> exclusion) {
+    return hechos.stream()
+            .filter(h -> inclusion.stream().allMatch(c -> c.cumple(h)))
+            .filter(h -> exclusion.stream().noneMatch(c -> c.cumple(h)))
+            .toList();
   }
 }

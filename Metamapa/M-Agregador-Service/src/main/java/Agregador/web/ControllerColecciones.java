@@ -1,6 +1,8 @@
 package Agregador.web;
 import Agregador.DTO.ColeccionDTO;
+import Agregador.DTO.FiltrosHechosDTO;
 import Agregador.Service.ServiceColecciones;
+import Agregador.business.Consenso.ModosDeNavegacion;
 import Agregador.business.Hechos.*;
 import java.util.*;
 import jakarta.validation.Valid;
@@ -16,7 +18,7 @@ public class ControllerColecciones {
     this.serviceColecciones = serviceColecciones;
   }
 
-  @GetMapping("/{identificador}/hechos")
+ /* @GetMapping("/{identificador}/hechos")
   public ResponseEntity<ArrayList<Hecho>> getHechosColeccion(
           @PathVariable("identificador") UUID identificador,
           @RequestParam(value = "modoNavegacion", required = false, defaultValue = "IRRESTRICTA") String modoNavegacion,
@@ -72,6 +74,15 @@ public class ControllerColecciones {
       System.err.println("Error al obtener hechos de colección: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
     }
+  }*/
+
+  @GetMapping("/{identificador}/hechos")
+  public ResponseEntity<List<Hecho>> getHechosColeccion(@PathVariable UUID identificador,
+                                                        @RequestParam(defaultValue = "IRRESTRICTA") ModosDeNavegacion modoNavegacion,
+                                                        @Valid FiltrosHechosDTO filtros
+  ) {
+    List<Hecho> hechos = serviceColecciones.getHechosFiltrados(identificador, modoNavegacion, filtros);
+    return ResponseEntity.ok(hechos);
   }
 
   // Obtener todas las colecciones (get /colecciones)

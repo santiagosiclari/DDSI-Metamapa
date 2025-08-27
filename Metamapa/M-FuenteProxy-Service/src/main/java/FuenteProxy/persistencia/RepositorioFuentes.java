@@ -1,7 +1,6 @@
 package FuenteProxy.persistencia;
 import FuenteProxy.business.FuentesDeDatos.*;
 import FuenteProxy.business.Parsers.CSVHechoParser;
-import java.time.LocalDate;
 import java.util.*;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;
@@ -25,9 +24,6 @@ public class RepositorioFuentes {
       case FUENTEDEMO:
         FuenteDemo fuenteDemo = (FuenteDemo) fuente;
         return FuenteDemoDTO.fromEntity(fuenteDemo);
-      case FUENTEDINAMICA:
-
-      case FUENTEESTATICA:
 
       case FUENTEMETAMAPA:
 
@@ -44,5 +40,3 @@ public class RepositorioFuentes {
   }
    */
 }
-
-

@@ -5,9 +5,8 @@ import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
 import Agregador.persistencia.*;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 @Service
 public class ServiceColecciones {
@@ -19,39 +18,78 @@ public class ServiceColecciones {
     this.repositorioColecciones = repositorioColecciones;
   }
 
-  public ArrayList<Hecho> getHechosColeccion(UUID id, String modoNavegacion, Map<String, String> paramsP, Map<String, String> paramsNP) {
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
-            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+  /*public ArrayList<Hecho> getHechosColeccion(UUID id, String modoNavegacion, Map<String, String> paramsP, Map<String, String> paramsNP) {
+    Coleccion coleccion = repositorioColecciones.buscarXUUID(id).orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     ModosDeNavegacion modo = ModosDeNavegacion.valueOf(modoNavegacion.toUpperCase());
     ArrayList<Criterio> criteriosP = (ArrayList<Criterio>) procesarCriterios(
             construirCriteriosJson(
-                    paramsP.get("titulo"),
-                    paramsP.get("descripcion"),
-                    paramsP.get("categoria"),
-                    paramsP.get("fecha_reporte_desde"),
-                    paramsP.get("fecha_reporte_hasta"),
-                    paramsP.get("fecha_acontecimiento_desde"),
-                    paramsP.get("fecha_acontecimiento_hasta"),
-                    paramsP.get("latitud"),
-                    paramsP.get("longitud"),
-                    paramsP.get("tipoMultimedia")
+                    paramsP.get("titulo"), paramsP.get("descripcion"),
+                    paramsP.get("categoria"), paramsP.get("fecha_reporte_desde"),
+                    paramsP.get("fecha_reporte_hasta"), paramsP.get("fecha_acontecimiento_desde"),
+                    paramsP.get("fecha_acontecimiento_hasta"),paramsP.get("latitud"),
+                    paramsP.get("longitud"),paramsP.get("tipoMultimedia")
             )
     );
     ArrayList<Criterio> criteriosNP = (ArrayList<Criterio>) procesarCriterios(
             construirCriteriosJson(
-                    paramsNP.get("titulo"),
-                    paramsNP.get("descripcion"),
-                    paramsNP.get("categoria"),
-                    paramsNP.get("fecha_reporte_desde"),
-                    paramsNP.get("fecha_reporte_hasta"),
-                    paramsNP.get("fecha_acontecimiento_desde"),
-                    paramsNP.get("fecha_acontecimiento_hasta"),
-                    paramsNP.get("latitud"),
-                    paramsNP.get("longitud"),
-                    paramsNP.get("tipoMultimedia")
+                    paramsNP.get("titulo"),paramsNP.get("descripcion"),
+                    paramsNP.get("categoria"),paramsNP.get("fecha_reporte_desde"),
+                    paramsNP.get("fecha_reporte_hasta"), paramsNP.get("fecha_acontecimiento_desde"),
+                    paramsNP.get("fecha_acontecimiento_hasta"), paramsNP.get("latitud"),
+                    paramsNP.get("longitud"), paramsNP.get("tipoMultimedia")
             )
     );
      return coleccion.filtrarPorCriterios((ArrayList<Hecho>) repositorioHechos.getHechos(), criteriosP, criteriosNP, modo);
+  }*/
+  public List<Hecho> getHechosFiltrados(UUID id, ModosDeNavegacion modoNavegacion, FiltrosHechosDTO filtros) {
+    //System.out.println("Filtros recibidos: " + filtros);
+    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+    List<Criterio> inclusion = construirCriteriosInclusion(filtros);
+    List<Criterio> exclusion = construirCriteriosExclusion(filtros);
+    List<Criterio> totalFiltrosInclusion = Stream.concat(coleccion.getCriterioPertenencia().stream(), inclusion.stream())
+            .distinct()
+            .collect(Collectors.toList());
+    List<Criterio> totalFiltrosExclusion = Stream.concat(coleccion.getCriterioNoPertenencia().stream(), exclusion.stream())
+            .distinct()
+            .collect(Collectors.toList());
+    //System.out.println("Filtros totales: " + totalFiltrosInclusion);
+    //System.out.println("Filtros totales: " + totalFiltrosExclusion);
+    // if (modoNavegacion == ModosDeNavegacion.IRRESTRICTA)
+    return repositorioHechos.filtrarPorCriterios(totalFiltrosInclusion,totalFiltrosExclusion);
+    //TODO implementar modo CURADA
+  }
+
+  private List<Criterio> construirCriteriosInclusion(FiltrosHechosDTO filtros) {
+    List<Criterio> inclusion = new ArrayList<>();
+    if (filtros.getTituloP() != null) inclusion.add(new CriterioTitulo(filtros.getTituloP()));
+    if (filtros.getDescripcionP() != null) inclusion.add(new CriterioDescripcion(filtros.getDescripcionP()));
+    if (filtros.getCategoriaP() != null) inclusion.add(new CriterioCategoria(filtros.getCategoriaP()));
+    if (filtros.getFechaReporteDesdeP() != null || filtros.getFechaReporteHastaP() != null)
+      inclusion.add(new CriterioFechaReportaje(filtros.getFechaReporteDesdeP(), filtros.getFechaReporteHastaP()));
+    if (filtros.getFechaAcontecimientoDesdeP() != null || filtros.getFechaAcontecimientoHastaP() != null)
+      inclusion.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeP(), filtros.getFechaAcontecimientoHastaP()));
+    if (filtros.getLatitudP() != null && filtros.getLongitudP() != null)
+      inclusion.add(new CriterioUbicacion(filtros.getLatitudP(), filtros.getLongitudP()));
+    if (filtros.getTipoMultimediaP() != null)
+      inclusion.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaP())));
+    return inclusion;
+  }
+
+  private List<Criterio> construirCriteriosExclusion(FiltrosHechosDTO filtros) {
+    List<Criterio> exclusion = new ArrayList<>();
+    if (filtros.getTituloNP() != null) exclusion.add(new CriterioTitulo(filtros.getTituloNP()));
+    if (filtros.getDescripcionNP() != null) exclusion.add(new CriterioDescripcion(filtros.getDescripcionNP()));
+    if (filtros.getCategoriaNP() != null) exclusion.add(new CriterioCategoria(filtros.getCategoriaNP()));
+    if (filtros.getFechaReporteDesdeNP() != null || filtros.getFechaReporteHastaNP() != null)
+      exclusion.add(new CriterioFechaReportaje(filtros.getFechaReporteDesdeNP(), filtros.getFechaReporteHastaNP()));
+    if (filtros.getFechaAcontecimientoDesdeNP() != null || filtros.getFechaAcontecimientoHastaNP() != null)
+      exclusion.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeNP(), filtros.getFechaAcontecimientoHastaNP()));
+    if (filtros.getLatitudNP() != null && filtros.getLongitudNP() != null)
+      exclusion.add(new CriterioUbicacion(filtros.getLatitudNP(), filtros.getLongitudNP()));
+    if (filtros.getTipoMultimediaNP() != null)
+      exclusion.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaNP())));
+    return exclusion;
   }
 
   public List<ColeccionDTO> obtenerTodasLasColecciones() {
@@ -115,7 +153,7 @@ public class ServiceColecciones {
   public boolean eliminarColeccion(UUID id) {
     return repositorioColecciones.eliminar(id);
   }
-
+  /*
   // Metodo auxiliar para construir criterios JSON desde parámetros
   private List<Map<String, Object>> construirCriteriosJson(
           String titulo, String descripcion, String categoria,
@@ -155,7 +193,6 @@ public class ServiceColecciones {
     }
     return criterios;
   }
-
   private void agregarCriterio(List<Map<String, Object>> criterios, String tipo, String claveValor, String valor) {
     if (valor != null) {
       criterios.add(Map.of(
@@ -164,14 +201,12 @@ public class ServiceColecciones {
       ));
     }
   }
-
   private List<Criterio> procesarCriterios(List<Map<String, Object>> criteriosJson) {
     return criteriosJson.stream()
             .map(this::crearCriterioDesdeJson)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
   }
-
   private Criterio crearCriterioDesdeJson(Map<String, Object> criterioJson) {
     String tipo = ((String) criterioJson.get("tipo")).toLowerCase();
     try {
@@ -215,12 +250,10 @@ public class ServiceColecciones {
       return null;
     }
   }
-
   private LocalDate parseFecha(String str) {
     return str != null ? LocalDate.parse(str) : null;
   }
-
   private Float parseFloat(Object obj) {
     return obj != null ? Float.parseFloat(obj.toString()) : null;
-  }
+  }*/
 }
