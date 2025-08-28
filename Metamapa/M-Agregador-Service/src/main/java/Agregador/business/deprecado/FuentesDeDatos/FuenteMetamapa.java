@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class FuenteMetamapa extends FuenteProxy {
   final private RestTemplate restTemplate;
   static private Integer contadorID = 1;
-//TODO agregar el id al hecho
+
   public FuenteMetamapa(String nombre, String endpointBase) {
     super(nombre,endpointBase);
     this.id = contadorID++;

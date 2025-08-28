@@ -8,20 +8,15 @@ import lombok.Setter;
 //import infrastructure.dto.client.MetaMapaRestClient;
 
 @JsonTypeName("FUENTEPROXY")
+@Getter
 public abstract class FuenteProxy {
-    @Getter
     public String endpointBase;
-    @Getter @Setter
+    @Setter
     public HechoParser parser;
-    @Getter
     static protected Integer contadorID = 3000000;
-    @Getter
     protected Integer id;
-    @Getter
     public String nombre;
-    @Getter
     public ArrayList<Hecho> hechos;
-    @Getter
     public TipoFuente tipoFuente;
 
     public FuenteProxy(String nombre, String endpointBase) {

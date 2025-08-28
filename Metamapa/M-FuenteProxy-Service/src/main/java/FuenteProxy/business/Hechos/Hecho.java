@@ -4,26 +4,19 @@ import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class Hecho {
-  @Getter
   private String titulo;
-  @Getter
   private String descripcion;
-  @Getter
   private String categoria;
-  @Getter
   private Float latitud;
-  @Getter
   private Float longitud;
-  @Getter
   private LocalDate fechaHecho;
-  @Getter
   private LocalDate fechaCarga;
-  @Getter
   private LocalDate fechaModificacion;
   //@Getter @Setter
   //private Perfil perfil;
-  @Getter @Setter
+  @Setter
   private int fuenteId;
   //@Getter @Setter
   //private Boolean anonimo;
@@ -33,7 +26,6 @@ public class Hecho {
   //private List<Multimedia> multimedia;
   //@Getter @Setter
   //private HashMap<String,String> metadata;
-  @Getter
   private Integer id;
   static public Integer contadorID = 1;
 

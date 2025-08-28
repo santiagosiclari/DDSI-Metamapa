@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public class RepositorioSolicitudes {
-
   //--------------------------------------------------Solicitudes de Eliminacion------------------------------------------------------------
   private ArrayList<SolicitudEliminacion> solicitudesEliminacion = new ArrayList<>();
 
@@ -42,7 +41,6 @@ public class RepositorioSolicitudes {
     }*/
 
   //----------------------------------------------------------------Solicitudes de Edicion------------------------------------------------------------
-
   // Lista en memoria para almacenar las solicitudes
   private List<SolicitudEdicion> solicitudesEdicion = new ArrayList<>();
 

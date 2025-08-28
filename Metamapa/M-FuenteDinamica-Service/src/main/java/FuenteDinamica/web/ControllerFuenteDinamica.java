@@ -23,13 +23,12 @@ public class ControllerFuenteDinamica {
   }
 
   @GetMapping("/{idFuenteDeDatos}")
-  public FuenteDinamica getFuenteDeDatos(
-      @PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+  public FuenteDinamica getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return repositorioFuentes.buscarFuente(idfuenteDeDatos);
   }
 
   //TODO este me parece que no se usa, ya que el agregador se actualiza solo
-  //TODO por ahi esta para otra cosa
+  // por ahi esta para otra cosa
   @GetMapping("/{idFuenteDeDatos}/hechos")
   public ArrayList<Hecho> getHechosFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return repositorioFuentes.buscarFuente(idfuenteDeDatos).getHechos();

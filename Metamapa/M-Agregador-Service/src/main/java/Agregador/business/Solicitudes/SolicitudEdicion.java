@@ -5,24 +5,16 @@ import java.util.List;
 import lombok.Getter;
 import Agregador.business.Hechos.Multimedia;
 
+@Getter
 public class SolicitudEdicion extends Solicitud {
-  @Getter
   private String tituloMod;
-  @Getter
   private String descMod;
-  @Getter
   private String categoriaMod;
-  @Getter
   private Float latitudMod;
-  @Getter
   private Float longitudMod;
-  @Getter
   private Date fechaHechoMod;
-  @Getter
   private List<Multimedia> multimediaMod;
-  @Getter
   private Boolean anonimidadMod;
-  @Getter
   private String sugerencia;
   static private Integer contadorID = 1;
   public SolicitudEdicion(String tituloMod,

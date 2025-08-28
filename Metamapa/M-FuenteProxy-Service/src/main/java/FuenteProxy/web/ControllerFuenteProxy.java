@@ -27,7 +27,6 @@ public class ControllerFuenteProxy{
 
   @GetMapping("/{idFuenteDeDatos}/hechos")
   public ResponseEntity<List<Hecho>> obtenerHechos(@PathVariable Integer idFuenteDeDatos) {
-    //return serviceIncidencias.obtenerHechosXIDFuente(idfuenteDeDatos);
     return ResponseEntity.ok(fuenteProxyService.obtenerHechos(idFuenteDeDatos));
   }
 

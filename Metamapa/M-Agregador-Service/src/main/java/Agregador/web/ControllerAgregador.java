@@ -1,8 +1,6 @@
 package Agregador.web;
-
 import Agregador.business.Agregador.Agregador;
-import Agregador.business.Colecciones.Coleccion;
-import Agregador.business.Colecciones.CriterioFuenteDeDatos;
+import Agregador.business.Colecciones.*;
 import Agregador.business.Hechos.Hecho;
 import java.util.*;
 import Agregador.Service.ServiceFuenteDeDatos;
@@ -32,7 +30,7 @@ public class ControllerAgregador {
     }
   */
 
-  private ArrayList<String> obtenerFuentes() {
+  private ArrayList<String> obtenerURLFuentes() {
     ArrayList<String> URLsFuentes = new ArrayList<String>();
     URLsFuentes.add("${M.FuenteDinamica.service.url}");
     URLsFuentes.add("${M.FuenteEstatica.service.url}");
@@ -41,7 +39,7 @@ public class ControllerAgregador {
   }
 
   public void actualizarHechos() {
-    ArrayList<String> URLsFuentes = obtenerFuentes();
+    ArrayList<String> URLsFuentes = obtenerURLFuentes();
     ArrayList<Hecho> hechos = new ArrayList<>();
     URLsFuentes.forEach(url -> {
       hechos.addAll(new ServiceFuenteDeDatos(new RestTemplate(), url).getHechos());
@@ -62,7 +60,6 @@ public class ControllerAgregador {
     return ResponseEntity.ok(agregador);
   }
 
-
 //  @PostMapping ("/fuentes/actualizar")
 //  public ResponseEntity<?> actualizarAgregador() {
 //    try {
@@ -78,7 +75,7 @@ public class ControllerAgregador {
 //  }
 
   //TODO esto se va a comunicar con el servicio de colecciones
-  //TODO y las colecciones filtran estos hechos
+  // y las colecciones filtran estos hechos
 //  @GetMapping("/hechos")
 //  public ResponseEntity<ArrayList<Hecho>> getAgregadorHechos() {
 //    ArrayList<Hecho> hechos = repositorioAgregador.getAgregador().getListaDeHechos();
@@ -89,6 +86,7 @@ public class ControllerAgregador {
 //    return ResponseEntity.ok(hechos);
 //  }
 
+  //TODO: estos 2 no  deberian ir en el controller colecciones?
   @PostMapping("/fuentesDeDatos/{idColeccion}/{idFuente}")
   public ResponseEntity<Void> agregarFuente(@PathVariable Integer idFuente, @PathVariable String idColeccion) {
     try {
@@ -113,6 +111,4 @@ public class ControllerAgregador {
       return ResponseEntity.status(500).build();
     }
   }
-
-
 }

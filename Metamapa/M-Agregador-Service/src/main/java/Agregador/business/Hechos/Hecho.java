@@ -7,36 +7,27 @@ import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class Hecho {
-  @Getter
   private String titulo;
-  @Getter
   private String descripcion;
-  @Getter
   private String categoria;
-  @Getter
   private Float latitud;
-  @Getter
   private Float longitud;
-  @Getter
   private LocalDate fechaHecho;
-  @Getter
   private LocalDate fechaCarga;
-  @Getter
   private LocalDate fechaModificacion;
-  @Getter @Setter
+  @Setter
   private Usuario perfil;
-  @Getter
   private BigInteger id;
-  @Getter @Setter
+  @Setter
   private Boolean anonimo;
-  @Getter @Setter
+  @Setter
   private Boolean eliminado;
-  @Getter @Setter
+  @Setter
   private ArrayList<Multimedia> multimedia;
-  @Getter @Setter
+  @Setter
   private HashMap<String, String> metadata;
-
 
   //TODO: Chequear si Categoria lo modelamos como string o un enum
   public Hecho(){}
@@ -52,7 +43,6 @@ public class Hecho {
           Integer hechoId,
           Boolean anonimo,
           ArrayList<Multimedia> multimedia) {
-
     this.titulo = titulo;
     this.descripcion = descripcion;
     this.categoria = categoria;

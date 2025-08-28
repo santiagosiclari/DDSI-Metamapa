@@ -29,7 +29,7 @@ public class ControllerFuenteEstatica {
   }
 
   //TODO este me parece que no se usa, ya que el agregador se actualiza solo
-  //TODO por ahi esta para otra cosa
+  // por ahi esta para otra cosa
   @GetMapping("/{idFuenteDeDatos}/hechos")
   public ArrayList<Hecho> getHechosFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
     return repositorioHechos.getHechos().stream().filter(h -> h.getFuenteId() == idfuenteDeDatos).collect(Collectors.toCollection(ArrayList::new));

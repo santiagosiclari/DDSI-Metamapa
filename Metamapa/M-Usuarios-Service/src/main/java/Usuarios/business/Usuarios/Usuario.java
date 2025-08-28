@@ -3,26 +3,17 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 
+@Getter
 public class Usuario {
-  @Getter
   private String email;
-  @Getter
   private String contraseniaHasheada;
-  @Getter
   private List<Rol> roles;
-  @Getter
   static public Integer contadorID = 1;
-  @Getter
   public Integer id;
-  @Getter
   private String nombre;
-  @Getter
   private String apellido;
-  @Getter
   private Integer edad;
-  @Getter
   private List<Integer> solicitudesDeEliminacion;
-  @Getter
   private List<Integer> solicitudesDeEdicion;
 
   public Usuario(String email, String contraseniaHasheada, String nombre, String apellido, Integer edad, List<Rol> roles) {

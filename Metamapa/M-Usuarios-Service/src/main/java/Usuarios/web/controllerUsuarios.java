@@ -8,6 +8,7 @@ import Usuarios.persistencia.RepositorioUsuarios;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+@RestController
 public class controllerUsuarios {
   private final RepositorioUsuarios usersRepository = new RepositorioUsuarios();
 
@@ -24,7 +25,6 @@ public class controllerUsuarios {
       List<Rol> roles = rolesInput.stream()
           .map(Rol::valueOf)  // Convierte el string a un Rol
           .collect(Collectors.toList());
-
       Usuario user = new Usuario(email, contraseniaHasheada,nombre, apellido, edad,roles);
       System.out.println("User creado " + user);
       usersRepository.save(user);

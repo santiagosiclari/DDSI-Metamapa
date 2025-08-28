@@ -3,7 +3,6 @@ import Agregador.business.Agregador.Agregador;
 import Agregador.business.Solicitudes.SolicitudEliminacion;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;
-import java.util.UUID;
 
 @Repository
 public class RepositorioAgregador {
@@ -21,16 +20,6 @@ public class RepositorioAgregador {
   //public void saveSolicitud(SolicitudEliminacion s) {
   //  agregador.saveSolicitud(s);
   //}
-
-/*
-  public AgregadorDTO getAgregadorDTO(){
-    AgregadorDTO agregadorDTO = AgregadorDTO.getInstance();
-    agregadorDTO.setFuentesDeDatos(this.agregador.getFuentesDeDatos());
-    agregadorDTO.setListaDeHechos(this.agregador.getListaDeHechos());
-    return agregadorDTO;
-  }
-  */
-
 
   /*
   public
