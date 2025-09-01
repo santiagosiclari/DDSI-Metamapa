@@ -18,7 +18,7 @@ public class ServiceFuenteDeDatos {
   private final RepositorioHechos repositorioHechos;
 
   //TODO: REVISAR LAS RUTAS DE LOS SERVICIOS DE FUENTES DE DATOS
-  public ServiceFuenteDeDatos(RestTemplate restTemplate, @Value("${M.FuenteDinamica.service.url}") String baseUrl, RepositorioHechos repositorioHechos) {
+  public ServiceFuenteDeDatos(RestTemplate restTemplate, @Value("${M.FuenteDinamica.Service.url}") String baseUrl, RepositorioHechos repositorioHechos) {
     this.restTemplate = restTemplate;
     this.baseUrl = baseUrl;
     this.repositorioHechos = repositorioHechos;

@@ -3,6 +3,7 @@ package Metamapa.business.Colecciones;
 import Metamapa.business.Hechos.Hecho;
 import lombok.Getter;
 
+import java.math.BigInteger;
 
 
 public class CriterioFuenteDeDatos implements Criterio {
@@ -15,7 +16,7 @@ public class CriterioFuenteDeDatos implements Criterio {
   }
   @Override
   public boolean cumple(Hecho hechoAValidar){
-    Integer idFuenteDeDatosAValidar = hechoAValidar.getId();
+    BigInteger idFuenteDeDatosAValidar = hechoAValidar.getId();
 
     return this.getIdFuenteDeDatos().equals(idFuenteDeDatosAValidar);
   }

@@ -1,5 +1,6 @@
 package Agregador.DTO;
 import Agregador.business.Colecciones.Coleccion;
+import Agregador.business.Consenso.Consenso;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.util.*;
@@ -23,12 +24,10 @@ public class ColeccionDTO {
     this.titulo = coleccion.getTitulo();
     this.descripcion = coleccion.getDescripcion();
     this.handle = coleccion.getHandle();
-    this.consenso = coleccion.getConsenso() != null
-            ? coleccion.getConsenso().getClass().getSimpleName()
-            : null;
+    this.consenso = Consenso.toString(coleccion.getConsenso()); // ← String
     if (coleccion.getCriterioPertenencia() != null) {
       this.criteriosPertenencia = coleccion.getCriterioPertenencia().stream()
-              .map(CriterioDTO::new) // necesitarías un constructor Criterio -> CriterioDTO
+              .map(CriterioDTO::new) // necesitaría un constructor Criterio -> CriterioDTO
               .collect(Collectors.toList());
     }
     if (coleccion.getCriterioNoPertenencia() != null) {

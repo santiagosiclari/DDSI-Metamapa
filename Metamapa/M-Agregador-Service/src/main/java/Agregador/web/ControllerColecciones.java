@@ -86,7 +86,7 @@ public class ControllerColecciones {
   }
 
   // Obtener todas las colecciones (get /colecciones)
-  @GetMapping("/")
+  @GetMapping({"", "/"})
   public ResponseEntity<List<ColeccionDTO>> obtenerTodasLasColecciones() {
     try {
       return ResponseEntity.ok(serviceColecciones.obtenerTodasLasColecciones());
@@ -145,7 +145,7 @@ public class ControllerColecciones {
   }
 
   // Eliminar una colección (delete /colecciones/{id})
-  @DeleteMapping("/colecciones/{id}")
+  @DeleteMapping("/{id}")
   public ResponseEntity<Void> eliminarColeccion(@PathVariable("id") UUID id) {
     try {
       boolean eliminada = serviceColecciones.eliminarColeccion(id);

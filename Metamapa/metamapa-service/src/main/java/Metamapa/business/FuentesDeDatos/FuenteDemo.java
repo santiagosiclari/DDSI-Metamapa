@@ -2,6 +2,7 @@ package Metamapa.business.FuentesDeDatos;
 
 import Metamapa.business.Conexiones.Conexion;
 import Metamapa.business.Hechos.Hecho;
+import Metamapa.business.Usuarios.Usuario;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
@@ -51,7 +52,10 @@ public class FuenteDemo extends FuenteProxy {
           (Float) datos.get("latitud"),
           (Float) datos.get("longitud"),
           (LocalDate) datos.get("fechaHecho"),
-          this.id
+          new Usuario("san", "sa", "sa", "sa", 16, null),
+          this.id,
+          1,
+          null,null
           //Metamapa?
       );
       // Asignar perfil y anonimato según convenga

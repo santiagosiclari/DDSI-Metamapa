@@ -43,7 +43,7 @@ public class ControllerAgregador {
     ArrayList<String> URLsFuentes = obtenerURLFuentes();
     ArrayList<Hecho> hechos = new ArrayList<>();
     URLsFuentes.forEach(url -> {
-      hechos.addAll(new ServiceFuenteDeDatos(new RestTemplate(), url).getHechos());
+      hechos.addAll(new ServiceFuenteDeDatos(new RestTemplate(), url, repositorioHechos).getHechos());
     });
     repositorioAgregador.getAgregador().actualizarHechos(hechos);
   }

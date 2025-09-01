@@ -17,18 +17,19 @@ public class Coleccion {
     private ArrayList<Criterio> criterioPertenencia;
     @Getter @Setter
     private ArrayList<Criterio> criterioNoPertenencia;
-    @Getter
+    @Getter @Setter
     private UUID handle;
     @Getter @Setter
     private Consenso consenso;
-   // @Getter @Setter
-   // private ModosDeNavegacion modoNavegacion;
+    @Getter @Setter
+    private ModosDeNavegacion modoNavegacion;
 
     private final Agregador agregador = Agregador.getInstance();
 
-    public Coleccion(String titulo, String desc, ArrayList<Criterio> pertenencia, ArrayList<Criterio> noPertenencia){
+    public Coleccion(String titulo, String desc, Consenso consenso, ArrayList<Criterio> pertenencia, ArrayList<Criterio> noPertenencia){
         this.titulo=titulo;
         this.descripcion = desc;
+        this.consenso = consenso;
         this.criterioPertenencia = pertenencia;
         this.criterioNoPertenencia = noPertenencia;
         this.handle = UUID.randomUUID();

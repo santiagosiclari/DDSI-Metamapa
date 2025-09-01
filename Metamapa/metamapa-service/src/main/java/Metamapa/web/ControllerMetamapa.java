@@ -6,21 +6,20 @@ import Metamapa.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
-@Controller
+@RestController
 public class ControllerMetamapa {
   private final ServiceFuenteDeDatos serviceFuenteDeDatos;
   private final ServiceAgregador serviceAgregador;
-  private final ServiceIncidencias serviceIncidencias;
+  //private final ServiceIncidencias serviceIncidencias;
   private final ServiceColecciones serviceColecciones;
 
   public ControllerMetamapa(ServiceFuenteDeDatos serviceFuenteDeDatos,
@@ -29,35 +28,34 @@ public class ControllerMetamapa {
                             ServiceColecciones serviceColecciones) {
     this.serviceFuenteDeDatos = serviceFuenteDeDatos;
     this.serviceAgregador = serviceAgregador;
-    this.serviceIncidencias = serviceIncidencias;
+    //this.serviceIncidencias = serviceIncidencias;
     this.serviceColecciones = serviceColecciones;
   }
 
-  @ExceptionHandler(Exception.class)
-  public String handleAllExceptions(Exception ex, Model model) {
-    model.addAttribute("errorMessage", ex.getMessage());
-    return "error";  // Thymeleaf buscará templates/error.html
-  }
+
 
   // API Administrativa de MetaMapa
   //● Operaciones CRUD sobre las colecciones.
-  @GetMapping("/metamapa/colecciones/")
-  public String obtenerColecciones(Model model) {
-    model.addAttribute("colecciones", serviceColecciones.getColecciones());
-    return "colecciones";
+  @GetMapping(value="/metamapa/colecciones/")
+  public List<Coleccion> obtenerColecciones() {
+    return serviceColecciones.getColecciones();
   }
 
-  @GetMapping("/metamapa/colecciones/{uuid}")
-  public String obtenerColeccion(@PathVariable("uuid") UUID uuid, Model model) {
-    model.addAttribute("coleccion", serviceColecciones.getColeccion(uuid));
-    return "coleccion";
+  @GetMapping(value="/metamapa/colecciones/{uuid}")
+  public ResponseEntity<Coleccion> obtenerColeccion(@PathVariable UUID uuid) {
+    Coleccion coleccion = serviceColecciones.getColeccion(uuid);
+    return (coleccion != null) ? ResponseEntity.ok(coleccion) : ResponseEntity.notFound().build();
   }
 
   @PostMapping("/metamapa/colecciones/")
-  public String crearColeccion(@RequestParam String titulo, @RequestParam String descripcion, @RequestParam String consenso,
+  public ResponseEntity crearColeccion(@RequestParam String titulo, @RequestParam String descripcion, @RequestParam String consenso,
                                @RequestParam(required = false) List<String> pertenenciaTitulos,
                                @RequestParam(required = false) List<String> noPertenenciaTitulos,
                                RedirectAttributes ra) {
+    // default del consenso si no viene
+    String consensoEfectivo = (consenso == null || consenso.isBlank())
+            ? "MayoriaSimple" : consenso;
+
     List<Map<String, Object>> pertenencia = new ArrayList<>();
     if (pertenenciaTitulos != null) {
       for (String t : pertenenciaTitulos) {
@@ -72,9 +70,17 @@ public class ControllerMetamapa {
           noPertenencia.add(Map.of("tipo", "titulo", "valor", t));
       }
     }
-    UUID id = serviceColecciones.crearColeccion(titulo, descripcion, consenso, pertenencia, noPertenencia);
-    ra.addFlashAttribute("mensaje", "Colección creada con ID " + id);
-    return "redirect:/metamapa/colecciones/";
+    UUID id = serviceColecciones.crearColeccion(
+            titulo.trim(),
+            descripcion.trim(),
+            consensoEfectivo,
+            pertenencia,
+            noPertenencia
+    );
+
+    return ResponseEntity
+            .created(URI.create("/metamapa/colecciones/" + id))
+            .body(Map.of("id", id.toString()));
   }
 
   @DeleteMapping("/metamapa/colecciones/{uuid}")

@@ -2,6 +2,7 @@ package Agregador;
 import java.util.Collections;
 import Agregador.Service.ServiceFuenteDeDatos;
 import Agregador.persistencia.RepositorioColecciones;
+import Agregador.persistencia.RepositorioHechos;
 import Agregador.web.ControllerAgregador;
 import io.micrometer.core.instrument.*;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -13,7 +14,8 @@ import java.util.concurrent.*;
 
 @SpringBootApplication
 public class AgregadorApplication {
-  static ServiceFuenteDeDatos serviceFuenteDeDatos = new ServiceFuenteDeDatos(new RestTemplate(),"${fuentes.service.url}");
+  static RepositorioHechos repositorioHechos;
+  static ServiceFuenteDeDatos serviceFuenteDeDatos = new ServiceFuenteDeDatos(new RestTemplate(),"${fuentes.service.url}", repositorioHechos);
   static ControllerAgregador controllerAgregador = new ControllerAgregador(serviceFuenteDeDatos, new RepositorioColecciones());
 
   private static void scheduleActualizacion() {

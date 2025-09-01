@@ -7,6 +7,9 @@ import Metamapa.business.Hechos.Hecho;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +24,7 @@ public class Coleccion {
     private ArrayList<Criterio> criterioNoPertenencia;
     @Getter
     private UUID handle;
+    @JsonIgnore
     @Getter @Setter
     private Consenso consenso;
    @Getter @Setter
@@ -28,9 +32,10 @@ public class Coleccion {
     @Getter
     private final Agregador agregador = Agregador.getInstance();
 
-    public Coleccion(String titulo, String desc, ArrayList<Criterio> pertenencia, ArrayList<Criterio> noPertenencia){
+    public Coleccion(String titulo, String desc, Consenso consenso, ArrayList<Criterio> pertenencia, ArrayList<Criterio> noPertenencia){
         this.titulo=titulo;
         this.descripcion = desc;
+        this.consenso = consenso;
         this.criterioPertenencia = pertenencia;
         this.criterioNoPertenencia = noPertenencia;
         this.handle = UUID.randomUUID();
@@ -79,5 +84,14 @@ public class Coleccion {
 
     public ArrayList<Hecho> curarHechos(ArrayList<Hecho> hechos){
         return hechos.stream().filter(h -> consenso.esConsensuado(h, agregador.getFuentesDeDatos())).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @JsonProperty("consenso")
+    public String getConsensoNombre() {
+        if (consenso == null) return null;
+        // Si tus clases de consenso tienen toString() “lindo”, alcanza:
+        return consenso.toString();
+        // Alternativa a prueba de balas:
+        // return consenso.getClass().getSimpleName(); // "MayoriaSimple", "Absoluto", etc.
     }
 }

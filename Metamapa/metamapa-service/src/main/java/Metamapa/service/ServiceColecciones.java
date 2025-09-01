@@ -1,6 +1,8 @@
 package Metamapa.service;
 
 import Metamapa.business.Colecciones.Coleccion;
+import Metamapa.business.Colecciones.Criterio;
+import Metamapa.business.Consenso.Consenso;
 import Metamapa.business.Consenso.ModosDeNavegacion;
 import Metamapa.business.Hechos.Hecho;
 import Metamapa.business.Hechos.TipoMultimedia;
@@ -13,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceColecciones {
@@ -20,22 +23,31 @@ public class ServiceColecciones {
   private final String baseUrl;
 
   public ServiceColecciones(RestTemplate restTemplate,
-                            @Value("${M.Agregador.service.url}") String baseUrl) {
+                            @Value("${M.Agregador.Service.url}") String baseUrl) {
     this.restTemplate = restTemplate;
     this.baseUrl = baseUrl;
   }
 
-  public ArrayList<Coleccion> getColecciones() {
-    String url = String.format("%s/api-colecciones/", baseUrl);
-    return restTemplate.getForObject(url, ArrayList.class);
-  }
+    public List<Coleccion> getColecciones() {
+        ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
+                baseUrl + "/api-colecciones/", HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<Map<String,Object>>>() {}
+        );
+        List<Map<String,Object>> rows = resp.getBody();
+        if (rows == null) return List.of();
+        return rows.stream().map(this::toColeccion).collect(Collectors.toList());
+    }
 
-  public Coleccion getColeccion(UUID uuid) {
-    String url = String.format("%s/api-colecciones/%s", baseUrl, uuid);
-    return restTemplate.getForObject(url, Coleccion.class);
-  }
+    public Coleccion getColeccion(UUID id) {
+        ResponseEntity<Map<String,Object>> resp = restTemplate.exchange(
+                baseUrl + "/api-colecciones/" + id, HttpMethod.GET, null,
+                new ParameterizedTypeReference<Map<String,Object>>() {}
+        );
+        Map<String,Object> row = resp.getBody();
+        return (row == null) ? null : toColeccion(row);
+    }
 
-  public UUID crearColeccion(String titulo, String descripcion, String consenso,
+    public UUID crearColeccion(String titulo, String descripcion, String consenso,
                              List<Map<String, Object>> pertenencia,
                              List<Map<String, Object>> noPertenencia) {
     Map<String, Object> payload = new HashMap<>();
@@ -49,13 +61,13 @@ public class ServiceColecciones {
 
     HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
-    @SuppressWarnings("unchecked")
     Map<String, Object> response = restTemplate.postForObject(
             baseUrl + "/api-colecciones/",
             request,
             Map.class
     );
-    return (UUID) response.get("handle");
+      String handleStr = (String) Objects.requireNonNull(response).get("handle");
+      return UUID.fromString(handleStr);
   }
 
   public void deleteColeccion(UUID uuid) {
@@ -130,4 +142,44 @@ public class ServiceColecciones {
     private void addNum(UriComponentsBuilder uri, String key, Number n) {
         if (n != null) uri.queryParam(key, n);
     }
+
+    // ---------- mapping JSON (Agregador) -> dominio (MetaMapa) ----------
+    private Coleccion toColeccion(Map<String, Object> row) {
+        String titulo = (String) row.get("titulo");
+        String descripcion = (String) row.get("descripcion");
+        String consensoStr = (String) row.get("consenso");
+        Consenso consenso = Consenso.fromString(consensoStr);
+
+        // handle/id
+        String handleStr = (String) (row.get("handle") != null ? row.get("handle") : row.get("id"));
+        UUID handle = (handleStr != null && !handleStr.isBlank()) ? UUID.fromString(handleStr) : null;
+
+        // criterios (si tus endpoints los devuelven; si no, dejá listas vacías)
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> critP = (List<Map<String, Object>>) row.get("criteriosPertenencia");
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> critNP = (List<Map<String, Object>>) row.get("criteriosNoPertenencia");
+
+        ArrayList<Criterio> pert = mapCriterios(critP);
+        ArrayList<Criterio> noPert = mapCriterios(critNP);
+
+        if (handle != null) {
+            return new Coleccion(titulo, descripcion, consenso, pert, noPert);
+        }
+        return new Coleccion(titulo, descripcion, consenso, pert, noPert);
+    }
+
+    private ArrayList<Criterio> mapCriterios(List<Map<String, Object>> crudos) {
+        ArrayList<Criterio> out = new ArrayList<>();
+        if (crudos == null) return out;
+        for (Map<String, Object> c : crudos) {
+            // ejemplo básico por "tipo" -> creá tus Criterio* reales acá
+            String tipo = (String) c.get("tipo"); // p.ej. "titulo", "fuente", etc.
+            Object valor = c.get("valor");
+            // TODO: construir la subclase correcta de Criterio en base a tipo/valor
+            // out.add(new CriterioTitulo((String) valor));
+        }
+        return out;
+    }
+
 }

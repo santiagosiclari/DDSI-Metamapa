@@ -17,7 +17,7 @@ public class ServiceAgregador {
   private final String baseUrl;
 
   public ServiceAgregador(RestTemplate restTemplate,
-                         @Value("${M.Agregador.service.url}") String baseUrl) {
+                         @Value("${metamapa.service.url}") String baseUrl) {
     this.restTemplate = restTemplate;
     this.baseUrl = baseUrl;
   }

@@ -105,16 +105,19 @@ public class ServiceColecciones {
   }
 
   public ColeccionDTO crearColeccion(ColeccionDTO coleccionDTO) {
+    String nombreConsenso = (coleccionDTO.getConsenso() != null && !coleccionDTO.getConsenso().isBlank())
+            ? coleccionDTO.getConsenso() : "MayoriaSimple";
+    Consenso cons = Consenso.fromString(nombreConsenso);
+
     ArrayList<Criterio> pertenencia = coleccionDTO.getCriteriosPertenencia().stream()
             .map(CriterioDTO::toDomain)
             .collect(Collectors.toCollection(ArrayList::new));
     ArrayList<Criterio> noPertenencia = coleccionDTO.getCriteriosNoPertenencia().stream()
             .map(CriterioDTO::toDomain)
             .collect(Collectors.toCollection(ArrayList::new));
-    Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), pertenencia, noPertenencia);
-    if (coleccionDTO.getConsenso() != null) {
-      coleccion.setConsenso(Consenso.stringToConsenso(coleccionDTO.getConsenso()));
-    }
+
+    Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), cons, pertenencia, noPertenencia);
+
     repositorioColecciones.getColecciones().add(coleccion);
     return new ColeccionDTO(coleccion);
   }
@@ -124,7 +127,7 @@ public class ServiceColecciones {
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     if (coleccionDTO.getTitulo() != null) coleccion.setTitulo(coleccionDTO.getTitulo());
     if (coleccionDTO.getDescripcion() != null) coleccion.setDescripcion(coleccionDTO.getDescripcion());
-    if (coleccionDTO.getConsenso() != null) coleccion.setConsenso(Consenso.stringToConsenso(coleccionDTO.getConsenso()));
+    if (coleccionDTO.getConsenso() != null) coleccion.setConsenso(Consenso.fromString(coleccionDTO.getConsenso()));
     if (coleccionDTO.getCriteriosPertenencia() != null) {
       List<Criterio> nuevosCriterios = coleccionDTO.getCriteriosPertenencia().stream()
               .map(CriterioDTO::toDomain)
@@ -146,7 +149,7 @@ public class ServiceColecciones {
     String consensoStr = (String) requestBody.get("consenso");
     //if (consensoStr == null)
     //  return ResponseEntity.badRequest().body(Map.of("error", "El campo 'consenso' es obligatorio"));
-    coleccion.setConsenso(Consenso.stringToConsenso(consensoStr));
+    coleccion.setConsenso(Consenso.fromString(consensoStr));
     return "Algoritmo de consenso actualizado a " + consensoStr;
   }
 

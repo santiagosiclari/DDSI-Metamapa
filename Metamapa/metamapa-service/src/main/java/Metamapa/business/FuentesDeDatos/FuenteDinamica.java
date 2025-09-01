@@ -1,6 +1,7 @@
 package Metamapa.business.FuentesDeDatos;
 import Metamapa.business.Hechos.Hecho;
 import Metamapa.business.Hechos.Multimedia;
+import Metamapa.business.Usuarios.Usuario;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -44,8 +45,9 @@ public class FuenteDinamica {
             latitud,
             longitud,
             fechaHecho,
-            idAutor,
+            new Usuario("san", "sa", "sa", "sa", 16, null), //idAutor,
             this.fuenteId,
+            0,
             anonimidad,
             multimedia
         )

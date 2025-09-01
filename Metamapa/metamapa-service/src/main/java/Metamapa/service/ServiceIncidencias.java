@@ -10,7 +10,7 @@ private final RestTemplate restTemplate;
 private final String baseUrl;
 
 public ServiceIncidencias(RestTemplate restTemplate,
-                            @Value("${incidencias.service.url}") String baseUrl) {
+                            @Value("${metamapa.service.url}") String baseUrl) {
   this.restTemplate = restTemplate;
   this.baseUrl = baseUrl;
 }

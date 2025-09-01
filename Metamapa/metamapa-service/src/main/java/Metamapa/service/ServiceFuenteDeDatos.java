@@ -20,7 +20,7 @@ public class ServiceFuenteDeDatos {
   private final String baseUrl;
 
   public ServiceFuenteDeDatos(RestTemplate restTemplate,
-                              @Value("${fuentes.service.url}") String baseUrl) {
+                              @Value("${metamapa.service.url}") String baseUrl) {
     this.restTemplate = restTemplate;
     this.baseUrl = baseUrl;
   }
