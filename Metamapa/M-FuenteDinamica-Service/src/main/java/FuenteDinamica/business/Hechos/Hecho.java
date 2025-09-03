@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter @Setter
 public class Hecho {
+  private Integer id; // <-- necesario para setId(...)
   private String titulo;
   private String descripcion;
   private String categoria;

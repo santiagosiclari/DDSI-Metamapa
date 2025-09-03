@@ -1,9 +1,11 @@
 package Metamapa.web;
+import Metamapa.DTO.HechoDTO;
 import Metamapa.business.Colecciones.Coleccion;
 import Metamapa.business.Consenso.ModosDeNavegacion;
 import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
 import Metamapa.business.Hechos.*;
 import Metamapa.service.*;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -243,12 +245,14 @@ public class ControllerMetamapa {
 
 
   @GetMapping("/fuentesDeDatos/{id}")
+  @ResponseBody
   public ResponseEntity<FuenteDeDatos> obtenerFuente(@PathVariable("id") Integer id) {
     var f = serviceFuenteDeDatos.getFuenteDeDatos(id);
     return (f != null) ? ResponseEntity.ok(f) : ResponseEntity.notFound().build();
   }
 
   @GetMapping("/fuentesDeDatos/")
+  @ResponseBody
   public ResponseEntity<List<FuenteDeDatos>> obtenerFuentes() {
     return ResponseEntity.ok(Optional.ofNullable(serviceFuenteDeDatos.getFuentesDeDatos()).orElseGet(List::of));
   }
@@ -311,7 +315,7 @@ public class ControllerMetamapa {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/fuentesDeDatos/{idFuenteDeDatos}/cargarCSV")
+  @PostMapping("/fuentesDeDatos/{idFuenteDeDatos}/csv")
   public String cargarCSV(@PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos,
                           @RequestParam("file") MultipartFile file, RedirectAttributes ra) throws IOException {
     serviceFuenteDeDatos.cargarCSV(idFuenteDeDatos, file);
@@ -319,50 +323,40 @@ public class ControllerMetamapa {
     return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
   }
 
-  @PostMapping("/fuentesDeDatos/{idFuenteDeDatos}/cargarHecho")
-  public String cargarHecho(
-          @PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos,
-          @RequestParam String titulo,
-          @RequestParam(required = false) String descripcion,
-          @RequestParam(required = false) String categoria,
-          @RequestParam(required = false) Float latitud,
-          @RequestParam(required = false) Float longitud,
-          @RequestParam(required = false)
-          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate fechaHecho,
-          @RequestParam(required = false) String autor,
-          @RequestParam(name = "anonimo", defaultValue = "false") Boolean anonimo,
-          @RequestParam(required = false) List<TipoMultimedia> tipoMultimedia,
-          @RequestParam(required = false) List<String> path,
-          RedirectAttributes ra
+  @PostMapping(
+          value = "/fuentesDeDatos/{idFuenteDeDatos}/hechos",
+          consumes = "application/json",
+          produces = "application/json")
+  public ResponseEntity<?> cargarHecho(@PathVariable Integer idFuenteDeDatos, @Valid @RequestBody HechoDTO dto
   ) {
-    List<Multimedia> multimedia = new ArrayList<>();
-    if (tipoMultimedia != null && path != null) {
-      for (int i = 0; i < tipoMultimedia.size(); i++) {
-        TipoMultimedia tipo = tipoMultimedia.get(i);
-        String p = i < path.size() ? path.get(i).trim() : null;
-        if (tipo != null && p != null && !p.isEmpty()) {
-          Multimedia dto = new Multimedia();
-          dto.setTipoMultimedia(tipo);
-          dto.setPath(p);
-          multimedia.add(dto);
-        }
-      }
-    }
-    serviceFuenteDeDatos.cargarHecho(
+    dto.validarCoordenadas();
+
+    // Si es anónimo, ignorá autor
+    String autor = (dto.getAnonimo() != null && dto.getAnonimo()) ? null : dto.getAutor();
+
+    // Convertir multimedia a dominio
+    var multimediaDomain = dto.toMultimediaDomain();
+
+    // Llamar a tu service (como ya lo tenés implementado)
+    Integer idGenerado = serviceFuenteDeDatos.cargarHecho(
             idFuenteDeDatos,
-            titulo,
-            descripcion,
-            categoria,
-            latitud,
-            longitud,
-            fechaHecho,
-            autor,
-            anonimo,
-            multimedia
+            dto.getTitulo().trim(),
+            blankToNull(dto.getDescripcion()),
+            blankToNull(dto.getCategoria()),
+            dto.getLatitud(),
+            dto.getLongitud(),
+            dto.getFechaHecho(),
+            blankToNull(autor),
+            dto.getAnonimo() != null && dto.getAnonimo(),
+            multimediaDomain
     );
-    ra.addFlashAttribute("success", "Hecho cargado correctamente");
-    return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(java.util.Map.of("id", idGenerado));
+  }
+
+  private static String blankToNull(String s) {
+    return (s == null || s.isBlank()) ? null : s.trim();
   }
 
   @GetMapping("/")
