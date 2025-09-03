@@ -17,7 +17,7 @@ public class ServiceAgregador {
   private final String baseUrl;
 
   public ServiceAgregador(RestTemplate restTemplate,
-                         @Value("${metamapa.service.url}") String baseUrl) {
+                         @Value("${M.Agregador.Service.url}") String baseUrl) {
     this.restTemplate = restTemplate;
     this.baseUrl = baseUrl;
   }
@@ -33,7 +33,7 @@ public class ServiceAgregador {
   }
 
   public void actualizarAgregador() {
-    String url = String.format("%s/api-agregador/fuentes/actualizar", baseUrl);
+    String url = String.format("%s/api-agregador/fuentesDeDatos/actualizar", baseUrl);
     restTemplate.postForObject(url, null, Void.class);
   }
   public void agregarFuente(Integer idFuente){
@@ -42,6 +42,11 @@ public class ServiceAgregador {
   }
   public void removerFuente(Integer idFuente){
     String url = String.format("%s/api-agregador/fuentesDeDatos/remover/%d", baseUrl, idFuente);
+    restTemplate.postForObject(url, null, Void.class);
+  }
+
+  public void agregarFuenteAColeccion(UUID idColeccion, Integer idFuente){
+    String url = String.format("%s/api-agregador/fuentesDeDatos/%s/%d", baseUrl, idColeccion, idFuente);
     restTemplate.postForObject(url, null, Void.class);
   }
 

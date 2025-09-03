@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter @Setter
@@ -34,7 +35,7 @@ public class CriterioDTO {
               LocalDate.parse(fechaDesde),
               LocalDate.parse(fechaHasta)
       );
-      case "criteriofuentededatos" -> new CriterioFuenteDeDatos(idFuenteDeDatos);
+      case "fuente", "criteriofuentededatos" -> new CriterioFuenteDeDatos(idFuenteDeDatos); // << alias OK
       case "ubicacion" -> new CriterioUbicacion(latitud, longitud);
       case "multimedia" -> new CriterioMultimedia(TipoMultimedia.valueOf(tipoMultimedia));
       default -> throw new IllegalArgumentException("Tipo de criterio desconocido: " + tipo);
@@ -56,6 +57,7 @@ public class CriterioDTO {
       this.fechaDesde = cfr.getDesde().toString();
       this.fechaHasta = cfr.getHasta().toString();
     } else if (criterio instanceof CriterioFuenteDeDatos cfd) {
+      this.tipo = "fuente"; // << corto y claro
       this.idFuenteDeDatos = cfd.getIdFuenteDeDatos();
     } else if (criterio instanceof CriterioUbicacion cu) {
       this.latitud = cu.getLatitud();

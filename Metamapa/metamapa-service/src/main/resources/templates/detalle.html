@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${coleccion.titulo}">Detalle de colección</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/metamapa/}">Metamapa</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/metamapa/colecciones}">Colecciones</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4 flex-grow-1">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h1 class="h3 mb-1" th:text="${coleccion.titulo}">Título</h1>
+            <div class="text-muted small">
+                ID: <span th:text="${coleccion.handle}">uuid</span>
+            </div>
+        </div>
+        <span class="badge text-bg-secondary"
+              th:text="${coleccion.consensoNombre ?: '-'}">Consenso</span>
+    </div>
+
+    <p class="mb-4" th:text="${coleccion.descripcion}">Descripción</p>
+
+    <div class="row g-4">
+        <section class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Criterios de pertenencia</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"
+                        th:each="c : ${coleccion.criterioPertenencia}">criterio</li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(coleccion.criterioPertenencia)}">
+                        Sin criterios de pertenencia
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Criterios de no pertenencia</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"
+                        th:each="c : ${coleccion.criterioNoPertenencia}">criterio</li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(coleccion.criterioNoPertenencia)}">
+                        Sin criterios de no pertenencia
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <section class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h5 mb-0">Hechos (vista curada)</h2>
+            <div class="btn-group">
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/metamapa/api/colecciones/${coleccion.handle}/hechos/|}" target="_blank">Ver JSON</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/metamapa/api/colecciones/${coleccion.handle}/hechos/CURADA|}" target="_blank">CURADA</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/metamapa/api/colecciones/${coleccion.handle}/hechos/IRRESTRICTA|}" target="_blank">IRRESTRICTA</a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th style="width:40%">Título</th>
+                    <th>Categoría</th>
+                    <th>Fecha</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </section>
+
+    <div class="mt-4">
+        <a th:href="@{/metamapa/colecciones}" class="btn btn-outline-secondary">← Volver</a>
+    </div>
+</main>
+
+<footer class="bg-light text-center py-3 mt-auto">
+    <div class="container"><span class="text-muted">&copy; 2025 Metamapa</span></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+``

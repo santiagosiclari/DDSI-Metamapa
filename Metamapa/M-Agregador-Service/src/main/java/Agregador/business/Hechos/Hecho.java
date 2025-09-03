@@ -51,9 +51,15 @@ public class Hecho {
     this.eliminado = false;
     this.multimedia = multimedia;
     this.metadata = new HashMap<>();
-    this.id = BigInteger.valueOf(fuenteId).multiply(BigInteger.TEN.pow(12)).add(BigInteger.valueOf(hechoId));
+    this.id = BigInteger.valueOf(fuenteId.longValue()).multiply(BASE).add(BigInteger.valueOf(hechoId.longValue()));
     //TODO FuenteId tiene que venir de la siguiente froma xyyyyyy siendo x el tipo de fuente 1 para dinamica, 2 para estaica, 3 para proxy. y despues yyyyyy es el id de la fuente. esto se logra para sumandole 1000000 a un id de fuente dinamica, 2000000 para estatica y 3000000 para proxu
+    // TODO: prefijos 1000000/2000000/3000000 para tipo de fuente → ya quedan dentro de fuenteId
 
+  }
+  private static final BigInteger BASE = BigInteger.TEN.pow(12); // 10^12
+
+  public Integer getIdFuente() {
+    return this.id.divide(BASE).intValueExact();
   }
 
   public Boolean tieneEtiqueta(String key, String value) {

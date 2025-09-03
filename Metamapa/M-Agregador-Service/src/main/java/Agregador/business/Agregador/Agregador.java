@@ -2,6 +2,9 @@ package Agregador.business.Agregador;
 
 import Agregador.business.Solicitudes.*;
 import java.util.ArrayList;
+import java.util.List;
+
+import DTO.FuenteDeDatosDTO;
 import lombok.Getter;
 import Agregador.business.Hechos.*;
 

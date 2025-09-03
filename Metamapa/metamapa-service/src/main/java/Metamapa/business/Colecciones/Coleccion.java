@@ -88,7 +88,6 @@ public class Coleccion {
     @com.fasterxml.jackson.annotation.JsonProperty("consenso")
     public String getConsensoNombre() {
         return Consenso.toString(consenso);
-
     }
     @com.fasterxml.jackson.annotation.JsonProperty("consenso")
     public void setConsensoNombre(String nombre) {

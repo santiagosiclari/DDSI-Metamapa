@@ -49,6 +49,16 @@ public class ServiceColecciones {
         return (row == null) ? null : toColeccion(row);
     }
 
+    public ArrayList<Hecho> getHechosDeColeccion(UUID id) {
+      ResponseEntity<Map<String,Object>> resp = restTemplate.exchange(
+              baseUrl + "/api-colecciones/" + id, HttpMethod.GET, null,
+              new ParameterizedTypeReference<Map<String,Object>>() {}
+      );
+      Map<String,Object> row = resp.getBody();
+      Coleccion coleccion = (row == null) ? null : toColeccion(row);
+      return coleccion.getAgregador().getListaDeHechos();
+    }
+
   public UUID crearColeccion(String titulo, String descripcion, String consenso,
                              List<Map<String, Object>> pertenencia,
                              List<Map<String, Object>> noPertenencia) {
@@ -116,7 +126,7 @@ public class ServiceColecciones {
         // Body JSON con el algoritmo
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        var body = java.util.Map.of("algoritmo", algoritmo);
+      var body = java.util.Map.of("consenso", algoritmo); // <-- antes decía "algoritmo"
         var entity = new HttpEntity<>(body, headers);
 
         try {

@@ -1,53 +1,32 @@
 package Agregador;
-import java.util.Collections;
-import Agregador.Service.ServiceFuenteDeDatos;
-import Agregador.persistencia.RepositorioColecciones;
-import Agregador.persistencia.RepositorioHechos;
-import Agregador.web.ControllerAgregador;
-import io.micrometer.core.instrument.*;
+
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
-import java.util.concurrent.*;
+
+import java.time.Duration;
 
 @SpringBootApplication
+@EnableScheduling
 public class AgregadorApplication {
-  static RepositorioHechos repositorioHechos;
-  static ServiceFuenteDeDatos serviceFuenteDeDatos = new ServiceFuenteDeDatos(new RestTemplate(),"${fuentes.service.url}", repositorioHechos);
-  static ControllerAgregador controllerAgregador = new ControllerAgregador(serviceFuenteDeDatos, new RepositorioColecciones());
-
-  private static void scheduleActualizacion() {
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    scheduler.scheduleAtFixedRate(() -> controllerAgregador.actualizarHechos(), 0, 1, TimeUnit.HOURS);
-  }
-
-  private static final MeterRegistry registry = new SimpleMeterRegistry();
-
-  private static void scheduleConsensuar() {
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    Double requests = registry.find("http.server.requests.count").counter() != null
-        ? registry.find("http.server.requests.count").counter().count()
-        : 0.0;
-    if (requests < 100) { // umbral de bajo tráfico en el último minuto
-      scheduler.scheduleAtFixedRate(() -> controllerAgregador.consensuarHechos(), 0, 30, TimeUnit.MINUTES);
-    }
-  }
 
   public static void main(String[] args) {
-    SpringApplication app = new SpringApplication(AgregadorApplication.class);
-    app.setDefaultProperties(Collections.singletonMap("server.port", "server.port"));
-    var context = app.run(args);
-
-    scheduleActualizacion();
-    scheduleConsensuar();
-    // para cerrar la app, comentar cuando se prueben cosas
-    //context.close();
+    SpringApplication.run(AgregadorApplication.class, args);
   }
 
   @Bean
-  public RestTemplate restTemplate() {
-    return new RestTemplate();
+  public RestTemplate restTemplate(RestTemplateBuilder builder) {
+    return builder
+            .build();
+  }
+
+  @Bean
+  public MeterRegistry meterRegistry() {
+    return new SimpleMeterRegistry(); // o dejá que Spring Boot autoconfigure
   }
 }

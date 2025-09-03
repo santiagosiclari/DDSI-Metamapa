@@ -1,11 +1,14 @@
 package Metamapa.web;
 import Metamapa.business.Colecciones.Coleccion;
 import Metamapa.business.Consenso.ModosDeNavegacion;
+import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
 import Metamapa.business.Hechos.*;
 import Metamapa.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +18,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.*;
 
-@RestController
+@Controller
+@RequestMapping("/metamapa")
 public class ControllerMetamapa {
   private final ServiceFuenteDeDatos serviceFuenteDeDatos;
   private final ServiceAgregador serviceAgregador;
@@ -34,19 +38,22 @@ public class ControllerMetamapa {
 
   // API Administrativa de MetaMapa
   //● Operaciones CRUD sobre las colecciones.
-  @GetMapping(value="/metamapa/colecciones/")
+  @GetMapping(value= {"/colecciones/", "/colecciones"}, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
   public List<Coleccion> obtenerColecciones() {
     return serviceColecciones.getColecciones();
   }
 
-  @GetMapping(value="/metamapa/colecciones/{uuid}")
+  @GetMapping(value="/colecciones/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
   public ResponseEntity<Coleccion> obtenerColeccion(@PathVariable UUID uuid) {
-    Coleccion coleccion = serviceColecciones.getColeccion(uuid);
-    return (coleccion != null) ? ResponseEntity.ok(coleccion) : ResponseEntity.notFound().build();
+    var c = serviceColecciones.getColeccion(uuid);
+    return (c != null) ? ResponseEntity.ok(c) : ResponseEntity.notFound().build();
   }
 
-  @PostMapping("/metamapa/colecciones/")
-  public ResponseEntity crearColeccion(@RequestParam String titulo, @RequestParam String descripcion, @RequestParam String consenso,
+  @PostMapping(value="/colecciones", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseEntity<?> crearColeccion(@RequestParam String titulo, @RequestParam String descripcion, @RequestParam String consenso,
                                @RequestParam(required = false) List<String> pertenenciaTitulos,
                                @RequestParam(required = false) List<String> noPertenenciaTitulos,
                                RedirectAttributes ra) {
@@ -81,7 +88,8 @@ public class ControllerMetamapa {
             .body(Map.of("id", id.toString()));
   }
 
-  @DeleteMapping("/metamapa/colecciones/{uuid}")
+  @DeleteMapping(value="/colecciones/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
   public ResponseEntity<Map<String, String>> eliminarColeccion(@PathVariable UUID uuid) {
     HttpStatus status = serviceColecciones.deleteColeccion(uuid);
 
@@ -95,35 +103,46 @@ public class ControllerMetamapa {
               .body(Map.of("error", "No se pudo eliminar la colección"));
     }
   }
-  //TODO: PATCH consenso error: I/O error on PATCH request for "http://localhost:9004/api-colecciones/1c388814-b009-4ad9-a4c0-19a23a3c3244": Invalid HTTP method: PATCH
   //● Modificación del algoritmo de consenso.
-  @PatchMapping("/metamapa/colecciones/{uuid}/consenso/{algoritmo:Absoluto|MultiplesMenciones|MayoriaSimple}")
-  public ResponseEntity<?> modificarConsenso(@PathVariable UUID uuid, @PathVariable String algoritmo) {
-    HttpStatus status = serviceColecciones.actualizarAlgoritmoConsenso(uuid, algoritmo);
-    if (status.is2xxSuccessful()) return ResponseEntity.noContent().build(); // o ok(...) con mensaje
-    if (status == HttpStatus.NOT_FOUND) return ResponseEntity.notFound().build();
-    return ResponseEntity.status(status).body(java.util.Map.of("error", "No se pudo actualizar el consenso"));
+  @PatchMapping(value="/colecciones/{uuid}",
+          produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseEntity<Void> modificarConsenso(
+          @PathVariable UUID uuid,
+          @RequestBody Map<String,String> body) {
+    String consenso = body.get("consenso");
+    serviceColecciones.actualizarAlgoritmoConsenso(uuid, consenso);
+    return ResponseEntity.noContent().build();
   }
 
   //● Agregar fuentes de hechos de una colección.
   @PostMapping("/colecciones/{uuid}/fuente/{idFuente}")
   @ResponseBody
-  public ResponseEntity<Void> agregarFuente(@PathVariable UUID uuid, @PathVariable Integer idFuente) {
-      Coleccion coleccion = serviceColecciones.getColeccion(uuid);
-      try {
-          serviceAgregador.agregarFuente(idFuente);
-          serviceAgregador.actualizarAgregador();
-          return ResponseEntity.noContent().build();
-      } catch (Exception e) {
-          return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
-      }
+  public ResponseEntity<?> agregarFuente(@PathVariable UUID uuid, @PathVariable Integer idFuente) {
+    try {
+      Coleccion col = serviceColecciones.getColeccion(uuid);
+      if (col == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Colección no encontrada");
+      serviceAgregador.agregarFuenteAColeccion(uuid, idFuente);
+      // ⚠️ Quitá esta línea si no existe ese endpoint en el Agregador:
+      // serviceAgregador.actualizarAgregador();
+      return ResponseEntity.noContent().build();
+    } catch (org.springframework.web.client.HttpStatusCodeException ex) {
+      return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
+    } catch (org.springframework.web.client.ResourceAccessException ex) {
+      return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("No se pudo contactar al Agregador: " + ex.getMessage());
+    } catch (Exception ex) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
   }
 
   //Quitar fuentes de hechos de una colección
   @DeleteMapping("/colecciones/{uuid}/fuente/{idFuente}")
   @ResponseBody
   public ResponseEntity<Void> quitarFuente(@PathVariable UUID uuid, @PathVariable Integer idFuente) {
-      Coleccion coleccion = serviceColecciones.getColeccion(uuid);
+    Coleccion coleccion = serviceColecciones.getColeccion(uuid);
+    if (coleccion == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
       try {
           serviceAgregador.removerFuente(idFuente);
           serviceAgregador.actualizarAgregador();
@@ -137,7 +156,7 @@ public class ControllerMetamapa {
   //TODO: CHEQUEAR
   enum Accion {APROBAR, RECHAZAR}
 
-  @PatchMapping("/metamapa/solicitudes/{id}")
+  @PatchMapping("/solicitudes/{id}")
   @ResponseBody
   public ResponseEntity<Void> resolverSolicitud(@PathVariable UUID id,
                                                 @RequestParam Accion accion) {
@@ -155,72 +174,56 @@ public class ControllerMetamapa {
 
   // API Pública para otras instancias de MetaMapa
   //● Consulta de hechos dentro de una colección.
-  @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos")
+  @GetMapping("/colecciones/{idColeccion}/hechos")
   public ArrayList<Hecho> consultarHechos(@PathVariable("idColeccion") UUID id) {
-    return new ArrayList<>();
-    //return serviceColecciones.getColeccion(idColeccion);
+    return serviceColecciones.getHechosDeColeccion(id);
   }
 
   //● TODO Generar una solicitud de eliminación a un hecho.
-  @PostMapping("/metamapa/api/solicitudesEliminacion/")
-  public String generarSolicitudEliminacion(@RequestParam("hechoAfectado") String hechoAfectado,
-                                            @RequestParam("motivo") String motivo,
-                                            @RequestParam(value = "url", required = false) String url,
-                                            RedirectAttributes ra ){
-      Integer idSolicitud = serviceAgregador.crearSolicitudEliminacionYRetornarId(hechoAfectado, motivo, url);
-      ra.addFlashAttribute("success", "Solicitud creada correctamente con id: " + idSolicitud);
-      //return "redirect:/metamapa/solicitudesEliminacion/" + idSolicitud; //Te lleva a la pagina de la nueva solicitud
-      return "redirect:/metamapa/solicitudesEliminacion/";
+  @PostMapping("/solicitudesEliminacion/")
+  public ResponseEntity<Map<String,Object>> generarSolicitudEliminacion(@RequestParam("hechoAfectado") String hechoAfectado,
+                                                                        @RequestParam("motivo") String motivo,
+                                                                        @RequestParam(value = "url", required = false) String url) {
+    Integer idSolicitud = serviceAgregador.crearSolicitudEliminacionYRetornarId(hechoAfectado, motivo, url);
+    return ResponseEntity
+            .created(URI.create("/metamapa/api/solicitudesEliminacion/" + idSolicitud))
+            .body(Map.of("idSolicitud", idSolicitud));
   }
 
   //● TODO: Navegación filtrada sobre una colección.
-  @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/")
+  @GetMapping("/colecciones/{idColeccion}/hechos/")
   public List<Hecho> navegarFiltrado(
           @PathVariable UUID idColeccion,
-          // filtros opcionales
+          // filtros
           @RequestParam(required = false) String categoria,
           @RequestParam(required = false) String titulo,
           @RequestParam(required = false) String descripcion,
-          // fechas (LocalDate)
-          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate fecha_reporte_desde,
-          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate fecha_reporte_hasta,
-          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate fecha_acontecimiento_desde,
-          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate fecha_acontecimiento_hasta,
+          // fechas
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_reporte_desde,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_reporte_hasta,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_acontecimiento_desde,
+          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_acontecimiento_hasta,
           // ubicación
           @RequestParam(required = false) Float ubicacion_latitud,
           @RequestParam(required = false) Float ubicacion_longitud,
-          @RequestParam(required = false) Double radio_km, //Haversine en el agregador
+          @RequestParam(required = false) Double radio_km,
           // otros
           @RequestParam(required = false) Integer id_fuente,
           @RequestParam(required = false) TipoMultimedia tipo_multimedia,
-
-          // modo de navegación (default CURADA)
+          // modo
           @RequestParam(defaultValue = "CURADA") ModosDeNavegacion modo
   ) {
-      return serviceColecciones.navegarFiltrado(
-              idColeccion,
-              modo,
-              categoria,
-              titulo,
-              descripcion,
-              fecha_reporte_desde,
-              fecha_reporte_hasta,
-              fecha_acontecimiento_desde,
-              fecha_acontecimiento_hasta,
-              ubicacion_latitud,
-              ubicacion_longitud,
-              radio_km,
-              id_fuente,
-              tipo_multimedia
-      );
+    return serviceColecciones.navegarFiltrado(
+            idColeccion, modo, categoria, titulo, descripcion,
+            fecha_reporte_desde, fecha_reporte_hasta,
+            fecha_acontecimiento_desde, fecha_acontecimiento_hasta,
+            ubicacion_latitud, ubicacion_longitud, radio_km,
+            id_fuente, tipo_multimedia
+    );
   }
 
     //● TODO: Navegación curada o irrestricta sobre una colección.
-  @GetMapping("/metamapa/api/colecciones/{idColeccion}/hechos/{modo}")
+  @GetMapping("/colecciones/{idColeccion}/hechos/{modo}")
   public ArrayList<Hecho> obtenerHechosNavegacion(@PathVariable("idColeccion") UUID id,
                                                   @PathVariable("modo") ModosDeNavegacion modosDeNavegacion) {
       Coleccion coleccion = serviceColecciones.getColeccion(id);
@@ -228,28 +231,28 @@ public class ControllerMetamapa {
   }
 
   //● TODO: Reportar un hecho. Supongo que se refiere a crear una solicitud de edicion
-  @PostMapping("/metamapa/api/solicitudesEdicion/")
-  public String generarSolicitudEdicion(@RequestParam("hechoAfectado") String hechoAfectado,
-                                            @RequestParam("motivo") String motivo,
-                                            @RequestParam(value = "url", required = false) String url,
-                                            RedirectAttributes ra ) {
-      Integer idSolicitud = serviceAgregador.crearSolicitudEdicionYRetornarId(hechoAfectado, motivo, url);
-      ra.addFlashAttribute("success", "Solicitud creada correctamente con id: " + idSolicitud);
-      //return "redirect:/metamapa/solicitudesEliminacion/" + idSolicitud; //Te lleva a la pagina de la nueva solicitud
-      return "redirect:/metamapa/solicitudesEdicion/";
+  @PostMapping("/solicitudesEdicion/")
+  public ResponseEntity<Map<String,Object>> generarSolicitudEdicion(@RequestParam("hechoAfectado") String hechoAfectado,
+                                                                   @RequestParam("motivo") String motivo,
+                                                                   @RequestParam(value = "url", required = false) String url) {
+    Integer idSolicitud = serviceAgregador.crearSolicitudEdicionYRetornarId(hechoAfectado, motivo, url);
+    return ResponseEntity
+            .created(URI.create("/metamapa/solicitudesEdicion/" + idSolicitud))
+            .body(Map.of("idSolicitud", idSolicitud));
   }
 
-  @GetMapping("/metamapa/fuentesDeDatos/{id}")
-  public String obtenerFuente(@PathVariable("id") Integer id, Model model) {
-    model.addAttribute("fuente", serviceFuenteDeDatos.getFuenteDeDatos(id));
-    return "fuenteDeDatos";
+
+  @GetMapping("/fuentesDeDatos/{id}")
+  public ResponseEntity<FuenteDeDatos> obtenerFuente(@PathVariable("id") Integer id) {
+    var f = serviceFuenteDeDatos.getFuenteDeDatos(id);
+    return (f != null) ? ResponseEntity.ok(f) : ResponseEntity.notFound().build();
   }
 
-  @GetMapping("/metamapa/fuentesDeDatos/")
-  public String obtenerFuentes(Model model) {
-    model.addAttribute("fuentesDeDatos", serviceFuenteDeDatos.getFuentesDeDatos());
-    return "fuentesDeDatos";
+  @GetMapping("/fuentesDeDatos/")
+  public ResponseEntity<List<FuenteDeDatos>> obtenerFuentes() {
+    return ResponseEntity.ok(Optional.ofNullable(serviceFuenteDeDatos.getFuentesDeDatos()).orElseGet(List::of));
   }
+
 
   /*
     @PostMapping(value = "/metamapa/fuentesDeDatos/", consumes = "application/json", produces = "application/json")
@@ -259,51 +262,56 @@ public class ControllerMetamapa {
 
     }
   */
-  @PostMapping(value = "/metamapa/fuentesDeDatos/")
-  public String crearFuenteDeDatos(
-          @RequestParam("tipo") String tipo,
-          @RequestParam("nombre") String nombre,
-          @RequestParam(value = "url", required = false) String url,
-          RedirectAttributes ra
-  ) {
+  @PostMapping(value = "/fuentesDeDatos/", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<String,Object>> crearFuenteDeDatos(@RequestBody Map<String, String> payload) {
+    String tipo = payload.get("tipo");
+    String nombre = payload.get("nombre");
+    String url = payload.get("url");
+
     Integer idFuente = serviceFuenteDeDatos.crearFuenteYRetornarId(tipo, nombre, url);
-    ra.addFlashAttribute("success", "Fuente creada correctamente con id: " + idFuente);
-    //return "redirect:/metamapa/fuentesDeDatos/" + idFuente; //Te lleva a la pagina de la nueva fuente
-    return "redirect:/metamapa/fuentesDeDatos/";
+
+    Map<String,Object> body = new HashMap<>();
+    body.put("id", idFuente);
+    body.put("nombre", nombre);
+    body.put("tipo", tipo);
+
+    return ResponseEntity
+            .created(URI.create("/metamapa/fuentesDeDatos/" + idFuente))
+            .body(body);
   }
 
   //TODO No necesitamos conectarnos con el agregador
-  @GetMapping("/metamapa/agregador/hechos")
+  @GetMapping("/agregador/hechos")
   public String obtenerHechosAgregador(Model model) {
     model.addAttribute("hechos", serviceAgregador.getAgregadorHechos());
     return "agregador";
   }
 
-  @GetMapping("/metamapa/agregador/")
+  @GetMapping("/agregador/")
   public String obtenerAgregador(Model model) {
     model.addAttribute("agregador", serviceAgregador.getAgregador());
     return "agregador";
   }
 
-  @PostMapping("/metamapa/agregador/fuentes/actualizar")
+  @PostMapping("/agregador/fuentes/actualizar")
   public ResponseEntity<Void> actualizarAgregador() {
     serviceAgregador.actualizarAgregador();
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/metamapa/agregador/fuentesDeDatos/agregar/{idFuenteDeDatos}")
-  public ResponseEntity<Void> agregarFuente(@PathVariable("idFuenteDeDatos") Integer idFuente) throws IOException {
+  @PostMapping("/agregador/fuentesDeDatos/agregar/{idFuenteDeDatos}")
+  public ResponseEntity<Void> agregarFuente(@PathVariable("idFuenteDeDatos") Integer idFuente) {
     serviceAgregador.agregarFuente(idFuente);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/metamapa/agregador/fuentesDeDatos/remover/{idFuenteDeDatos}")
-  public ResponseEntity<Void> removerFuente(@PathVariable("idFuenteDeDatos") Integer idFuente) throws IOException {
+  @PostMapping("/agregador/fuentesDeDatos/remover/{idFuenteDeDatos}")
+  public ResponseEntity<Void> removerFuente(@PathVariable("idFuenteDeDatos") Integer idFuente) {
     serviceAgregador.removerFuente(idFuente);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/metamapa/fuentesDeDatos/{idFuenteDeDatos}/cargarCSV")
+  @PostMapping("/fuentesDeDatos/{idFuenteDeDatos}/cargarCSV")
   public String cargarCSV(@PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos,
                           @RequestParam("file") MultipartFile file, RedirectAttributes ra) throws IOException {
     serviceFuenteDeDatos.cargarCSV(idFuenteDeDatos, file);
@@ -311,7 +319,7 @@ public class ControllerMetamapa {
     return "redirect:/metamapa/fuentesDeDatos/" + idFuenteDeDatos;
   }
 
-  @PostMapping("/metamapa/fuentesDeDatos/{idFuenteDeDatos}/cargarHecho")
+  @PostMapping("/fuentesDeDatos/{idFuenteDeDatos}/cargarHecho")
   public String cargarHecho(
           @PathVariable("idFuenteDeDatos") Integer idFuenteDeDatos,
           @RequestParam String titulo,
@@ -360,5 +368,79 @@ public class ControllerMetamapa {
   @GetMapping("/")
   public String mostrarHome(Model model) {
     return "home";
+  }
+
+  //VISTA
+  @GetMapping(value= {"/colecciones", "/colecciones/"}, produces = MediaType.TEXT_HTML_VALUE)
+  public String listarHtml(Model model,
+                           @ModelAttribute("success") String ok,
+                           @ModelAttribute("error") String err) {
+    model.addAttribute("colecciones", serviceColecciones.getColecciones());
+    model.addAttribute("algoritmosConsenso", List.of("Absoluto","MayoriaSimple","MultiplesMenciones"));
+    return "colecciones"; // templates/colecciones.html
+  }
+
+  @GetMapping(value="/colecciones/{uuid}", produces = MediaType.TEXT_HTML_VALUE)
+  public String verHtml(@PathVariable UUID uuid, Model model, RedirectAttributes ra) {
+    var c = serviceColecciones.getColeccion(uuid);
+    if (c == null) { ra.addFlashAttribute("error","Colección no encontrada"); return "redirect:/metamapa/colecciones/"; }
+    model.addAttribute("coleccion", c);
+    model.addAttribute("algoritmosConsenso", List.of("Absoluto","MayoriaSimple","MultiplesMenciones"));
+    return "detalle"; // templates/detalle.html
+  }
+  @PostMapping(value="/colecciones/", produces = MediaType.TEXT_HTML_VALUE,
+          consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public String crearColeccionHtml(@RequestParam String titulo,
+                                   @RequestParam String descripcion,
+                                   @RequestParam(required=false) String consenso,
+                                   @RequestParam(required=false) List<String> pertenenciaTitulos,
+                                   @RequestParam(required=false) List<String> noPertenenciaTitulos,
+                                   RedirectAttributes ra) {
+    String c = (consenso == null || consenso.isBlank()) ? "MayoriaSimple" : consenso;
+    var pert = new ArrayList<Map<String,Object>>();
+    if (pertenenciaTitulos != null) for (var t: pertenenciaTitulos) if (!t.isBlank()) pert.add(Map.of("tipo","titulo","valor",t.trim()));
+    var noPert = new ArrayList<Map<String,Object>>();
+    if (noPertenenciaTitulos != null) for (var t: noPertenenciaTitulos) if (!t.isBlank()) noPert.add(Map.of("tipo","titulo","valor",t.trim()));
+
+    var id = serviceColecciones.crearColeccion(titulo.trim(), descripcion.trim(), c, pert, noPert);
+    ra.addFlashAttribute("success", "Colección creada (ID: " + id + ")");
+    return "redirect:/metamapa/colecciones/" + id;
+  }
+  @DeleteMapping(value="/colecciones/{uuid}", produces = MediaType.TEXT_HTML_VALUE)
+  public String eliminarHtml(@PathVariable UUID uuid, RedirectAttributes ra) {
+    var status = serviceColecciones.deleteColeccion(uuid);
+    if (status == HttpStatus.NO_CONTENT) ra.addFlashAttribute("success", "Colección eliminada");
+    else if (status == HttpStatus.NOT_FOUND) ra.addFlashAttribute("error", "Colección no encontrada");
+    else ra.addFlashAttribute("error", "No se pudo eliminar (status: " + status + ")");
+    return "redirect:/metamapa/colecciones/";
+  }
+//  @PatchMapping(value="/colecciones/{uuid}/consenso/{algoritmo:Absoluto|MultiplesMenciones|MayoriaSimple}",
+//          produces = MediaType.TEXT_HTML_VALUE)
+//  public String cambiarConsensoHtml(@PathVariable UUID uuid,
+//                                    @PathVariable String algoritmo,
+//                                    RedirectAttributes ra) {
+//    var status = serviceColecciones.actualizarAlgoritmoConsenso(uuid, algoritmo);
+//    if (status.is2xxSuccessful()) ra.addFlashAttribute("success", "Consenso actualizado a " + algoritmo);
+//    else if (status == HttpStatus.NOT_FOUND) ra.addFlashAttribute("error", "Colección no encontrada");
+//    else ra.addFlashAttribute("error", "No se pudo actualizar (status: " + status + ")");
+//    return "redirect:/metamapa/colecciones/" + uuid;
+//  }
+
+  // PATCH (HTML): cambia consenso leyendo @RequestParam algoritmo y redirige
+  @PatchMapping(value = "/colecciones/{uuid}/consenso",
+          consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+          produces = MediaType.TEXT_HTML_VALUE)
+  public String cambiarConsensoHtml(@PathVariable UUID uuid,
+                                    @RequestParam String algoritmo,
+                                    RedirectAttributes ra) {
+    var status = serviceColecciones.actualizarAlgoritmoConsenso(uuid, algoritmo);
+    if (status.is2xxSuccessful()) {
+      ra.addFlashAttribute("success", "Consenso actualizado a " + algoritmo);
+    } else if (status == HttpStatus.NOT_FOUND) {
+      ra.addFlashAttribute("error", "Colección no encontrada");
+    } else {
+      ra.addFlashAttribute("error", "No se pudo actualizar el consenso (status: " + status.value() + ")");
+    }
+    return "redirect:/metamapa/colecciones";
   }
 }
