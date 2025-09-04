@@ -1,50 +1,36 @@
 package FuenteDinamica.persistencia;
 import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import lombok.Getter;
 import org.springframework.stereotype.Repository;
 
+// FuenteDinamica.persistencia.RepositorioFuentes
 @Repository
 public class RepositorioFuentes {
   @Getter
-  public ArrayList<FuenteDinamica> fuentesDinamicas = new ArrayList<>();
+  private final List<FuenteDinamica> fuentesDinamicas = new ArrayList<>();
+  private final AtomicInteger seq = new AtomicInteger(1_000_000);
 
-  public void agregarFuente(FuenteDinamica fuente) {
+  public FuenteDinamica agregarFuente(FuenteDinamica fuente) {
+    if (fuente.getFuenteId() == null) {
+      fuente.setFuenteId(seq.getAndIncrement());
+    }
     this.fuentesDinamicas.add(fuente);
+    return fuente;
+  }
+
+  public Optional<FuenteDinamica> buscarFuenteOpt(Integer id) {
+    return fuentesDinamicas.stream()
+            .filter(f -> Objects.equals(f.getFuenteId(), id))
+            .findFirst();
   }
 
   public FuenteDinamica buscarFuente(Integer id) {
-    return fuentesDinamicas.stream().filter(f-> Objects.equals(f.getFuenteId(), id)).findFirst().orElseThrow(()-> new IllegalArgumentException("No se encontro una fuente con ese ID"));
+    return buscarFuenteOpt(id).orElseThrow(
+            () -> new IllegalArgumentException("No se encontro una fuente con ese ID"));
   }
 
-//  public RepositorioFuentes() {
-//
-//    // Fuente Dinamica Con 1 Hecho
-//    FuenteDinamica fuenteDinamica = new FuenteDinamica();
-//    ArrayList<Multimedia> multi = new ArrayList<>();
-//    Perfil admin01 = new Perfil("Juan", "Perez", 30);
-//    Usuario admin = new Usuario("admin1@frba.utn.edu.ar", "algo", admin01, List.of(Rol.ADMINISTRADOR, Rol.CONTRIBUYENTE, Rol.VISUALIZADOR));
-//    fuenteDinamica.agregarHecho(
-//        "Hecho demo",
-//        "Esto es una descripcion demo",
-//        "Metamapa/demo",
-//        0f,
-//        0f,
-//        LocalDate.of(2025, 6, 22),
-//        1,
-//        false,
-//        multi);
-//
-//    agregarFuente(fuenteDinamica);
-//
-///*    String path ="fuentesDeDatos-service/src/main/resources/desastres_naturales_argentina.csv";
-//    //String path = "Metamapa/agregador-service/src/main/resources/desastres_naturales_argentina.csv";
-//
-//    CSVHechoParser parser = new CSVHechoParser();
-//    FuenteEstatica fuenteEstaticaID2 = new FuenteEstatica("desastres_naturales_argentina");
-//    fuenteEstaticaID2.agregarHecho(parser.parsearHechos(path,fuenteEstaticaID2.getId()));
-//    //fuenteEstaticaID2.setParser(parser);
-//    //fuenteEstaticaID2.cargarCSV(path);
-//    agregarFuente(fuenteEstaticaID2);*/
-//    }
+  public List<FuenteDinamica> listar() { return List.copyOf(fuentesDinamicas); }
 }

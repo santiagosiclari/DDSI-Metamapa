@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import lombok.Getter;
+import lombok.Setter;
 
 @JsonTypeName("FUENTEDINAMICA")
 public class FuenteDinamica {
@@ -12,7 +13,7 @@ public class FuenteDinamica {
   public String nombre;
   @Getter
   ArrayList<Hecho> hechos;
-  @Getter
+  @Getter@Setter
   Integer fuenteId;
 
   public FuenteDinamica() {

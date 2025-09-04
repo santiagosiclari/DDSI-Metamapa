@@ -7,6 +7,7 @@ import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
@@ -19,7 +20,7 @@ public class ControllerFuenteDinamica {
 
   // obtener todas las fuentes
   @GetMapping("/")
-  public ArrayList<FuenteDinamica> getFuenteDeDatos(){
+  public List<FuenteDinamica> getFuenteDeDatos(){
     return repositorioFuentes.getFuentesDinamicas();
   }
 
@@ -31,15 +32,10 @@ public class ControllerFuenteDinamica {
 
   // crear una fuente
   @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<?> crearFuenteDeDatos(@RequestBody Map<String, Object> requestBody) {
-    try {
-      //String nombreFE = (String) requestBody.get("nombre");
-      FuenteDinamica fuenteDinamica = new FuenteDinamica();
-      repositorioFuentes.agregarFuente(fuenteDinamica);
-      return ResponseEntity.ok(fuenteDinamica);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
-    }
+  public ResponseEntity<FuenteDinamica> crearFuenteDeDatos(@RequestBody FuenteDinamica body, UriComponentsBuilder uriBuilder) {
+      var creada = repositorioFuentes.agregarFuente(body);
+      var loc = uriBuilder.path("/api-fuentesDeDatos/{id}").buildAndExpand(creada.getFuenteId()).toUri();
+      return ResponseEntity.created(loc).body(creada);
   }
 
   // este me parece que no se usa, ya que el agregador se actualiza solo por ahi esta para otra cosa

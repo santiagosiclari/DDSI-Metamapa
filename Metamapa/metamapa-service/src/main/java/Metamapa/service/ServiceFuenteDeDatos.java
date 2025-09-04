@@ -1,10 +1,19 @@
 package Metamapa.service;
 
+import java.nio.charset.StandardCharsets;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.springframework.http.client.ClientHttpResponse;
 import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
+import Metamapa.business.FuentesDeDatos.FuenteDinamica;
+import Metamapa.business.FuentesDeDatos.FuenteEstatica;
+import Metamapa.business.FuentesDeDatos.FuenteProxy;
 import Metamapa.business.Hechos.Multimedia;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +22,10 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -46,9 +57,96 @@ public class ServiceFuenteDeDatos {
   }
 
   // Mapa en memoria: en serio guardalo en un repo/DB
-  private final Map<Integer, String> tipoPorId = new HashMap<>();
+  private static final Logger log = LoggerFactory.getLogger(ServiceFuenteDeDatos.class);
   private static final int OFFSET = 1_000_000;
-  private int idLocal(Integer id) { return id % OFFSET; }
+
+  public String getFuenteDeDatosRaw(Integer id) {
+    String base = resolverBaseUrl(id);
+    String url  = join(base, "/" + id);   // usamos el id prefijado que vos mismo generás (1000001)
+    log.info("Proxy GET one -> {}", url);
+    return httpGetRaw(url);                // devuelve JSON crudo (String)
+  }
+
+  public String getFuentesDeDatosRaw() {
+    List<String> bases = List.of(urlEstatica, urlDinamica, urlProxy);
+    ArrayNode union = objectMapper.createArrayNode();
+
+    for (String base : bases) {
+      if (base == null || base.isBlank()) continue;
+      String url = base.endsWith("/") ? base : base + "/";
+      try {
+        String body = httpGetRaw(url);
+        JsonNode n = objectMapper.readTree(body);
+        if (n.isArray()) {
+          n.forEach(union::add);
+        } else if (n.isObject()) {
+          union.add(n);
+        }
+      } catch (Exception e) {
+        log.warn("Listado falló en {}: {}", url, e.toString());
+      }
+    }
+    // devolvemos un único array JSON concatenando lo de todos los micros
+    return union.toString();
+  }
+
+  // === Helper: GET crudo como String (sin Jackson / converters) ===
+  private String httpGetRaw(String url) {
+    return restTemplate.execute(
+            url,
+            HttpMethod.GET,
+            req -> {
+              // Acepto cualquier cosa para que NO elija el converter de JSON
+              req.getHeaders().setAccept(List.of(MediaType.ALL));
+            },
+            (ClientHttpResponse resp) -> {
+              var status = resp.getStatusCode();
+              if (!status.is2xxSuccessful()) {
+                throw new RestClientException("GET " + url + " -> " + status);
+              }
+              try (var in = resp.getBody()) {
+                if (in == null) return null;
+                byte[] bytes = in.readAllBytes();
+                return new String(bytes, StandardCharsets.UTF_8);
+              }
+            }
+    );
+  }
+
+  public FuenteDeDatos getFuenteDeDatos(Integer id) {
+    String base = resolverBaseUrl(id);      // ej: http://localhost:9001/api-fuentesDeDatos
+    int idLocal = id % OFFSET;              // 1000001 -> 1
+
+    List<String> candidates = new ArrayList<>();
+    candidates.add(join(base, "/" + id));           // …/api-fuentesDeDatos/1000001
+    if (idLocal != 0) candidates.add(join(base, "/" + idLocal)); // …/api-fuentesDeDatos/1
+
+    log.warn("Intentos para id={} en base={}: {}", id, base, String.join(" | ", candidates));
+
+    // 1) Intentos directos (prefijado y local)
+    for (String url : candidates) {
+      try {
+        String body = httpGetRaw(url);  // 👈 leer crudo
+        log.info("GET {} OK | body[0..300]: {}",
+                url, body == null ? "null" : body.substring(0, Math.min(300, body.length())));
+        if (body == null || body.isBlank()) continue;
+        FuenteDeDatos f = parseFuenteFlex(body);
+        if (f != null) return f;
+      } catch (Exception e) {
+        log.warn("GET {} falló: {}", url, e.toString());
+      }
+    }
+
+// Fallback: listar
+    try {
+      List<FuenteDeDatos> todas = fetchList(base);
+      // ... (tu mismo código de búsqueda por id / idLocal)
+    } catch (Exception e) {
+      log.warn("Fallback (listar) falló en {}: {}", base, e.toString());
+    }
+
+    throw new NoSuchElementException("No se pudo recuperar la fuente id=" + id + " (ni con id completo ni local).");
+  }
 
   /* ===================== helpers ===================== */
 
@@ -59,30 +157,6 @@ public class ServiceFuenteDeDatos {
   private static String join(String base, String suffix) {
     return (base.replaceAll("/+$","") + "/" + suffix.replaceAll("^/+",""));
   }
-
-  private String intentarResolverTipoPorProbing(Integer id) {
-    // id es local (sin prefijo)
-    List<Map.Entry<String,String>> bases = List.of(
-            Map.entry("DINAMICA", urlDinamica),
-            Map.entry("ESTATICA", urlEstatica),
-            Map.entry("PROXY",    urlProxy)
-    );
-    for (var e : bases) {
-      String tipo = e.getKey();
-      String base = e.getValue();
-      if (base == null || base.isBlank()) continue;
-      String url = join(base, "/" + id);
-      try {
-        ResponseEntity<Void> resp = restTemplate.exchange(url, HttpMethod.GET, null, Void.class);
-        if (resp.getStatusCode().is2xxSuccessful()) {
-          tipoPorId.put(id, tipo); // cacheo
-          return tipo;
-        }
-      } catch (Exception ignore) {}
-    }
-    return null;
-  }
-
 
   private static String normalizarTipo(String tipoRaw) {
     if (tipoRaw == null) throw new IllegalArgumentException("Tipo nulo");
@@ -102,44 +176,25 @@ public class ServiceFuenteDeDatos {
     };
   }
 
-  private String endpointById(Integer id) {
-    String tipo = tipoPorId.get(id);
-
-    if (tipo == null) {
-      // a) si viene id con prefijo (>= 1_000_000), inferir por prefijo
-      if (id >= OFFSET) {
-        int prefijo = id / OFFSET;
-        switch (prefijo) {
-          case 1 -> tipo = "DINAMICA";
-          case 2 -> tipo = "ESTATICA";
-          case 3 -> tipo = "PROXY";
-          default -> tipo = null;
-        }
-        if (tipo != null) {
-          tipoPorId.put(id, tipo); // cachear ese id compuesto
-        }
-      } else {
-        // b) id local: probar contra las tres bases
-        tipo = intentarResolverTipoPorProbing(id);
-      }
-    }
-
-    if (tipo == null) throw new IllegalStateException("No conozco el tipo de la fuente id=" + id);
-    return endpointByTipo(tipo);
+  private String resolverBaseUrl(Integer idFuente) {
+    int tipo = idFuente / OFFSET; // 1=dinámica, 2=estática, 3=proxy
+    return switch (tipo) {
+      case 1 -> urlDinamica;
+      case 2 -> urlEstatica;
+      case 3 -> urlProxy;
+      default -> throw new IllegalArgumentException("Tipo de fuente desconocido para id=" + idFuente);
+    };
   }
 
-
-  private void registrarFuenteLocal(Integer id, String tipoRaw) {
-    tipoPorId.put(id, normalizarTipo(tipoRaw));
+  private String tipoPorBase(String base) {
+    String b = base == null ? "" : base.replaceAll("/+$", "");
+    if (b.equals(urlDinamica)) return "FUENTEDINAMICA";
+    if (b.equals(urlEstatica)) return "FUENTEESTATICA";
+    if (b.equals(urlProxy))    return "FUENTEPROXY";
+    return "FUENTEDINAMICA"; // fallback razonable
   }
 
   /* ===================== lecturas ===================== */
-
-  public FuenteDeDatos getFuenteDeDatos(Integer id) {
-    String base = endpointById(id);
-    String url  = join(base, "/" + id); // …/api-fuentesDeDatos/{id}
-    return restTemplate.getForObject(url, FuenteDeDatos.class);
-  }
 
   public List<FuenteDeDatos> getFuentesDeDatos() {
     List<FuenteDeDatos> total = new ArrayList<>();
@@ -149,92 +204,79 @@ public class ServiceFuenteDeDatos {
     return total;
   }
 
-  private static final Logger log = LoggerFactory.getLogger(ServiceFuenteDeDatos.class);
-
   private List<FuenteDeDatos> fetchList(String base) {
     if (base == null || base.isBlank()) return List.of();
+
     String url = base.endsWith("/") ? base : base + "/";
+    String defaultTipo = tipoPorBase(base);
+
     try {
-      ResponseEntity<String> resp = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
-      String body = resp.getBody();
-      log.info("GET {} -> {} | body[0..500]: {}", url, resp.getStatusCode(),
+      String body = httpGetRaw(url);  // <- lee crudo, sin converters
+      log.info("GET {} -> body[0..500]: {}", url,
               body == null ? "null" : body.substring(0, Math.min(500, body.length())));
+      if (body == null || body.isBlank()) return List.of();
 
-      if (!resp.getStatusCode().is2xxSuccessful() || body == null || body.isBlank()) return List.of();
-
-      return parseFuentesFlex(body); // ver sección 2
-
+      return parseFuentesFlex(body, defaultTipo); // 👈 ahora con default
     } catch (Exception e) {
       log.error("Error llamando {}: {}", url, e.toString(), e);
       return List.of();
     }
   }
 
-  private List<FuenteDeDatos> parseFuentesFlex(String body) throws IOException {
+
+  private List<FuenteDeDatos> parseFuentesFlex(String body, String defaultTipo) throws IOException {
     ObjectMapper om = objectMapper.copy()
             .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     JsonNode root = om.readTree(body);
 
-    // Caso 1: ya es array
+    // Caso 1: array "puro"
     if (root.isArray()) {
+      ArrayNode arr = (ArrayNode) root;
+      ArrayNode mod = om.createArrayNode();
+      for (JsonNode n : arr) {
+        if (!n.isObject()) continue;  // ignoro raros
+        ObjectNode on = (ObjectNode) n.deepCopy();
+        asegurarTipoFuente(on, defaultTipo); // 👈 inyecta/normaliza
+        mod.add(on);
+      }
       var listType = om.getTypeFactory().constructCollectionType(List.class, FuenteDeDatos.class);
-      return om.readerFor(listType).readValue(body);
+      return om.readerFor(listType).readValue(mod.traverse());
     }
 
-    // Caso 2: objeto único -> lo tratamos como lista de uno
+    // Caso 2: wrappers típicos
     if (root.isObject()) {
-      // Wrappers típicos
       for (String key : List.of("items","data","content","results","list","fuentes","sources")) {
         JsonNode arr = root.get(key);
-        if (arr != null) {
-          if (arr.isArray()) {
-            var listType = om.getTypeFactory().constructCollectionType(List.class, FuenteDeDatos.class);
-            return om.readerFor(listType).readValue(arr.traverse());
-          } else if (arr.isObject()) {
-            FuenteDeDatos uno = om.treeToValue(arr, FuenteDeDatos.class);
-            return uno == null ? List.of() : List.of(uno);
+        if (arr != null && arr.isArray()) {
+          ArrayNode mod = om.createArrayNode();
+          for (JsonNode n : arr) {
+            if (!n.isObject()) continue;
+            ObjectNode on = (ObjectNode) n.deepCopy();
+            asegurarTipoFuente(on, defaultTipo);
+            mod.add(on);
           }
+          var listType = om.getTypeFactory().constructCollectionType(List.class, FuenteDeDatos.class);
+          return om.readerFor(listType).readValue(mod.traverse());
         }
       }
-      // Si no hay wrapper, intentar mapear el objeto como una sola fuente
-      FuenteDeDatos uno = om.treeToValue(root, FuenteDeDatos.class);
-      return uno == null ? List.of() : List.of(uno);
+      // Si no hay wrapper, tratar como objeto único
+      ObjectNode on = (ObjectNode) root.deepCopy();
+      asegurarTipoFuente(on, defaultTipo);
+      FuenteDeDatos uno = objectMapper
+              .copy()
+              .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+              .readValue(on.traverse(), FuenteDeDatos.class);
+      return (uno == null) ? List.of() : List.of(uno);
     }
 
     // Cualquier otro caso (texto/HTML/etc.)
     return List.of();
   }
 
+
   /* ===================== escrituras ===================== */
-
-  // Crear fuente mandando JSON crudo (desde tu Controller Opción C)
-  public ResponseEntity<String> crearFuente(String jsonPayload) {
-    String tipo = extraerTipo(jsonPayload);            // p.ej. "FUENTEESTATICA" o "ESTATICA"
-    String endpoint = endpointByTipo(tipo);            // 9002/9001/9003
-    HttpHeaders h = new HttpHeaders();
-    h.setContentType(MediaType.APPLICATION_JSON);
-
-    ResponseEntity<String> resp = restTemplate.exchange(
-            join(endpoint, "/"),                            // muchos POST requieren el slash final
-            HttpMethod.POST,
-            new HttpEntity<>(jsonPayload, h),
-            String.class
-    );
-
-    // Intento registrar id->tipo si el body trae {"id": ...}
-    try {
-      if (resp.getBody() != null && !resp.getBody().isBlank()) {
-        JsonNode root = objectMapper.readTree(resp.getBody());
-        if (root.hasNonNull("id")) {
-          registrarFuenteLocal(root.get("id").asInt(), tipo);
-        }
-      }
-    } catch (Exception ignore) {}
-
-    return resp;
-  }
 
   private String extraerTipo(String jsonPayload) {
     try {
@@ -247,31 +289,81 @@ public class ServiceFuenteDeDatos {
     }
   }
 
+  private FuenteDeDatos parseFuenteFlex(String body) {
+    ObjectMapper om = objectMapper.copy()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+      JsonNode n = om.readTree(body);
+
+      // Si vino array por error, uso el primero
+      if (n.isArray()) {
+        if (n.size() == 0) return null;
+        n = n.get(0);
+      }
+      if (!n.isObject()) throw new IllegalStateException("JSON inesperado (no es objeto).");
+
+      ObjectNode on = (ObjectNode) n;
+
+      // Inyectar/normalizar tipoFuente (permite polimorfismo aunque el upstream no lo envíe)
+      String raw  = on.hasNonNull("tipoFuente") ? on.get("tipoFuente").asText() : null;
+      String tipo = normalizarTipoParaJson(raw); // FUENTEDEMO / FUENTEESTATICA / FUENTEDINAMICA / FUENTEMETAMAPA / FUENTEPROXY
+      on.put("tipoFuente", tipo);
+
+      // Polimórfico "limpio": que Jackson resuelva con @JsonTypeInfo/@JsonSubTypes
+      return om.readValue(on.traverse(), FuenteDeDatos.class);
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Parse polimórfico falló: " + e.getMessage(), e);
+    }
+  }
+
+  private static String normalizarTipoParaJson(String raw) {
+    if (raw == null) return "FUENTEDINAMICA";
+    String r = raw.trim().toUpperCase(Locale.ROOT);
+    return switch (r) {
+      case "FUENTEDEMO", "FUENTE DEMO", "DEMO"           -> "FUENTEDEMO";
+      case "FUENTEDINAMICA", "DINAMICA", "FUENTE DINAMICA" -> "FUENTEDINAMICA";
+      case "FUENTEESTATICA", "ESTATICA", "FUENTE ESTATICA" -> "FUENTEESTATICA";
+      case "FUENTEPROXY", "PROXY", "FUENTE PROXY"         -> "FUENTEPROXY";
+      case "FUENTEMETAMAPA", "METAMAPA", "FUENTE METAMAPA" -> "FUENTEMETAMAPA";
+      default -> "FUENTEDINAMICA";
+    };
+  }
+
+  private void asegurarTipoFuente(ObjectNode on, String defaultTipo) {
+    // Si ya viene "tipoFuente", lo normalizo y listo
+    if (on.hasNonNull("tipoFuente")) {
+      String tf = normalizarTipoParaJson(on.get("tipoFuente").asText());
+      on.put("tipoFuente", tf);
+      return;
+    }
+    // Si viene "tipo", úsalo para derivar "tipoFuente"
+    if (on.hasNonNull("tipo")) {
+      String tf = normalizarTipoParaJson(on.get("tipo").asText());
+      on.put("tipoFuente", tf);
+      return;
+    }
+    // Si no vino nada, usa el default por base
+    on.put("tipoFuente", normalizarTipoParaJson(defaultTipo));
+  }
+
+
   // Crear fuente con DTO simple
+// Crear fuente con DTO simple
   public Integer crearFuenteYRetornarId(String tipo, String nombre, String url) {
-    String t = normalizarTipo(tipo); // -> ESTATICA | DINAMICA | PROXY
-    String endpoint = endpointByTipo(tipo);
+    String t = normalizarTipo(tipo);          // -> ESTATICA | DINAMICA | PROXY
+    String endpoint = endpointByTipo(t);      // base del micro correcto
 
     Map<String,Object> payload = new HashMap<>();
-
     switch (t) {
-      case "ESTATICA" -> {
-        // Tu Controller Estática pide solo "nombre"
-        payload.put("nombre", nombre);
-      }
-      case "DINAMICA" -> {
-        // Tu Controller Dinámica ignora el body; opcionalmente mandamos nombre
-        if (nombre != null && !nombre.isBlank()) {
-          payload.put("nombre", nombre);
-        }
-        // NO mandamos tipo/url
-      }
+      case "ESTATICA" -> payload.put("nombre", nombre);
+      case "DINAMICA" -> { if (nombre != null && !nombre.isBlank()) payload.put("nombre", nombre); }
       case "PROXY" -> {
-        // Controller Proxy recibe Map y el service valida; cubrimos ambos nombres de campo
         payload.put("nombre", nombre);
         if (url != null && !url.isBlank()) {
-          payload.put("proxyUrl", url); // nombre común en loaders proxy
-          payload.put("url", url);      // por si tu service espera "url"
+          payload.put("proxyUrl", url);
+          payload.put("url", url);
         }
       }
       default -> throw new IllegalArgumentException("Tipo inválido: " + tipo);
@@ -282,19 +374,17 @@ public class ServiceFuenteDeDatos {
     h.setAccept(List.of(MediaType.APPLICATION_JSON));
 
     ResponseEntity<Map> resp = restTemplate.exchange(
-            join(endpoint, "/"),
+            join(endpoint, "/"),                  // muchos POST requieren el slash final
             HttpMethod.POST,
             new HttpEntity<>(payload, h),
             Map.class
     );
 
-    // --- extracción robusta del ID ---
     Map body = resp.getBody();
-    Integer idNum = tryExtractId(body, "id");        // caso común
-    if (idNum == null) idNum = tryExtractId(body, "fuenteId");  // p.ej. FuenteDinamica
-    if (idNum == null) idNum = tryExtractId(body, "idFuente");  // otro alias posible
+    Integer idNum = tryExtractId(body, "id");
+    if (idNum == null) idNum = tryExtractId(body, "fuenteId");
+    if (idNum == null) idNum = tryExtractId(body, "idFuente");
 
-    // Fallback: parsear desde Location: .../fuentesDeDatos/{id}
     if (idNum == null && resp.getHeaders().getLocation() != null) {
       String path = resp.getHeaders().getLocation().getPath();
       String last = path.substring(path.lastIndexOf('/') + 1);
@@ -308,9 +398,10 @@ public class ServiceFuenteDeDatos {
               + " body=" + body);
     }
 
-    registrarFuenteLocal(idNum, tipo);
+    // ⚠️ Se eliminó registrarFuenteLocal(idNum, t);
     return idNum;
   }
+
 
 // Helpers
 
@@ -340,7 +431,7 @@ public class ServiceFuenteDeDatos {
       throw new IllegalArgumentException("Si enviás coordenadas, incluí latitud y longitud.");
     }
 
-    String base = endpointById(idFuenteDeDatos);
+    String base = resolverBaseUrl(idFuenteDeDatos);
     String url  = join(base, "/" + idFuenteDeDatos + "/hechos"); // <- usa el id COMPLETO que te pasaron
 
     boolean an = anonimo != null && anonimo;
@@ -399,7 +490,7 @@ public class ServiceFuenteDeDatos {
 
 
   public void cargarCSV(Integer id, MultipartFile file) throws IOException {
-    String base = endpointById(id);
+    String base = resolverBaseUrl(id);
     String url  = join(base, "/" + id + "/cargarCSV");
 
     HttpHeaders headers = new HttpHeaders();
@@ -420,4 +511,63 @@ public class ServiceFuenteDeDatos {
 
     restTemplate.postForEntity(url, new HttpEntity<>(body, headers), Void.class);
   }
+
+  // NUEVO: devuelve una lista “plana” para la tabla (sin Jackson polimórfico)
+  public List<Map<String,Object>> getFuentesTabla() {
+    List<Map<String,Object>> out = new ArrayList<>();
+    for (String base : List.of(urlEstatica, urlDinamica, urlProxy)) {
+      if (base == null || base.isBlank()) continue;
+      String url = base.endsWith("/") ? base : base + "/";
+      String defaultTipo = tipoPorBase(base); // "FUENTEDINAMICA" etc.
+
+      try {
+        String body = httpGetRaw(url);
+        if (body == null || body.isBlank()) continue;
+
+        // Parseo genérico a List/Map, sin usar FuenteDeDatos
+        ObjectMapper om = objectMapper;
+        JsonNode root = om.readTree(body);
+
+        if (root.isArray()) {
+          for (JsonNode n : root) out.add(aFila(n, defaultTipo));
+        } else if (root.isObject()) {
+          out.add(aFila(root, defaultTipo));
+        }
+      } catch (Exception e) {
+        log.warn("getFuentesTabla: fallo listando {}: {}", url, e.toString());
+      }
+    }
+    // Orden por id si existe
+    out.sort(Comparator.comparing(m -> {
+      Object v = m.getOrDefault("id", Integer.MAX_VALUE);
+      try { return Integer.valueOf(v.toString()); } catch (Exception e) { return Integer.MAX_VALUE; }
+    }));
+    return out;
+  }
+
+  // Helpers para “aplanar” un item a lo que la tabla necesita
+  private Map<String,Object> aFila(JsonNode n, String defaultTipo) {
+    Map<String,Object> row = new LinkedHashMap<>();
+    if (n == null || !n.isObject()) return row;
+
+    row.put("id",   opt(n,"id",  opt(n,"fuenteId", opt(n,"idFuente", null))));
+    row.put("nombre", opt(n,"nombre", "(sin nombre)"));
+
+    // tipoFuente if present, sino "tipo", sino el default de la base
+    String tipo = String.valueOf(
+            opt(n, "tipoFuente",
+                    opt(n, "tipo", defaultTipo))
+    );
+    row.put("tipoFuente", tipo);
+    return row;
+  }
+
+  private Object opt(JsonNode n, String k, Object def) {
+    JsonNode j = n.get(k);
+    if (j == null || j.isNull()) return def;
+    if (j.isNumber()) return j.numberValue();
+    if (j.isBoolean()) return j.booleanValue();
+    return j.asText();
+  }
+
 }

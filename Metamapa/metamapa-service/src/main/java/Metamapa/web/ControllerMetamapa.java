@@ -14,7 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -160,7 +163,6 @@ public class ControllerMetamapa {
 
   // ● Aprobar o denegar una solicitud de eliminación (endpoint único)
   //TODO: CHEQUEAR
-
   @PatchMapping(value="/api/solicitudesEliminacion/{id}",
           consumes = MediaType.APPLICATION_JSON_VALUE,
           produces = MediaType.APPLICATION_JSON_VALUE)
@@ -220,7 +222,6 @@ public class ControllerMetamapa {
             .body(Map.of("idSolicitud", idSolicitud));
   }
 
-  // (Opcional) Exponer el GET para que el Location apunte a algo real
   @GetMapping(value="/api/solicitudesEliminacion/{id}", produces = "application/json")
   @ResponseBody
   public ResponseEntity<Map<String,Object>> getSolicitudEliminacion(@PathVariable Integer id) {
@@ -284,18 +285,34 @@ public class ControllerMetamapa {
   }
 
 
-  @GetMapping("/fuentesDeDatos/{id}")
+  // UNO (passthrough de JSON)
+  @GetMapping(value = "/api/fuentesDeDatos/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<FuenteDeDatos> obtenerFuente(@PathVariable("id") Integer id) {
-    var f = serviceFuenteDeDatos.getFuenteDeDatos(id);
-    return (f != null) ? ResponseEntity.ok(f) : ResponseEntity.notFound().build();
+  public ResponseEntity<String> obtenerFuente(@PathVariable Integer id) {
+    try {
+      String json = serviceFuenteDeDatos.getFuenteDeDatosRaw(id);
+      return ResponseEntity.ok(json);
+    } catch (NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"" + e.getMessage() + "\"}");
+    } catch (RestClientException e) {
+      return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("{\"error\":\"Upstream error: " + e.getMessage() + "\"}");
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"Error interno: " + e.getMessage() + "\"}");
+    }
   }
 
-  @GetMapping("/fuentesDeDatos/")
+  // LISTA (passthrough de JSON)
+  @GetMapping(value = "/api/fuentesDeDatos", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<List<FuenteDeDatos>> obtenerFuentes() {
-    return ResponseEntity.ok(Optional.ofNullable(serviceFuenteDeDatos.getFuentesDeDatos()).orElseGet(List::of));
+  public ResponseEntity<String> listarFuentes() {
+    try {
+      String json = serviceFuenteDeDatos.getFuentesDeDatosRaw();
+      return ResponseEntity.ok(json);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"Error interno: " + e.getMessage() + "\"}");
+    }
   }
+
 
 
   /*
@@ -306,7 +323,8 @@ public class ControllerMetamapa {
 
     }
   */
-  @PostMapping(value = "/fuentesDeDatos/", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/api/fuentesDeDatos/", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
   public ResponseEntity<Map<String,Object>> crearFuenteDeDatos(@RequestBody Map<String, String> payload) {
     String tipo = payload.get("tipo");
     String nombre = payload.get("nombre");
@@ -404,66 +422,4 @@ public class ControllerMetamapa {
     return "home";
   }
 
-  //VISTA
-  @GetMapping(value= {"/colecciones", "/colecciones/"}, produces = MediaType.TEXT_HTML_VALUE)
-  public String listarHtml(Model model,
-                           @ModelAttribute("success") String ok,
-                           @ModelAttribute("error") String err) {
-    model.addAttribute("colecciones", serviceColecciones.getColecciones());
-    model.addAttribute("algoritmosConsenso", List.of("Absoluto","MayoriaSimple","MultiplesMenciones"));
-    return "colecciones"; // templates/colecciones.html
-  }
-
-  @GetMapping(value="/colecciones/{uuid}", produces = MediaType.TEXT_HTML_VALUE)
-  public String verHtml(@PathVariable UUID uuid, Model model, RedirectAttributes ra) {
-    var c = serviceColecciones.getColeccion(uuid);
-    if (c == null) { ra.addFlashAttribute("error","Colección no encontrada"); return "redirect:/metamapa/colecciones/"; }
-    model.addAttribute("coleccion", c);
-    model.addAttribute("algoritmosConsenso", List.of("Absoluto","MayoriaSimple","MultiplesMenciones"));
-    return "detalle"; // templates/detalle.html
-  }
-  @PostMapping(value="/colecciones/", produces = MediaType.TEXT_HTML_VALUE,
-          consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-  public String crearColeccionHtml(@RequestParam String titulo,
-                                   @RequestParam String descripcion,
-                                   @RequestParam(required=false) String consenso,
-                                   @RequestParam(required=false) List<String> pertenenciaTitulos,
-                                   @RequestParam(required=false) List<String> noPertenenciaTitulos,
-                                   RedirectAttributes ra) {
-    String c = (consenso == null || consenso.isBlank()) ? "MayoriaSimple" : consenso;
-    var pert = new ArrayList<Map<String,Object>>();
-    if (pertenenciaTitulos != null) for (var t: pertenenciaTitulos) if (!t.isBlank()) pert.add(Map.of("tipo","titulo","valor",t.trim()));
-    var noPert = new ArrayList<Map<String,Object>>();
-    if (noPertenenciaTitulos != null) for (var t: noPertenenciaTitulos) if (!t.isBlank()) noPert.add(Map.of("tipo","titulo","valor",t.trim()));
-
-    var id = serviceColecciones.crearColeccion(titulo.trim(), descripcion.trim(), c, pert, noPert);
-    ra.addFlashAttribute("success", "Colección creada (ID: " + id + ")");
-    return "redirect:/metamapa/colecciones/" + id;
-  }
-  @DeleteMapping(value="/colecciones/{uuid}", produces = MediaType.TEXT_HTML_VALUE)
-  public String eliminarHtml(@PathVariable UUID uuid, RedirectAttributes ra) {
-    var status = serviceColecciones.deleteColeccion(uuid);
-    if (status == HttpStatus.NO_CONTENT) ra.addFlashAttribute("success", "Colección eliminada");
-    else if (status == HttpStatus.NOT_FOUND) ra.addFlashAttribute("error", "Colección no encontrada");
-    else ra.addFlashAttribute("error", "No se pudo eliminar (status: " + status + ")");
-    return "redirect:/metamapa/colecciones/";
-  }
-
-  // PATCH (HTML): cambia consenso leyendo @RequestParam algoritmo y redirige
-  @PatchMapping(value = "/colecciones/{uuid}/consenso",
-          consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-          produces = MediaType.TEXT_HTML_VALUE)
-  public String cambiarConsensoHtml(@PathVariable UUID uuid,
-                                    @RequestParam String algoritmo,
-                                    RedirectAttributes ra) {
-    var status = serviceColecciones.actualizarAlgoritmoConsenso(uuid, algoritmo);
-    if (status.is2xxSuccessful()) {
-      ra.addFlashAttribute("success", "Consenso actualizado a " + algoritmo);
-    } else if (status == HttpStatus.NOT_FOUND) {
-      ra.addFlashAttribute("error", "Colección no encontrada");
-    } else {
-      ra.addFlashAttribute("error", "No se pudo actualizar el consenso (status: " + status.value() + ")");
-    }
-    return "redirect:/metamapa/colecciones";
-  }
 }
