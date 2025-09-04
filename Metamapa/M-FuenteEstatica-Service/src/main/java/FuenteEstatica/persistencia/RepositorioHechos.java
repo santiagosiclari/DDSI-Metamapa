@@ -19,6 +19,6 @@ public class RepositorioHechos {
   }
 
   public void modificarHecho(Hecho hecho) {
-    //TODO implementar, no creo que haga falta
+    // implementar, no creo que haga falta
   }
 }

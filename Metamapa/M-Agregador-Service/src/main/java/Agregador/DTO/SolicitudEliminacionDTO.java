@@ -3,6 +3,7 @@ import Agregador.business.Solicitudes.EstadoSolicitud;
 import Agregador.business.Solicitudes.SolicitudEliminacion;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import java.math.BigInteger;
 
 import java.util.UUID;
 
@@ -10,8 +11,9 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SolicitudEliminacionDTO {
   private String motivo;
+
   private EstadoSolicitud estado;
-  private Integer hechoAfectado;
+  private BigInteger hechoAfectado;
   private int id;
 
   public SolicitudEliminacionDTO() {}

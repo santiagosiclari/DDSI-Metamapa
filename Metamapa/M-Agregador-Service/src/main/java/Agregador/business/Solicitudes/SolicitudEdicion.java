@@ -4,6 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.util.*;
 import lombok.Getter;
 import Agregador.business.Hechos.Multimedia;
 
@@ -14,23 +17,25 @@ public class SolicitudEdicion extends Solicitud {
   private String categoriaMod;
   private Float latitudMod;
   private Float longitudMod;
-  private Date fechaHechoMod;
-  private List<Multimedia> multimediaMod;
+  private LocalDate fechaHechoMod;
+  private ArrayList<Multimedia> multimediaMod;
   private Boolean anonimidadMod;
   private String sugerencia;
   static private Integer contadorID = 1;
+
   public SolicitudEdicion(String tituloMod,
                           String descMod,
                           String categoriaMod,
                           Float latitudMod,
                           Float longitudMod,
-                          Date fechaHechoMod,
-                          List<Multimedia> multimediaMod,
+                          LocalDate fechaHechoMod,
+                          ArrayList<Multimedia> multimediaMod,
                           Boolean anonimidadMod,
                           String sugerencia,
-                          Integer hechoAfectado) {
+                          BigInteger hechoAfectado) {
+
     super(hechoAfectado, EstadoSolicitud.PENDIENTE);
-    /* //TODO: SE VERIFICA EN EL CONTROLLER SOLICITUDESEDICION, AL CREARSE UNA
+    /* // SE VERIFICA EN EL ServiceSolicitudes, AL CREARSE UNA
     if(hechoAfectado.getFechaCarga().plusDays(7).isBefore(LocalDate.now()))
     {
         throw new RuntimeException("Paso mas de una semana de la carga del Hecho");
