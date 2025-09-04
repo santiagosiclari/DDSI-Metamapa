@@ -37,7 +37,7 @@ public class FuenteEstatica {
     switch (tipo) {
       case "CSV": new CSVHechoParser().parsearHechos(path, id).forEach(hecho -> this.hechos.add(hecho));
       break;
-      //case "JSON": new JSONHechoParser().parsearHechos(path, id).forEach((this::agregarHecho)); TODO arreglar el codigo para que tome un JSON?
+      //case "JSON": new JSONHechoParser().parsearHechos(path, id).forEach((this::agregarHecho));  arreglar el codigo para que tome un JSON?
       //break;
       default: new CSVHechoParser().parsearHechos(path, id).forEach(hecho -> this.hechos.add(hecho));
       break;

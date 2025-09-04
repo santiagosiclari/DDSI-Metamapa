@@ -3,6 +3,7 @@ package Agregador.persistencia;
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
 import org.springframework.stereotype.Repository;
+import java.math.BigInteger;
 import java.util.*;
 
 @Repository
@@ -16,12 +17,14 @@ public class RepositorioHechos {
     hechos.add(h);
   }
 
-  public Hecho findHecho(int id) {
-    return (hechos.stream().filter(h -> h.getId().equals(id)).findFirst()).get();
+  public Optional<Hecho> findHecho(BigInteger id) {
+    return (hechos.stream().filter(h -> h.getId().equals(id)).findFirst());
   }
 
-  public void modificarHecho(Hecho hecho) {
-    //TODO implementar, no creo que haga falta
+  public void updateHecho(Hecho h) {
+    Optional<Hecho> existingHechoOpt = findHecho(h.getId());
+    existingHechoOpt.ifPresent(s -> hechos.remove(s));
+    hechos.add(h);
   }
 
   public List<Hecho> filtrarPorCriterios(List<Criterio> inclusion, List<Criterio> exclusion) {
