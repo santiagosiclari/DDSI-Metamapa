@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 // DTO para el request
@@ -16,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SolicitudEliminacionDTO {
   @NotBlank
-  private Integer idHechoAfectado;
+  private BigInteger idHechoAfectado;
 
   @NotBlank
   @Size(min = 500, message = "El motivo debe tener al menos 500 caracteres")

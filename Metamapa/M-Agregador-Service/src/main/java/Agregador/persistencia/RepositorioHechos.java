@@ -29,7 +29,7 @@ public class RepositorioHechos {
   public void modificarHecho(Hecho hecho) {
     //TODO implementar, no creo que haga falta
 
-    return (hechos.stream().filter(h -> h.getId().equals(id)).findFirst());
+    //return (hechos.stream().filter(h -> h.getId().equals(id)).findFirst());
   }
 
   public void updateHecho(Hecho h) {

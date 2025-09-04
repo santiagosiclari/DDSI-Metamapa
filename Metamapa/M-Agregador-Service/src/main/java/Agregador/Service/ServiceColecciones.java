@@ -160,6 +160,20 @@ public class ServiceColecciones {
     return repositorioColecciones.eliminarPorId(id);
   }
 
+  public void agregarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
+    Coleccion col = repositorioColecciones.buscarXUUID(idColeccion)
+            .orElseThrow(() -> new NoSuchElementException("Colección no encontrada"));
+    col.agregarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
+    repositorioColecciones.update(col);
+  }
+
+  public void eliminarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
+    Coleccion col = repositorioColecciones.buscarXUUID(idColeccion)
+            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+    col.eliminarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
+    repositorioColecciones.update(col);
+  }
+
   /*
   // Metodo auxiliar para construir criterios JSON desde parámetros
   private List<Map<String, Object>> construirCriteriosJson(

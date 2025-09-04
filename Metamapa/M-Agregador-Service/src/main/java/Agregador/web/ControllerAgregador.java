@@ -19,12 +19,10 @@ import org.springframework.web.client.RestTemplate;
 public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioAgregador repositorioAgregador;
-  private final RepositorioColecciones repositorioColecciones;
   private final RepositorioHechos repositorioHechos = new RepositorioHechos();
 
   public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos, RepositorioColecciones repositorioColecciones, RepositorioAgregador repositorioAgregador) {
     this.servicefuenteDeDatos = servicefuenteDeDatos;
-    this.repositorioColecciones = repositorioColecciones;
     this.repositorioAgregador = repositorioAgregador;
   }
 
@@ -74,7 +72,7 @@ public class ControllerAgregador {
 //    return ResponseEntity.noContent().build();
 //  }
 
-  //TODO esto se va a comunicar con el servicio de colecciones
+  // esto se va a comunicar con el servicio de colecciones
   // y las colecciones filtran estos hechos
 //  @GetMapping("/hechos")
 //  public ResponseEntity<ArrayList<Hecho>> getAgregadorHechos() {
@@ -85,31 +83,4 @@ public class ControllerAgregador {
 //    }
 //    return ResponseEntity.ok(hechos);
 //  }
-
-  //TODO: estos 2 no  deberian ir en el controller colecciones?
-  @PostMapping("/fuentesDeDatos/{idColeccion}/{idFuente}")
-  public ResponseEntity<?> agregarFuente(@PathVariable UUID idColeccion,
-                                         @PathVariable Integer idFuente) {
-    var col = repositorioColecciones.buscarXUUID(idColeccion).orElse(null);
-    if (col == null) return ResponseEntity.status(404).body("Colección no encontrada: " + idColeccion);
-
-    col.agregarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
-    repositorioColecciones.update(col);
-
-    // Mejor: devolvé la colección actualizada (200) en vez de 204
-    return ResponseEntity.ok(col);
-  }
-
-  @PostMapping("/fuentesDeDatos/{idColeccion}/remover/{idFuente}")
-  public ResponseEntity<Void> eliminarFuente(@PathVariable Integer idFuente,@PathVariable String idColeccion) {
-    try {
-      Coleccion col = repositorioColecciones.buscarXUUID(UUID.fromString(idColeccion))
-              .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
-      if (col == null) return ResponseEntity.notFound().build();
-      col.eliminarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
-      return ResponseEntity.noContent().build();
-    } catch (Exception e) {
-      return ResponseEntity.status(500).build();
-    }
-  }
 }

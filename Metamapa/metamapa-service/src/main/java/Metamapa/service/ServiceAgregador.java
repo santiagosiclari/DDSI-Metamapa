@@ -1,6 +1,8 @@
 package Metamapa.service;
 import Metamapa.business.Agregador.Agregador;
 import Metamapa.business.Hechos.Hecho;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +77,7 @@ public class ServiceAgregador {
 
   public Result aprobarSolicitudEliminacion(Integer id)  { return resolverRemoto(id, "APROBAR");  }
   public Result rechazarSolicitudEliminacion(Integer id) { return resolverRemoto(id, "RECHAZAR"); }
-    public Integer crearSolicitudEliminacionYRetornarId(Integer idHechoAfectado, String motivo, String url) {
+    public Integer crearSolicitudEliminacionYRetornarId(BigInteger idHechoAfectado, String motivo, String url) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("idHechoAfectado", idHechoAfectado);
         payload.put("motivo", motivo);

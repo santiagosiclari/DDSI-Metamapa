@@ -2,9 +2,13 @@ package Agregador.web;
 import Agregador.DTO.ColeccionDTO;
 import Agregador.DTO.FiltrosHechosDTO;
 import Agregador.Service.ServiceColecciones;
+import Agregador.business.Colecciones.Coleccion;
+import Agregador.business.Colecciones.CriterioFuenteDeDatos;
 import Agregador.business.Consenso.ModosDeNavegacion;
 import Agregador.business.Hechos.*;
 import java.util.*;
+
+import Agregador.persistencia.RepositorioColecciones;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -155,5 +159,29 @@ public class ControllerColecciones {
     boolean ok = serviceColecciones.eliminarColeccion(id);
     return ok ? ResponseEntity.noContent().build() // 204
             : ResponseEntity.notFound().build(); // 404 si no existía
+  }
+
+  @PostMapping("/fuentesDeDatos/{idColeccion}/{idFuente}")
+  public ResponseEntity<?> agregarFuente(@PathVariable UUID idColeccion, @PathVariable Integer idFuente) {
+    try {
+      serviceColecciones.agregarFuenteDeDatos(idColeccion, idFuente);
+      return ResponseEntity.ok("fuente agregada a la coleccion");
+    } catch (NoSuchElementException e) {
+      return ResponseEntity.status(404).body("Colección no encontrada: " + idColeccion);
+    } catch (Exception e) {
+      return ResponseEntity.status(500).body("Error interno");
+    }
+  }
+
+  @PostMapping("/fuentesDeDatos/{idColeccion}/remover/{idFuente}")
+  public ResponseEntity<?> eliminarFuente(@PathVariable Integer idFuente, @PathVariable String idColeccion) {
+    try {
+      serviceColecciones.eliminarFuenteDeDatos(UUID.fromString(idColeccion), idFuente);
+      return ResponseEntity.noContent().build();
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.notFound().build();
+    } catch (Exception e) {
+      return ResponseEntity.status(500).build();
+    }
   }
 }
