@@ -5,6 +5,8 @@ import Agregador.persistencia.RepositorioAgregador;
 import Agregador.persistencia.RepositorioSolicitudes;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ServiceSolicitudes {
     public enum Result { OK, NOT_FOUND, CONFLICT, INVALID }
@@ -39,6 +41,12 @@ public class ServiceSolicitudes {
         SolicitudEliminacion solicitud = new SolicitudEliminacion(dto.getHechoAfectado(), dto.getMotivo());
         this.repoSolicitudes.save(solicitud);
         return new SolicitudEliminacionDTO(solicitud);
+    }
+
+    // Buscar por id
+    public Optional<SolicitudEliminacionDTO> buscarPorId(Integer id) {
+        return repoSolicitudes.findById(id)
+                .map(SolicitudEliminacionDTO::new);
     }
 }
 

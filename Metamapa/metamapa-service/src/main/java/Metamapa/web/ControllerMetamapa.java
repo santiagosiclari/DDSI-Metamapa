@@ -1,5 +1,7 @@
 package Metamapa.web;
+import Metamapa.DTO.AccionSolicitudDTO;
 import Metamapa.DTO.HechoDTO;
+import Metamapa.DTO.SolicitudEliminacionDTO;
 import Metamapa.business.Colecciones.Coleccion;
 import Metamapa.business.Consenso.ModosDeNavegacion;
 import Metamapa.business.FuentesDeDatos.FuenteDeDatos;
@@ -15,6 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
@@ -156,21 +160,36 @@ public class ControllerMetamapa {
 
   // ● Aprobar o denegar una solicitud de eliminación (endpoint único)
   //TODO: CHEQUEAR
-  enum Accion {APROBAR, RECHAZAR}
 
-  @PatchMapping("/solicitudes/{id}")
+  @PatchMapping(value="/api/solicitudesEliminacion/{id}",
+          consumes = MediaType.APPLICATION_JSON_VALUE,
+          produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<Void> resolverSolicitud(@PathVariable UUID id,
-                                                @RequestParam Accion accion) {
-    var r = (accion == Accion.APROBAR)
-            ? serviceAgregador.aprobarSolicitudEliminacion(id)
-            : serviceAgregador.rechazarSolicitudEliminacion(id);
+  public ResponseEntity<Void> resolverSolicitud(@PathVariable Integer id,
+                                                @RequestBody AccionSolicitudDTO dto) {
+    String accion = dto.getAccion();
+    if (accion == null) {
+      return ResponseEntity.unprocessableEntity().build();
+    }
+
+    ServiceAgregador.Result r;
+    try {
+      if ("APROBAR".equalsIgnoreCase(accion.trim())) {
+        r = serviceAgregador.aprobarSolicitudEliminacion(id);
+      } else if ("RECHAZAR".equalsIgnoreCase(accion.trim())) {
+        r = serviceAgregador.rechazarSolicitudEliminacion(id);
+      } else {
+        return ResponseEntity.unprocessableEntity().build(); // acción inválida
+      }
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
 
     return switch (r) {
-      case OK -> ResponseEntity.noContent().build();
-      case NOT_FOUND -> ResponseEntity.notFound().build();
-      case CONFLICT -> ResponseEntity.status(409).build();
-      default -> ResponseEntity.unprocessableEntity().build();
+      case OK        -> ResponseEntity.noContent().build();   // 204
+      case NOT_FOUND -> ResponseEntity.notFound().build();    // 404
+      case CONFLICT  -> ResponseEntity.status(409).build();   // ya resuelta
+      default        -> ResponseEntity.unprocessableEntity().build(); // 422
     };
   }
 
@@ -182,15 +201,36 @@ public class ControllerMetamapa {
   }
 
   //● TODO Generar una solicitud de eliminación a un hecho.
-  @PostMapping("/solicitudesEliminacion/")
-  public ResponseEntity<Map<String,Object>> generarSolicitudEliminacion(@RequestParam("hechoAfectado") String hechoAfectado,
-                                                                        @RequestParam("motivo") String motivo,
-                                                                        @RequestParam(value = "url", required = false) String url) {
-    Integer idSolicitud = serviceAgregador.crearSolicitudEliminacionYRetornarId(hechoAfectado, motivo, url);
+  @PostMapping(value = "/api/solicitudesEliminacion", consumes = "application/json", produces = "application/json")
+  public ResponseEntity<Map<String,Object>> generarSolicitudEliminacion(@Valid @RequestBody SolicitudEliminacionDTO dto) {
+    Integer idSolicitud = serviceAgregador.crearSolicitudEliminacionYRetornarId(
+            dto.getIdHechoAfectado(),
+            dto.getMotivo(),
+            dto.getUrl()
+    );
+
+    URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()       // /metamapa/api/solicitudesEliminacion
+            .path("/{id}")              // /{id}
+            .buildAndExpand(idSolicitud)
+            .toUri();
+
     return ResponseEntity
-            .created(URI.create("/metamapa/api/solicitudesEliminacion/" + idSolicitud))
+            .created(location)
             .body(Map.of("idSolicitud", idSolicitud));
   }
+
+  // (Opcional) Exponer el GET para que el Location apunte a algo real
+  @GetMapping(value="/api/solicitudesEliminacion/{id}", produces = "application/json")
+  @ResponseBody
+  public ResponseEntity<Map<String,Object>> getSolicitudEliminacion(@PathVariable Integer id) {
+    Map<String,Object> solicitud = serviceAgregador.obtenerSolicitudEliminacion(id);
+    if (solicitud == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(solicitud);
+  }
+
 
   //● TODO: Navegación filtrada sobre una colección.
   @GetMapping("/colecciones/{idColeccion}/hechos/")
@@ -408,17 +448,6 @@ public class ControllerMetamapa {
     else ra.addFlashAttribute("error", "No se pudo eliminar (status: " + status + ")");
     return "redirect:/metamapa/colecciones/";
   }
-//  @PatchMapping(value="/colecciones/{uuid}/consenso/{algoritmo:Absoluto|MultiplesMenciones|MayoriaSimple}",
-//          produces = MediaType.TEXT_HTML_VALUE)
-//  public String cambiarConsensoHtml(@PathVariable UUID uuid,
-//                                    @PathVariable String algoritmo,
-//                                    RedirectAttributes ra) {
-//    var status = serviceColecciones.actualizarAlgoritmoConsenso(uuid, algoritmo);
-//    if (status.is2xxSuccessful()) ra.addFlashAttribute("success", "Consenso actualizado a " + algoritmo);
-//    else if (status == HttpStatus.NOT_FOUND) ra.addFlashAttribute("error", "Colección no encontrada");
-//    else ra.addFlashAttribute("error", "No se pudo actualizar (status: " + status + ")");
-//    return "redirect:/metamapa/colecciones/" + uuid;
-//  }
 
   // PATCH (HTML): cambia consenso leyendo @RequestParam algoritmo y redirige
   @PatchMapping(value = "/colecciones/{uuid}/consenso",

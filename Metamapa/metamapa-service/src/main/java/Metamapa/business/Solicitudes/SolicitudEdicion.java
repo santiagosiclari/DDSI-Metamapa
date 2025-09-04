@@ -3,6 +3,8 @@ package Metamapa.business.Solicitudes;
 import Metamapa.business.Hechos.Multimedia;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.Getter;
 
 public class SolicitudEdicion extends Solicitud {
@@ -34,7 +36,7 @@ public class SolicitudEdicion extends Solicitud {
                           List<Multimedia> multimediaMod,
                           Boolean anonimidadMod,
                           String sugerencia,
-                          String hechoAfectado) {
+                          Integer hechoAfectado) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE);
     /* //TODO: SE VERIFICA EN EL CONTROLLER SOLICITUDESEDICION, AL CREARSE UNA
     if(hechoAfectado.getFechaCarga().plusDays(7).isBefore(LocalDate.now()))
