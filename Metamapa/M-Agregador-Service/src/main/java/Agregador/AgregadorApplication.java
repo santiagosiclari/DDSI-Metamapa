@@ -9,24 +9,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
+import java.util.Collections;
 
 @SpringBootApplication
 @EnableScheduling
 public class AgregadorApplication {
-
   public static void main(String[] args) {
-    SpringApplication.run(AgregadorApplication.class, args);
+    SpringApplication app = new SpringApplication(AgregadorApplication.class);
+    // si querés fijar el puerto por código (mejor en application.properties):
+    app.setDefaultProperties(Collections.singletonMap("server.port", "9004"));
+    app.run(args); // <-- ¡una sola vez!
   }
 
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return builder
-            .build();
+    return builder.build();
   }
 
   @Bean
   public MeterRegistry meterRegistry() {
-    return new SimpleMeterRegistry(); // o dejá que Spring Boot autoconfigure
+    return new SimpleMeterRegistry();
   }
 }

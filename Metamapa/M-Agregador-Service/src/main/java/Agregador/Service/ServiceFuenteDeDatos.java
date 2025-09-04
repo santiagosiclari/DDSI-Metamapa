@@ -27,9 +27,9 @@ public class ServiceFuenteDeDatos {
 
   private static final int FACTOR_TIPO = 1_000_000;
 
-  // ==== Rutas (cambiá acá si tus loaders exponen distinto) ====
-  private static final String PATH_HECHOS_POR_FUENTE = "%s/fuentes/%d/hechos"; // o "%s/%d/hechos"
-  private static final String PATH_LISTAR_FUENTES    = "%s/fuentes";           // o "%s/"
+  // ==== Rutas (cambiá acá si loaders exponen distinto) ====
+  private static final String PATH_HECHOS_POR_FUENTE = "%s/fuentesDeDatos/%d/hechos"; // o "%s/%d/hechos"
+  private static final String PATH_LISTAR_FUENTES    = "%s/fuentesDeDatos";           // o "%s/"
 
   public ServiceFuenteDeDatos(RestTemplate rt, RepositorioHechos repo) {
     this.restTemplate = rt;

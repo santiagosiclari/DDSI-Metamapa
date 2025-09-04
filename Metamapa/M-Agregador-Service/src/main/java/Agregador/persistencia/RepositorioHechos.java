@@ -3,6 +3,8 @@ package Agregador.persistencia;
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigInteger;
 import java.util.*;
 
 @Repository
@@ -16,9 +18,14 @@ public class RepositorioHechos {
     hechos.add(h);
   }
 
-  public Hecho findHecho(int id) {
-    return (hechos.stream().filter(h -> h.getId().equals(id)).findFirst()).get();
+  public Optional<Hecho> findHecho(BigInteger id) {
+    return hechos.stream().filter(h -> h.getId().equals(id)).findFirst();
   }
+
+  public void saveAll(Collection<Hecho> nuevos) {
+    hechos.addAll(nuevos);
+  }
+
 
   public void modificarHecho(Hecho hecho) {
     //TODO implementar, no creo que haga falta
