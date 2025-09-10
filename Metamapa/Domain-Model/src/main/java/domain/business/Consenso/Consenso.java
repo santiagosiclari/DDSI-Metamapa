@@ -6,6 +6,7 @@ import domain.business.FuentesDeDatos.FuenteDeDatos;
 import domain.business.incidencias.Hecho;
 import java.util.List;
 
+
 public interface Consenso {
   boolean esConsensuado(Hecho hecho, List<FuenteDeDatos> fuentes);
 

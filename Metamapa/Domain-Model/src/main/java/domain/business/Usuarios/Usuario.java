@@ -1,25 +1,68 @@
 package domain.business.Usuarios;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import lombok.Getter;
+import java.util.Set;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(of = "id")
+@Entity
+@Table(
+        name = "Usuario",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_usuario_email", columnNames = "email")
+        }
+)
 public class Usuario {
-  @Getter
-  private String email;
-  @Getter
-  private String contraseniaHasheada;
-  @Getter
-  private Perfil perfil;
-  @Getter
-  private List<Rol> roles;
-  @Getter
-  static public Integer contadorID = 1;
-  @Getter
-  public Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "usuario_id")
+  private Long id;                         // <- era usuario_id en DB
 
-  public Usuario(String email, String contraseniaHasheada, Perfil perfil, List<Rol> roles) {
+  @Column(name = "email", nullable = false, length = 255)
+  private String email;
+
+  @Column(name = "contraseniaHasheada", nullable = false, length = 255)
+  private String contraseniaHasheada;
+
+  // === Roles como Enum en tabla de colección ===
+  @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(
+          name = "Rol_de_Usuario",
+          joinColumns = @JoinColumn(name = "rolUsuario_usuario", referencedColumnName = "usuario_id")
+  )
+  @Column(name = "rolUsuario_rol", nullable = false, length = 50)
+  @Enumerated(EnumType.STRING)
+  @Builder.Default
+  private Set<Rol> roles = new HashSet<>();
+
+  static public Integer contadorID = 1;
+
+  @Column(name = "nombre", length = 255)
+  private String nombre;
+
+  @Column(name = "apellido", length = 255)
+  private String apellido;
+  private Integer edad;
+
+  private List<Integer> solicitudesDeEliminacion;
+  private List<Integer> solicitudesDeEdicion;
+
+  public Usuario(String email, String contraseniaHasheada, String nombre, String apellido, Integer edad, Set<Rol> roles) {
     this.email = email;
     this.contraseniaHasheada = contraseniaHasheada;
-    this.perfil = perfil;
+    this.nombre = nombre;
+    this.apellido = apellido;
+    this.edad = edad;
+    this.solicitudesDeEliminacion = new ArrayList<>();
+    this.solicitudesDeEdicion = new ArrayList<>();
     this.roles = roles;
   }
 

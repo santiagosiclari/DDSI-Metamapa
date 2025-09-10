@@ -1,6 +1,12 @@
 package domain.business.incidencias;
+import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Embeddable
+@Getter @Setter
 public class Ubicacion {
   @Getter
   private Float latitud;

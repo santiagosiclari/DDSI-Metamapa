@@ -1,12 +1,21 @@
 package domain.business.tiposSolicitudes;
-import domain.business.incidencias.Hecho;
-import lombok.Getter;
 
-public class SolicitudEliminacion extends Solicitud{
-  @Getter
-  public String motivo;
-  static private Integer contadorID = 1;
-  public SolicitudEliminacion(String hechoAfectado, String motivo) {
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigInteger;
+
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "SolicitudEliminacion")
+public class SolicitudEliminacion extends Solicitud {
+
+  @Column(name = "motivo", length = 255, nullable = false)
+  private String motivo;
+
+public SolicitudEliminacion(BigInteger hechoAfectado, String motivo) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE); //por defecto se inicializan pendientes
 
     if (motivo == null || motivo.length() < 10) { //TODO: Cambio de 500 a 10
@@ -14,12 +23,11 @@ public class SolicitudEliminacion extends Solicitud{
     }
 
     if (DetectorDeSpam.esSpam(motivo)) {
-      this.estado = EstadoSolicitud.RECHAZADA;
+      this.setEstado(EstadoSolicitud.RECHAZADA);
       return;
     }
 
     this.motivo = motivo;
-    this.id = contadorID++;
   }
 
   @Override

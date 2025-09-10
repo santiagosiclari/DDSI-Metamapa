@@ -1,27 +1,39 @@
 package domain.business.criterio;
 import DTO.HechoDTO;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import domain.business.Agregador.Agregador;
 import domain.business.incidencias.Hecho;
 import java.util.*;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import domain.business.Consenso.*;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "Coleccion")
 public class Coleccion {
-    @Getter @Setter
+    @Id
+    @Column(name = "handle")
+    private Long handle; // PK según DER (bigint). Ver nota al final para usar String.
+
+    @Column(name = "titulo", length = 255, nullable = false)
     private String titulo;
-    @Getter @Setter
+
+    @Column(name = "descripcion", length = 255)
     private String descripcion;
-    @Getter @Setter
+
     private ArrayList<Criterio> criterioPertenencia;
-    @Getter @Setter
     private ArrayList<Criterio> criterioNoPertenencia;
-    @Getter
-    private UUID handle;
-    @Getter @Setter
+
+    @ManyToOne
+    @JoinColumn(name = "consenso_id")
     private Consenso consenso;
+
    // @Getter @Setter
    // private ModosDeNavegacion modoNavegacion;
 
@@ -32,7 +44,6 @@ public class Coleccion {
         this.descripcion = desc;
         this.criterioPertenencia = pertenencia;
         this.criterioNoPertenencia = noPertenencia;
-        this.handle = UUID.randomUUID();
     }
 
     public void agregarCriterioPertenencia(Criterio criterio){

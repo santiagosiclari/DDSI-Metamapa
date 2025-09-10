@@ -1,12 +1,27 @@
 package domain.business.criterio;
 import domain.business.incidencias.Hecho;
 import domain.business.incidencias.Ubicacion;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
+@Entity
+@Table(name = "Criterio_Ubicacion")
 public class CriterioUbicacion implements Criterio{
-  @Getter
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "critUbicacion_coleccion")
+  private Long critUbicacion_coleccion;
+
+  @Column(name = "critUbicacion_fuente")
+  private Long critUbicacion_fuente;
+  @Column(name = "critUbicacion_inclusion")
+  private Boolean critUbicacion_inclusion;
+
   private Float latitud;
-  @Getter
   private Float longitud;
 
   public CriterioUbicacion(Float latitud, Float longitud) {
