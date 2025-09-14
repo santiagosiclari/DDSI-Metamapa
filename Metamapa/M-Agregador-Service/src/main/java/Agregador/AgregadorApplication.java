@@ -19,6 +19,8 @@ public class AgregadorApplication {
     // si querés fijar el puerto por código (mejor en application.properties):
     app.setDefaultProperties(Collections.singletonMap("server.port", "9004"));
     app.run(args); // <-- ¡una sola vez!
+
+
   }
 
   @Bean

@@ -7,6 +7,7 @@ import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
@@ -76,4 +77,24 @@ public class ControllerFuenteDinamica {
               .body(Map.of("error", "Error interno: " + e.getMessage()));
     }
   }
+
+  public void publicarmeAAgregador()
+  {
+    String url = String.format("%s/fuenteDeDatos", "${M.Agregador.Service.url}");
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    String body = """
+        {
+            "URLBase": """ + "${M.FuenteEstatica.Service.url}" + """
+        }
+    """;
+
+    HttpEntity<String> request = new HttpEntity<>(body, headers);
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.postForObject(url, request, String.class);
+
+  }
+
 }

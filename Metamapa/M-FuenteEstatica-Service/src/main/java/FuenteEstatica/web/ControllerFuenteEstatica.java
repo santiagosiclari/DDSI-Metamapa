@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 
@@ -103,5 +104,24 @@ public class ControllerFuenteEstatica {
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
     }
+  }
+
+  public void publicarmeAAgregador()
+  {
+    String url = String.format("%s/fuenteDeDatos", "${M.Agregador.Service.url}");
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    String body = """
+        {
+            "URLBase": """ + "${M.FuenteEstatica.Service.url}" + """
+        }
+    """;
+
+    HttpEntity<String> request = new HttpEntity<>(body, headers);
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.postForObject(url, request, String.class);
+
   }
 }

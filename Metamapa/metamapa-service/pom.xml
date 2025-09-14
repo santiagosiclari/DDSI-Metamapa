@@ -80,11 +80,6 @@
         </dependency>
 
         <!-- Driver MySQL (1 solo) -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-    </dependencies>
+        </dependencies>
 
-</project>
+        </project>

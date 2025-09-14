@@ -5,6 +5,7 @@ import java.util.*;
 import FuenteProxy.service.ServiceFuenteProxy;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
@@ -45,4 +46,8 @@ public class ControllerFuenteProxy{
   public ResponseEntity<List<Hecho>> obtenerHechos(@PathVariable Integer idFuenteDeDatos) {
     return ResponseEntity.ok(fuenteProxyService.obtenerHechos(idFuenteDeDatos));
   }
+
+
+
+
 }

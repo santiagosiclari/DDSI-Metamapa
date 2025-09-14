@@ -1,4 +1,4 @@
-package Agregador.Service; // o .scheduling si armás ese paquete
+package Agregador.Service;
 
 import Agregador.web.ControllerAgregador;
 import io.micrometer.core.instrument.MeterRegistry;
