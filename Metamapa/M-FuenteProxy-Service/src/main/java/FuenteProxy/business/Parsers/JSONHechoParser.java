@@ -1,6 +1,6 @@
-package FuenteProxy.business.Parsers;
+package java.FuenteProxy.business.Parsers;
 
-import FuenteProxy.business.Hechos.Hecho;
+import java.FuenteProxy.business.Hechos.Hecho;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

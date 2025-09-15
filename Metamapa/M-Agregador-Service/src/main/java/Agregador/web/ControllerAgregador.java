@@ -1,13 +1,8 @@
 package Agregador.web;
-import Agregador.DTO.ColeccionDTO;
-import Agregador.business.Agregador.Agregador;
 import Agregador.business.Hechos.Hecho;
 import java.util.*;
 import Agregador.Service.ServiceFuenteDeDatos;
-import Agregador.persistencia.RepositorioAgregador;
-import Agregador.persistencia.RepositorioColecciones;
-import Agregador.persistencia.RepositorioHechos;
-import jakarta.validation.Valid;
+import Agregador.persistencia.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -36,17 +31,13 @@ public class ControllerAgregador {
 
 
   public void actualizarHechos() {
-    ArrayList<Hecho> hechos = new ArrayList<>();
-    URLsFuentes.forEach(url -> {
-      //hechos.addAll(new ServiceFuenteDeDatos(new RestTemplate(), repositorioHechos).getHechos());
-    });
-    repositorioAgregador.getAgregador().actualizarHechos(hechos);
+    URLsFuentes.forEach(url -> servicefuenteDeDatos.actualizarHechos(url));
   }
 
   public void consensuarHechos() {
     //TODO implementar que dispare procedures en la BBDD
   }
-
+/*
   @GetMapping("/")
   public ResponseEntity<Agregador> getAgregador() {
     Agregador agregador = repositorioAgregador.getAgregador();
@@ -55,7 +46,7 @@ public class ControllerAgregador {
     }
     return ResponseEntity.ok(agregador);
   }
-
+*/
   @PostMapping("/fuenteDeDatos")
   public ResponseEntity<String> agregarFuente(@RequestBody Map<String,Object> body) {
     String url = (String)body.get("URLBase");

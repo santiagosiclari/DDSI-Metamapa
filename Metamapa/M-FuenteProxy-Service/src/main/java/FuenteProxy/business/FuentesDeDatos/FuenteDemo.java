@@ -1,7 +1,7 @@
-package FuenteProxy.business.FuentesDeDatos;
+package java.FuenteProxy.business.FuentesDeDatos;
 
-import FuenteProxy.business.Hechos.Hecho;
-import FuenteProxy.business.Conexiones.Conexion;
+import java.FuenteProxy.business.Hechos.Hecho;
+import java.FuenteProxy.business.Conexiones.Conexion;
 import com.fasterxml.jackson.annotation.*;
 import java.time.*;
 import java.util.*;

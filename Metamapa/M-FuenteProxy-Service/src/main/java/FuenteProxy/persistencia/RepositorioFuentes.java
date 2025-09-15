@@ -1,6 +1,6 @@
-package FuenteProxy.persistencia;
-import FuenteProxy.business.FuentesDeDatos.*;
-import FuenteProxy.business.Parsers.CSVHechoParser;
+package java.FuenteProxy.persistencia;
+import java.FuenteProxy.business.FuentesDeDatos.*;
+import java.FuenteProxy.business.Parsers.CSVHechoParser;
 import java.util.*;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;

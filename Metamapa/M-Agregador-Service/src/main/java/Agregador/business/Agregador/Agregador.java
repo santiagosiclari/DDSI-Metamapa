@@ -1,9 +1,8 @@
 package Agregador.business.Agregador;
-
-import Agregador.business.Solicitudes.*;
 import java.util.ArrayList;
 import lombok.Getter;
 import Agregador.business.Hechos.*;
+import Agregador.business.Solicitudes.*;
 
 public class Agregador {
     private static Agregador agregador = null;

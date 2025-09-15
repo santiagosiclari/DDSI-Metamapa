@@ -1,9 +1,12 @@
 package Agregador.Service;
-import Agregador.DTO.*;
+import Agregador.DTO.ColeccionDTO;
+import Agregador.DTO.CriterioDTO;
+import Agregador.DTO.FiltrosHechosDTO;
 import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
-import Agregador.persistencia.*;
+import Agregador.persistencia.RepositorioColecciones;
+import Agregador.persistencia.RepositorioHechos;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.*;

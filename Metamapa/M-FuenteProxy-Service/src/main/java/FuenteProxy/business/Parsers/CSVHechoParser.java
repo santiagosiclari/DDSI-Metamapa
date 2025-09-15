@@ -1,6 +1,6 @@
-package FuenteProxy.business.Parsers;
+package java.FuenteProxy.business.Parsers;
 //import infrastructure.dto.HechoDTO;
-import FuenteProxy.business.Hechos.Hecho;
+import java.FuenteProxy.business.Hechos.Hecho;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import java.io.*;

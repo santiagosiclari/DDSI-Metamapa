@@ -1,10 +1,7 @@
 package Agregador.persistencia;
-
 import Agregador.business.Agregador.Agregador;
-import Agregador.business.Colecciones.Coleccion;
-import Agregador.business.Colecciones.Criterio;
-import Agregador.business.Consenso.Consenso;
-import Agregador.business.Consenso.ModosDeNavegacion;
+import Agregador.business.Colecciones.*;
+import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.Hecho;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;
@@ -131,7 +128,7 @@ public class RepositorioColecciones {
    * Devuelve los hechos de la colección aplicando criterios y consenso
    * según el modo indicado. Usa el snapshot del Agregador.
    */
-  public List<Hecho> obtenerHechos(UUID idColeccion, ModosDeNavegacion modo) {
+/*  public List<Hecho> obtenerHechos(UUID idColeccion, ModosDeNavegacion modo) {
     Coleccion col = buscarXUUID(idColeccion).orElse(null);
     if (col == null) return List.of();
 
@@ -139,7 +136,7 @@ public class RepositorioColecciones {
     List<Hecho> hechos = Agregador.getInstance().getListaHechos();
     // El dominio de Coleccion ya sabe filtrar y curar
     return col.getHechos(new ArrayList<>(hechos), modo);
-  }
+  }*/
 
   /**
    * Igual que obtenerHechos, pero te permite pasar criterios adicionales (ORIGINADOS en la vista/consulta).

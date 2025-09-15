@@ -3,7 +3,6 @@ package Agregador.business.Colecciones;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 
-import java.math.BigInteger;
 import java.util.Objects;
 
 public class CriterioFuenteDeDatos implements Criterio {

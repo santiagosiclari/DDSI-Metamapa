@@ -1,4 +1,5 @@
 package Agregador.Service;
+import Agregador.business.Hechos.Hecho;
 import java.time.LocalDate;
 import java.util.*;
 import Agregador.business.Consenso.Consenso;
@@ -9,7 +10,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import Agregador.business.Hechos.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -17,9 +17,6 @@ public class ServiceFuenteDeDatos {
   private final RestTemplate restTemplate;
   private final RepositorioHechos repositorioHechos;
 
-  @Value("${M.FuenteDinamica.Service.url}") private String urlDinamica;
-  @Value("${M.FuenteEstatica.Service.url}") private String urlEstatica;
-  @Value("${M.FuenteProxy.Service.url}")    private String urlProxy;
 
   private static final int FACTOR_TIPO = 1_000_000;
 
@@ -32,56 +29,45 @@ public class ServiceFuenteDeDatos {
     this.repositorioHechos = repo;
   }
 
-  // ================== Router ==================
-  private String resolverBaseUrl(Integer idFuente) {
-    int tipo = idFuente / FACTOR_TIPO; // 1=dinámica, 2=estática, 3=proxy
-    return switch (tipo) {
-      case 1 -> urlDinamica;
-      case 2 -> urlEstatica;
-      case 3 -> urlProxy;
-      default -> throw new IllegalArgumentException("Tipo de fuente desconocido para id=" + idFuente);
-    };
-  }
-
-  private String hechosUrl(Integer idFuente) {
-    return String.format(PATH_HECHOS_POR_FUENTE, resolverBaseUrl(idFuente), idFuente);
-  }
-
   // ================== API ==================
 
   /** Trae hechos de UNA fuente (sin filtros) y los mapea a tu dominio. */
-  public List<Hecho> getHechosDeFuente(int idFuente) {
-    String url = hechosUrl(idFuente);
+  public List<Hecho> getHechosDeFuente(String urlBase) {
+    String url = urlBase + "/Hechos";
     ResponseEntity<List<Map<String,Object>>> resp = restTemplate.exchange(
             url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
     );
     List<Map<String,Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
-    return raw.stream().map(json -> jsonToHecho(json, idFuente)).toList();
+    return raw.stream().map(json -> jsonToHecho(json, (int)json.get("fuenteID"))).toList();
+  }
+
+
+  public void actualizarHechos(String url)
+  {
+      ArrayList<Hecho> hechos = new ArrayList<>(getHechosDeFuente(url));
+
+      //TODO Normalizar y hacer chequeos de los datos enviados
+
+      hechos.forEach(repositorioHechos::save);
   }
 
   /** Trae hechos de UNA fuente aplicando filtros (query params). */
-  public List<Hecho> getHechosDeFuente(int idFuente, Map<String, ?> filtros) {
-    UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(hechosUrl(idFuente));
-    if (filtros != null) filtros.forEach((k, v) -> {
-      if (v == null) return;
-      if (v instanceof Collection<?> c) c.forEach(it -> b.queryParam(k, String.valueOf(it)));
-      else b.queryParam(k, String.valueOf(v));
-    });
-    ResponseEntity<List<Map<String,Object>>> resp = restTemplate.exchange(
-            b.build(true).toUri(), HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
-    );
-    List<Map<String,Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
-    return raw.stream().map(json -> jsonToHecho(json, idFuente)).toList();
-  }
+  //Arreglar
+//  public List<Hecho> getHechosDeFuente(int idFuente, Map<String, ?> filtros) {
+//    UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(hechosUrl(idFuente));
+//    if (filtros != null) filtros.forEach((k, v) -> {
+//      if (v == null) return;
+//      if (v instanceof Collection<?> c) c.forEach(it -> b.queryParam(k, String.valueOf(it)));
+//      else b.queryParam(k, String.valueOf(v));
+//    });
+//    ResponseEntity<List<Map<String,Object>>> resp = restTemplate.exchange(
+//            b.build(true).toUri(), HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
+//    );
+//    List<Map<String,Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
+//    return raw.stream().map(json -> jsonToHecho(json, idFuente)).toList();
+//  }
 
   /** Lista todas las fuentes (dinámicas+estáticas+proxy). */
-  public List<FuenteInfoDTO> obtenerFuentesDeDatos() {
-    List<FuenteInfoDTO> total = new ArrayList<>();
-    total.addAll(fetchFuentes(urlDinamica));
-    total.addAll(fetchFuentes(urlEstatica));
-    total.addAll(fetchFuentes(urlProxy));
-    return total;
-  }
 
   private List<FuenteInfoDTO> fetchFuentes(String base) {
     String url = String.format(PATH_LISTAR_FUENTES, base);
@@ -92,8 +78,9 @@ public class ServiceFuenteDeDatos {
   }
 
   /** Devuelve SOLO los hechos nuevos respecto a tu repositorio (útil para sincronización). */
-  public List<Hecho> getHechosNuevosDeFuente(int idFuente) {
-    return getHechosDeFuente(idFuente).stream()
+
+  public List<Hecho> getHechosNuevosDeFuente(String urlBase) {
+    return getHechosDeFuente(urlBase).stream()
             .filter(h -> !existeHecho(h)) // <--- FIX: antes lo tenías al revés
             .toList();
   }

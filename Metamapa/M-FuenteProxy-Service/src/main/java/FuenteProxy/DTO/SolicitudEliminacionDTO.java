@@ -1,4 +1,4 @@
-package FuenteProxy.DTO;
+package java.FuenteProxy.DTO;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

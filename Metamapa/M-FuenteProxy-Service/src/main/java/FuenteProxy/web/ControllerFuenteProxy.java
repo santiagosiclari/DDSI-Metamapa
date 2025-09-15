@@ -1,8 +1,8 @@
-package FuenteProxy.web;
-import FuenteProxy.business.FuentesDeDatos.*;
-import FuenteProxy.business.Hechos.Hecho;
+package java.FuenteProxy.web;
+import java.FuenteProxy.business.FuentesDeDatos.*;
+import java.FuenteProxy.business.Hechos.Hecho;
 import java.util.*;
-import FuenteProxy.service.ServiceFuenteProxy;
+import java.FuenteProxy.service.ServiceFuenteProxy;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;

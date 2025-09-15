@@ -1,7 +1,6 @@
 package Agregador.business.deprecado.Parsers;
 //import infrastructure.dto.HechoDTO;
 
-import Agregador.business.deprecado.Usuarios.Usuario;
 import Agregador.business.deprecado.incidencias.Multimedia;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
@@ -60,7 +59,7 @@ public class CSVHechoParser implements HechoParser {
                         Integer fuenteId,
                         Integer hechoId,
                         Boolean anonimo,
-                        ArrayList< Agregador.business.Hechos.Multimedia > multimedia)*/
+                        ArrayList< java.Hechos.business.Agregador.Multimedia > multimedia)*/
                 Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,null,fuenteID,null, new ArrayList<Multimedia>());
                 // TODO: revisar Deberiamos inicializar en NULL el resto de los campos del contructor del hecho???
                 listaHecho.add(hecho);

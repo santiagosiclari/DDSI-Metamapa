@@ -1,6 +1,6 @@
-package FuenteProxy.business.FuentesDeDatos;
-import FuenteProxy.business.Parsers.HechoParser;
-import FuenteProxy.business.Hechos.Hecho;
+package java.FuenteProxy.business.FuentesDeDatos;
+import java.FuenteProxy.business.Parsers.HechoParser;
+import java.FuenteProxy.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import lombok.Getter;

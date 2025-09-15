@@ -1,10 +1,10 @@
 package Agregador.business.Colecciones;
+import Agregador.business.Agregador.Agregador;
+import Agregador.business.Consenso.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
-import Agregador.business.Agregador.Agregador;
-import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.Hecho;
 
 @Getter @Setter
@@ -61,17 +61,17 @@ public class Coleccion {
             return hechos;
         //return curarHechos(hechos);
     }
-
+/*
     public ArrayList<Hecho> getHechos(ArrayList<Hecho> hechos, ModosDeNavegacion modo){
         ArrayList<Hecho> hechosFiltrados = filtrarPorCriterios(hechos,new ArrayList<Criterio>(), new ArrayList<Criterio>(),modo);
         if(modo == ModosDeNavegacion.IRRESTRICTA) return hechosFiltrados;
 
         return curarHechos(hechosFiltrados);
     }
-
-    public ArrayList<Hecho> curarHechos(ArrayList<Hecho> hechos){
-        return hechos.stream().filter(h -> consenso.esConsensuado(h)).collect(Collectors.toCollection(ArrayList::new));
-    }
+*/
+//    public ArrayList<Hecho> curarHechos(ArrayList<Hecho> hechos){
+//        return hechos.stream().filter(h -> consenso.esConsensuado(h)).collect(Collectors.toCollection(ArrayList::new));
+//    }
 
     @com.fasterxml.jackson.annotation.JsonProperty("consenso")
     public String getConsensoNombre() {

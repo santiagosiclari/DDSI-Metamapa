@@ -1,4 +1,4 @@
-package FuenteProxy.business.Hechos;
+package java.FuenteProxy.business.Hechos;
 
 import java.time.LocalDate;
 import lombok.Getter;

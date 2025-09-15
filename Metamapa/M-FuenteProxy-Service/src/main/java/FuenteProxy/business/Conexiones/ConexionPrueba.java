@@ -1,4 +1,4 @@
-package FuenteProxy.business.Conexiones;
+package java.FuenteProxy.business.Conexiones;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;

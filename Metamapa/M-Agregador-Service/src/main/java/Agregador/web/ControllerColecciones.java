@@ -3,7 +3,7 @@ import Agregador.DTO.ColeccionDTO;
 import Agregador.DTO.FiltrosHechosDTO;
 import Agregador.Service.ServiceColecciones;
 import Agregador.business.Consenso.ModosDeNavegacion;
-import Agregador.business.Hechos.*;
+import Agregador.business.Hechos.Hecho;
 import java.util.*;
 import jakarta.validation.Valid;
 import org.springframework.http.*;

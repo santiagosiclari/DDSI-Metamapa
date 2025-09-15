@@ -23,6 +23,8 @@
         <module>M-FuenteDinamica-Service</module>
         <module>M-FuenteEstatica-Service</module>
         <module>M-FuenteProxy-Service</module>
+        <module>M-FuenteDemo-Service</module>
+        <module>M-FuenteMetamapa-Service</module>
     </modules>
     <url/>
     <licenses>

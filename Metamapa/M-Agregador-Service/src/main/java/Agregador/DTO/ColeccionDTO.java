@@ -1,6 +1,5 @@
 package Agregador.DTO;
-import Agregador.business.Colecciones.Coleccion;
-import Agregador.business.Colecciones.Criterio;
+import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.Consenso;
 import jakarta.validation.constraints.*;
 import lombok.*;

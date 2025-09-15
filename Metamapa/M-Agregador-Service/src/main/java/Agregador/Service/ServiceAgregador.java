@@ -21,22 +21,5 @@ public class ServiceAgregador {
     this.normalizador = normalizador;
   }
 
-  /** Llamado por @Scheduled y/o ControllerAgregador */
-  public void actualizarHechos() {
-    var batch = new ArrayList<Hecho>();
 
-    // 1) listar todas las fuentes (dinámica/estática/proxy)
-    var todas = fuentes.obtenerFuentesDeDatos();
-
-    // 2) acumular hechos nuevos de cada fuente
-    for (var f : todas) {
-      batch.addAll(fuentes.getHechosNuevosDeFuente(f.getId())); // usa tu méto do ya hecho
-    }
-
-    // 3) normalizar + dedupe
-    var curados = normalizador.normalizarYUnificar(batch);
-
-    // 4) persistir
-    repo.saveAll(curados);
-  }
 }

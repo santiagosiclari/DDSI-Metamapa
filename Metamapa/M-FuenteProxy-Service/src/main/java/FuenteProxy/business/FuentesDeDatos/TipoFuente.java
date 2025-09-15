@@ -1,4 +1,4 @@
-package FuenteProxy.business.FuentesDeDatos;
+package java.FuenteProxy.business.FuentesDeDatos;
 
 public enum TipoFuente {
   FUENTEDEMO,

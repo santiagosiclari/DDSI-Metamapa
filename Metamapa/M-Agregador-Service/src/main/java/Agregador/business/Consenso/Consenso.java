@@ -1,13 +1,11 @@
 package Agregador.business.Consenso;
 
+import Agregador.business.Hechos.Hecho;
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Objects;
-import Agregador.business.Agregador.*;
-import Agregador.business.Colecciones.*;
-import Agregador.business.Hechos.*;
 
 public interface Consenso {
-  boolean esConsensuado(Hecho hecho);
+  boolean esConsensuado(Hecho hecho, ArrayList<Hecho> hechos);
 
   //TODO reimplementar los consensos sin la clase fuente de datos
   static String toString(Consenso c) {
@@ -35,6 +33,20 @@ public interface Consenso {
             hecho1.getTitulo().equals(hecho2.getTitulo());
   }
 
+
+  static public int contarFuentesDeDatos(ArrayList<Hecho> hechos) {
+    ArrayList<Integer> fuentes = new ArrayList<>();
+    int contador = 0;
+    for (Hecho hecho : hechos)
+    {
+        if(!fuentes.contains(hecho.getIdFuente()))
+        {
+          contador++;
+          fuentes.add(hecho.getIdFuente());
+        }
+    }
+    return contador;
+  }
   //ABSOLUTA
   // "SELECT * FROM hechos as Hecho1 where (select count(distinct left(Hechos1.hechos_id,4)) from hechos) = (select count(distinct left(hechos_id,4)) from hechos as Hecho2 where equals(Hecho1,Hecho2))"
 
