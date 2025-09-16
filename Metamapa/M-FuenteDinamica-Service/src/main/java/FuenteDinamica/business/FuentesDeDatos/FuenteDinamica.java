@@ -3,8 +3,7 @@ import FuenteDinamica.business.Hechos.*;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @JsonTypeName("FUENTEDINAMICA")
 public class FuenteDinamica {

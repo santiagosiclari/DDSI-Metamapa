@@ -13,11 +13,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
 public class ControllerFuenteDinamica {
-  public RepositorioFuentes repositorioFuentes = new RepositorioFuentes();
+  public RepositorioFuentes repositorioFuentes;
 
-  /*public ControllerFuenteDinamica(ServiceIncidencias serviceIncidencias){
-    this.serviceIncidencias= serviceIncidencias;
-  }*/
+  public ControllerFuenteDinamica(RepositorioFuentes repositorioFuentes){
+    this.repositorioFuentes= repositorioFuentes;
+  }
 
   // obtener todas las fuentes
   @GetMapping("/")
@@ -47,8 +47,7 @@ public class ControllerFuenteDinamica {
 
   // Cargar un hecho a una fuente
   @PostMapping (value = "/{idFuenteDeDatos}/hechos", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<?> cargarHecho(@PathVariable Integer idFuenteDeDatos,
-                                       @Valid @RequestBody HechoDTO hechoDTO) {
+  public ResponseEntity<?> cargarHecho(@PathVariable Integer idFuenteDeDatos, @Valid @RequestBody HechoDTO hechoDTO) {
     try {
       var fuente = repositorioFuentes.buscarFuente(idFuenteDeDatos);
       if (fuente == null) {
@@ -69,7 +68,6 @@ public class ControllerFuenteDinamica {
       // responder con un id claro que Metamapa pueda leer
       return ResponseEntity.status(HttpStatus.CREATED)
               .body(Map.of("id", nuevoHechoId));
-
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
@@ -78,8 +76,7 @@ public class ControllerFuenteDinamica {
     }
   }
 
-  public void publicarmeAAgregador()
-  {
+  public void publicarmeAAgregador() {
     String url = String.format("%s/fuenteDeDatos", "${M.Agregador.Service.url}");
 
     HttpHeaders headers = new HttpHeaders();
@@ -94,7 +91,5 @@ public class ControllerFuenteDinamica {
     HttpEntity<String> request = new HttpEntity<>(body, headers);
     RestTemplate restTemplate = new RestTemplate();
     restTemplate.postForObject(url, request, String.class);
-
   }
-
 }
