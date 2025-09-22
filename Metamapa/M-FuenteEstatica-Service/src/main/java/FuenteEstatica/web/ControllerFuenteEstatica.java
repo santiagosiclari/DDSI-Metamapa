@@ -25,7 +25,7 @@ public class ControllerFuenteEstatica {
 
   // Obtener todas las fuentes
   @GetMapping("/")
-  public ArrayList<FuenteEstatica> getFuenteDeDatos() {
+  public List<FuenteEstatica> getFuenteDeDatos() {
     return repositorioFuentes.getFuentesDeDatos();
   }
 

@@ -1,7 +1,7 @@
 package FuenteDinamica.web;
 import java.util.*;
 import FuenteDinamica.DTO.HechoDTO;
-import FuenteDinamica.persistencia.RepositorioFuentes;
+import FuenteDinamica.persistencia.*;
 import FuenteDinamica.business.Hechos.*;
 import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
 import jakarta.validation.Valid;
@@ -14,8 +14,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/api-fuentesDeDatos")
 public class ControllerFuenteDinamica {
   public RepositorioFuentes repositorioFuentes;
+  public RepositorioHechos repositorioHechos;
 
-  public ControllerFuenteDinamica(RepositorioFuentes repositorioFuentes){
+  public ControllerFuenteDinamica(RepositorioFuentes repositorioFuentes, RepositorioHechos repositorioHechos) {
+    this.repositorioHechos = repositorioHechos;
     this.repositorioFuentes= repositorioFuentes;
   }
 
@@ -39,6 +41,12 @@ public class ControllerFuenteDinamica {
       return ResponseEntity.created(loc).body(creada);
   }
 
+  // obtener todos los hechos
+  @GetMapping("/hechos")
+  public List<Hecho> getHechos() {
+    return repositorioHechos.getHechos();
+  }
+
   // este me parece que no se usa, ya que el agregador se actualiza solo por ahi esta para otra cosa
   @GetMapping("/{idFuenteDeDatos}/hechos")
   public ArrayList<Hecho> getHechosFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
@@ -54,20 +62,16 @@ public class ControllerFuenteDinamica {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Fuente no encontrada: " + idFuenteDeDatos));
       }
-
       // generar un id incremental de hecho dentro de la fuente
       int nuevoHechoId = fuente.getHechos().size() + 1;
-
       // construir el dominio
       Hecho hecho = hechoDTO.toDomain(idFuenteDeDatos);
       // >>> clave: setear el id del hecho <<<
       hecho.setId(nuevoHechoId);
-
       fuente.getHechos().add(hecho);
-
+      repositorioHechos.save(hecho);
       // responder con un id claro que Metamapa pueda leer
-      return ResponseEntity.status(HttpStatus.CREATED)
-              .body(Map.of("id", nuevoHechoId));
+      return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", nuevoHechoId));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     } catch (Exception e) {

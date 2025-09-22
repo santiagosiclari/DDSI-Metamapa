@@ -3,15 +3,13 @@ package FuenteEstatica.persistencia;
 import FuenteEstatica.business.FuentesDeDatos.*;
 import FuenteEstatica.business.Parsers.*;
 import java.util.*;
-import lombok.Getter;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RepositorioFuentes {
-  @Getter
   public ArrayList<FuenteEstatica> fuentesDeDatos = new ArrayList<>();
-  @Getter
   public CSVHechoParser parserCSV = new CSVHechoParser();
+
   public void agregarFuente(FuenteEstatica fuente) {
     this.fuentesDeDatos.add(fuente);
   }
@@ -20,6 +18,10 @@ public class RepositorioFuentes {
 
   public FuenteEstatica buscarFuente(Integer id) {
     return fuentesDeDatos.stream().filter(f-> Objects.equals(f.getId(), id)).findFirst().orElseThrow(()-> new IllegalArgumentException("No se encontro una fuente con ese ID"));
+  }
+
+  public List<FuenteEstatica> getFuentesDeDatos() {
+    return fuentesDeDatos;
   }
   /*
   public FuenteDeDatosDTO getFuenteDeDatosDTO(FuenteDeDatos fuente) {
@@ -46,5 +48,3 @@ public class RepositorioFuentes {
   }
    */
 }
-
-
