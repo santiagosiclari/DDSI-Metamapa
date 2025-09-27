@@ -2,27 +2,25 @@ package FuenteDinamica.business.FuentesDeDatos;
 import FuenteDinamica.business.Hechos.*;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
 import lombok.*;
+import jakarta.persistence.*;
 
 @JsonTypeName("FUENTEDINAMICA")
+@Entity
+@Table(name = "fuente_dinamica")
+@Getter @Setter
 public class FuenteDinamica {
-  static private Integer contadorID = 1000000;
-  @Getter
-  public String nombre;
-  @Getter
-  ArrayList<Hecho> hechos;
-  @Getter@Setter
-  Integer fuenteId;
+  //static private Integer contadorID = 1000000;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer fuenteId;  // Hibernate lo maneja, no necesitamos contador manual
+  private String nombre;
+  @OneToMany(mappedBy = "fuente", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Hecho> hechos = new ArrayList<>();
 
   public FuenteDinamica() {
-    if (contadorID > 1999998) {
-      throw new RuntimeException("No hay mas espacio para nuevas fuentes :(");
-    } else {
-      this.fuenteId = contadorID++;
-      this.nombre = "Fuente Dinamica";
-      this.hechos = new ArrayList<>();
-    }
+    this.nombre = "Fuente Dinamica";
   }
 
   public void agregarHecho(
@@ -34,19 +32,24 @@ public class FuenteDinamica {
           LocalDate fechaHecho,
           Integer idAutor,
           Boolean anonimidad,
-          ArrayList<Multimedia> multimedia) {
-    this.hechos.add(new Hecho(
-                    titulo,
-                    desc,
-                    categoria,
-                    latitud,
-                    longitud,
-                    fechaHecho,
-                    idAutor,
-                    this.fuenteId,
-                    anonimidad,
-                    multimedia
-            )
+          List<Multimedia> multimedia) {
+    Hecho h = new Hecho(
+            titulo,
+            desc,
+            categoria,
+            latitud,
+            longitud,
+            fechaHecho,
+            idAutor,
+            this,
+            anonimidad,
+            multimedia
     );
+    this.hechos.add(h);
+    if (multimedia != null) {
+      for (Multimedia m : multimedia) {
+        m.setHecho(h); // importante para persistir la relación
+      }
+    }
   }
 }
