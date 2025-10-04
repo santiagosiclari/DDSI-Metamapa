@@ -1,4 +1,4 @@
-package java.FuenteDemo.business.FuentesDeDatos;
+package FuenteDemo.business.FuentesDeDatos;
 
 public enum TipoFuente {
   FUENTEDEMO,

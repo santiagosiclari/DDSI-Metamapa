@@ -1,4 +1,4 @@
-package java.FuenteDemo.service;
+package FuenteDemo.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
-package java.FuenteMetamapa.web;
-import java.FuenteMetamapa.business.FuentesDeDatos.*;
-import java.FuenteMetamapa.business.Hechos.Hecho;
+package FuenteMetamapa.web;
+import FuenteMetamapa.business.FuentesDeDatos.*;
+import FuenteMetamapa.business.Hechos.Hecho;
 import java.util.*;
-import java.FuenteMetamapa.service.ServiceFuenteMetamapa;
+import FuenteMetamapa.service.ServiceFuenteMetamapa;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 

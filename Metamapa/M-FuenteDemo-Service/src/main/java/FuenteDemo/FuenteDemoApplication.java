@@ -1,8 +1,7 @@
-package java.FuenteDemo;
-
-import java.FuenteDemo.persistencia.RepositorioFuentes;
-import java.FuenteDemo.service.ServiceFuenteDemo;
-import java.FuenteDemo.web.ControllerFuenteDemo;
+package FuenteDemo;
+import FuenteDemo.persistencia.RepositorioFuentes;
+import FuenteDemo.service.ServiceFuenteDemo;
+import FuenteDemo.web.ControllerFuenteDemo;
 import java.util.Collections;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

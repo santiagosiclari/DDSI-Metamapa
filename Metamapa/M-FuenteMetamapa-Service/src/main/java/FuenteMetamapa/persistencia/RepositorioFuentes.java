@@ -1,6 +1,6 @@
-package java.FuenteMetamapa.persistencia;
-import java.FuenteMetamapa.business.FuentesDeDatos.*;
-import java.FuenteMetamapa.business.Parsers.CSVHechoParser;
+package FuenteMetamapa.persistencia;
+import FuenteMetamapa.business.FuentesDeDatos.*;
+import FuenteMetamapa.business.Parsers.CSVHechoParser;
 import java.util.*;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;

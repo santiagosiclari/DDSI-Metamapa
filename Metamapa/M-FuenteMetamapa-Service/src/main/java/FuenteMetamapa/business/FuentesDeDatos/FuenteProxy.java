@@ -1,6 +1,6 @@
-package java.FuenteMetamapa.business.FuentesDeDatos;
-import java.FuenteMetamapa.business.Parsers.HechoParser;
-import java.FuenteMetamapa.business.Hechos.Hecho;
+package FuenteMetamapa.business.FuentesDeDatos;
+import FuenteMetamapa.business.Parsers.HechoParser;
+import FuenteMetamapa.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import lombok.Getter;

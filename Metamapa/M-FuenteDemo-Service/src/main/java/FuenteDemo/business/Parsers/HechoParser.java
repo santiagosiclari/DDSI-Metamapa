@@ -1,6 +1,6 @@
-package java.FuenteDemo.business.Parsers;
+package FuenteDemo.business.Parsers;
 
-import java.FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.business.Hechos.Hecho;
 import java.io.InputStream;
 import java.util.ArrayList;
 

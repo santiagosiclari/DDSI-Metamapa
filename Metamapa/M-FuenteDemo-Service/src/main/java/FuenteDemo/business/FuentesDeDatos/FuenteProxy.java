@@ -1,7 +1,7 @@
-package java.FuenteDemo.business.FuentesDeDatos;
+package FuenteDemo.business.FuentesDeDatos;
 
-import java.FuenteDemo.business.Hechos.Hecho;
-import java.FuenteDemo.business.Parsers.HechoParser;
+import FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.business.Parsers.HechoParser;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import lombok.Getter;

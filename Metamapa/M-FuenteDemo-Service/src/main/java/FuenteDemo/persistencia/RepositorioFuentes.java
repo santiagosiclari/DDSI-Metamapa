@@ -1,7 +1,7 @@
-package java.FuenteDemo.persistencia;
+package FuenteDemo.persistencia;
 
-import java.FuenteDemo.business.FuentesDeDatos.FuenteDemo;
-import java.FuenteDemo.business.Parsers.CSVHechoParser;
+import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
+import FuenteDemo.business.Parsers.CSVHechoParser;
 import java.util.*;
 import lombok.Getter;
 import org.springframework.stereotype.Repository;

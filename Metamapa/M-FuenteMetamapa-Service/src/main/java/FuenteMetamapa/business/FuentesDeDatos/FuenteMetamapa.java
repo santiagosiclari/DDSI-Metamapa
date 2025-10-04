@@ -1,6 +1,6 @@
-package java.FuenteMetamapa.business.FuentesDeDatos;
-import java.FuenteMetamapa.DTO.SolicitudEliminacionDTO;
-import java.FuenteMetamapa.business.Hechos.Hecho;
+package FuenteMetamapa.business.FuentesDeDatos;
+import FuenteMetamapa.DTO.SolicitudEliminacionDTO;
+import FuenteMetamapa.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

@@ -1,6 +1,6 @@
-package java.FuenteDemo.business.Parsers;
+package FuenteDemo.business.Parsers;
 
-import java.FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.business.Hechos.Hecho;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

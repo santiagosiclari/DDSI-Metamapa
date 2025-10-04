@@ -1,6 +1,6 @@
-package java.FuenteMetamapa.business.Parsers;
+package FuenteMetamapa.business.Parsers;
 //import infrastructure.dto.HechoDTO;
-import java.FuenteMetamapa.business.Hechos.Hecho;
+import FuenteMetamapa.business.Hechos.Hecho;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import java.io.*;

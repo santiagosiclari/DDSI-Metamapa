@@ -1,4 +1,4 @@
-package java.FuenteMetamapa.business.FuentesDeDatos;
+package FuenteMetamapa.business.FuentesDeDatos;
 
 public enum TipoFuente {
   FUENTEDEMO,

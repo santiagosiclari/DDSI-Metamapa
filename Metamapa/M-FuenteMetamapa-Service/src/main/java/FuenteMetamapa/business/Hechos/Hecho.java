@@ -1,8 +1,6 @@
-package java.FuenteMetamapa.business.Hechos;
-
+package FuenteMetamapa.business.Hechos;
 import java.time.LocalDate;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 public class Hecho {

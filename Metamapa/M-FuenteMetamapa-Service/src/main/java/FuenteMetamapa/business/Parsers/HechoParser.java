@@ -1,6 +1,5 @@
-package java.FuenteMetamapa.business.Parsers;
-
-import java.FuenteMetamapa.business.Hechos.Hecho;
+package FuenteMetamapa.business.Parsers;
+import FuenteMetamapa.business.Hechos.Hecho;
 import java.io.InputStream;
 import java.util.ArrayList;
 

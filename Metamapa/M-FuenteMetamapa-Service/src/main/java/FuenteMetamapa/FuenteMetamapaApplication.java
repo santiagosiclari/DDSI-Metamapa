@@ -1,9 +1,8 @@
-package java.FuenteMetamapa;
-
+package FuenteMetamapa;
 import java.util.Collections;
-import java.FuenteMetamapa.web.ControllerFuenteMetamapa;
-import java.FuenteMetamapa.service.ServiceFuenteMetamapa;
-import java.FuenteMetamapa.persistencia.RepositorioFuentes;
+import FuenteMetamapa.web.ControllerFuenteMetamapa;
+import FuenteMetamapa.service.ServiceFuenteMetamapa;
+import FuenteMetamapa.persistencia.RepositorioFuentes;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

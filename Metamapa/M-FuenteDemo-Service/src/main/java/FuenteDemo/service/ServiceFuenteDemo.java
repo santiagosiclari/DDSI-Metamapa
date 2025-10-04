@@ -1,9 +1,9 @@
-package java.FuenteDemo.service;
+package FuenteDemo.service;
 
-import java.FuenteDemo.business.FuentesDeDatos.FuenteDemo;
-import java.FuenteDemo.business.FuentesDeDatos.FuenteProxy;
-import java.FuenteDemo.business.Hechos.Hecho;
-import java.FuenteDemo.persistencia.RepositorioFuentes;
+import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
+import FuenteDemo.business.FuentesDeDatos.FuenteProxy;
+import FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.persistencia.RepositorioFuentes;
 import java.util.*;
 import org.springframework.stereotype.Service;
 //TODO Pasar esto al repositorio, creo que no va aca

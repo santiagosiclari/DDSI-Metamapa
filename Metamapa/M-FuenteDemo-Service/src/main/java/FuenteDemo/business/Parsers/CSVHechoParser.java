@@ -1,7 +1,7 @@
-package java.FuenteDemo.business.Parsers;
+package FuenteDemo.business.Parsers;
 //import infrastructure.dto.HechoDTO;
 
-import java.FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.business.Hechos.Hecho;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import java.io.*;

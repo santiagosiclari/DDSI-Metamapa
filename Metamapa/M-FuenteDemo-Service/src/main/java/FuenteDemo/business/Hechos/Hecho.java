@@ -1,4 +1,4 @@
-package java.FuenteDemo.business.Hechos;
+package FuenteDemo.business.Hechos;
 
 import java.time.LocalDate;
 import lombok.Getter;

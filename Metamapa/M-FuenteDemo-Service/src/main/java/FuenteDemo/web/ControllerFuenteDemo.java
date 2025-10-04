@@ -1,8 +1,8 @@
-package java.FuenteDemo.web;
+package FuenteDemo.web;
 
-import java.FuenteDemo.business.FuentesDeDatos.FuenteDemo;
-import java.FuenteDemo.business.Hechos.Hecho;
-import java.FuenteDemo.service.ServiceFuenteDemo;
+import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
+import FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.service.ServiceFuenteDemo;
 import java.util.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;

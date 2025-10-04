@@ -1,7 +1,7 @@
-package java.FuenteMetamapa.service;
-import java.FuenteMetamapa.business.FuentesDeDatos.*;
-import java.FuenteMetamapa.business.Hechos.Hecho;
-import java.FuenteMetamapa.persistencia.RepositorioFuentes;
+package FuenteMetamapa.service;
+import FuenteMetamapa.business.FuentesDeDatos.*;
+import FuenteMetamapa.business.Hechos.Hecho;
+import FuenteMetamapa.persistencia.RepositorioFuentes;
 import org.springframework.stereotype.Service;
 import java.util.*;
 

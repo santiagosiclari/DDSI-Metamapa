@@ -1,7 +1,7 @@
-package java.FuenteDemo.business.FuentesDeDatos;
+package FuenteDemo.business.FuentesDeDatos;
 
-import java.FuenteDemo.business.Conexiones.Conexion;
-import java.FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.business.Conexiones.Conexion;
+import FuenteDemo.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.*;
 import java.time.*;
 import java.util.*;
