@@ -1,5 +1,4 @@
 package Agregador.persistencia;
-
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
 import org.springframework.stereotype.Repository;
@@ -10,14 +9,15 @@ import java.util.*;
 public class RepositorioHechos {
   private ArrayList<Hecho> hechos = new ArrayList<>();
 
-  public List<Hecho> getHechos() {
+  public List<Hecho> findAll() {
     return hechos;
   }
+
   public void save(Hecho h) {
     hechos.add(h);
   }
 
-  public Optional<Hecho> findHecho(BigInteger id) {
+  public Optional<Hecho> findById(BigInteger id) {
     return hechos.stream().filter(h -> h.getId().equals(id)).findFirst();
   }
 
@@ -33,7 +33,6 @@ public class RepositorioHechos {
     hechos.addAll(nuevos);
   }
 
-
   public void modificarHecho(Hecho hecho) {
     // implementar, no creo que haga falta
 
@@ -41,7 +40,7 @@ public class RepositorioHechos {
   }
 
   public void updateHecho(Hecho h) {
-    Optional<Hecho> existingHechoOpt = findHecho(h.getId());
+    Optional<Hecho> existingHechoOpt = findById(h.getId());
     existingHechoOpt.ifPresent(s -> hechos.remove(s));
     hechos.add(h);
 

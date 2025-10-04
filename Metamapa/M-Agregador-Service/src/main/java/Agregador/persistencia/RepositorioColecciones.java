@@ -11,12 +11,12 @@ public class RepositorioColecciones {
   private final ArrayList<Coleccion> colecciones = new ArrayList<>();
 
   // === Búsquedas básicas ===
-  public Optional<Coleccion> buscarXUUID(UUID uuid) {
+  public Optional<Coleccion> findById(UUID uuid) {
     if (uuid == null) return Optional.empty();
     return colecciones.stream().filter(c -> uuid.equals(c.getHandle())).findFirst();
   }
 
-  public List<Coleccion> getColecciones() {
+  public List<Coleccion> findAll() {
     return colecciones;
   }
 
@@ -59,36 +59,36 @@ public class RepositorioColecciones {
   public boolean modificarConsenso(UUID id, Consenso consenso) {
     Objects.requireNonNull(id, "id no puede ser null");
     Objects.requireNonNull(consenso, "consenso no puede ser null");
-    return buscarXUUID(id).map(c -> { c.setConsenso(consenso); return true; }).orElse(false);
+    return findById(id).map(c -> { c.setConsenso(consenso); return true; }).orElse(false);
   }
 
   /** Cambia el modo de navegación (IRRESTRICTA / RESTRINGIDA). */
   public boolean modificarModoNavegacion(UUID id, ModosDeNavegacion modo) {
     Objects.requireNonNull(id, "id no puede ser null");
     Objects.requireNonNull(modo, "modo no puede ser null");
-    return buscarXUUID(id).map(c -> { c.setModoNavegacion(modo); return true; }).orElse(false);
+    return findById(id).map(c -> { c.setModoNavegacion(modo); return true; }).orElse(false);
   }
 
   // === Gestión de criterios (pertenencia / no pertenencia) ===
 
   public boolean agregarCriterioPertenencia(UUID id, Criterio criterio) {
     Objects.requireNonNull(criterio, "criterio no puede ser null");
-    return buscarXUUID(id).map(c -> { c.agregarCriterioPertenencia(criterio); return true; }).orElse(false);
+    return findById(id).map(c -> { c.agregarCriterioPertenencia(criterio); return true; }).orElse(false);
   }
 
   public boolean eliminarCriterioPertenencia(UUID id, Criterio criterio) {
     Objects.requireNonNull(criterio, "criterio no puede ser null");
-    return buscarXUUID(id).map(c -> { c.eliminarCriterioPertenencia(criterio); return true; }).orElse(false);
+    return findById(id).map(c -> { c.eliminarCriterioPertenencia(criterio); return true; }).orElse(false);
   }
 
   public boolean agregarCriterioNoPertenencia(UUID id, Criterio criterio) {
     Objects.requireNonNull(criterio, "criterio no puede ser null");
-    return buscarXUUID(id).map(c -> { c.agregarCriterioNoPertenencia(criterio); return true; }).orElse(false);
+    return findById(id).map(c -> { c.agregarCriterioNoPertenencia(criterio); return true; }).orElse(false);
   }
 
   public boolean eliminarCriterioNoPertenencia(UUID id, Criterio criterio) {
     Objects.requireNonNull(criterio, "criterio no puede ser null");
-    return buscarXUUID(id).map(c -> { c.eliminarCriterioNoPertenencia(criterio); return true; }).orElse(false);
+    return findById(id).map(c -> { c.eliminarCriterioNoPertenencia(criterio); return true; }).orElse(false);
   }
 
   /**
@@ -97,7 +97,7 @@ public class RepositorioColecciones {
    */
   public boolean setCriteriosPertenencia(UUID id, List<Criterio> nuevos) {
     Objects.requireNonNull(nuevos, "nuevos no puede ser null");
-    return buscarXUUID(id).map(c -> {
+    return findById(id).map(c -> {
       c.setCriterioPertenencia(new ArrayList<>(nuevos));
       return true;
     }).orElse(false);
@@ -106,7 +106,7 @@ public class RepositorioColecciones {
   /** Reemplaza “todo” el set de criterios de no pertenencia. */
   public boolean setCriteriosNoPertenencia(UUID id, List<Criterio> nuevos) {
     Objects.requireNonNull(nuevos, "nuevos no puede ser null");
-    return buscarXUUID(id).map(c -> {
+    return findById(id).map(c -> {
       c.setCriterioNoPertenencia(new ArrayList<>(nuevos));
       return true;
     }).orElse(false);
@@ -136,7 +136,7 @@ public class RepositorioColecciones {
                                    List<Criterio> criteriosAdicionalP,
                                    List<Criterio> criteriosAdicionalNP,
                                    ModosDeNavegacion modo) {
-    Coleccion col = buscarXUUID(idColeccion).orElse(null);
+    Coleccion col = findById(idColeccion).orElse(null);
     if (col == null) return List.of();
 
     List<Hecho> hechos = Agregador.getInstance().getListaHechos();
@@ -152,7 +152,7 @@ public class RepositorioColecciones {
 
   /** Renombra título y descripción (PUT/PATCH ligero). */
   public boolean actualizarMetadatos(UUID id, String nuevoTitulo, String nuevaDescripcion) {
-    return buscarXUUID(id).map(c -> {
+    return findById(id).map(c -> {
       if (nuevoTitulo != null) c.setTitulo(nuevoTitulo);
       if (nuevaDescripcion != null) c.setDescripcion(nuevaDescripcion);
       return true;

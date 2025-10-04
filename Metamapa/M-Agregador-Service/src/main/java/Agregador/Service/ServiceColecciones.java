@@ -23,7 +23,7 @@ public class ServiceColecciones {
 
   public List<Hecho> getHechosFiltrados(UUID id, ModosDeNavegacion modoNavegacion, FiltrosHechosDTO filtros) {
     //System.out.println("Filtros recibidos: " + filtros);
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+    Coleccion coleccion = repositorioColecciones.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     List<Criterio> inclusion = construirCriteriosInclusion(filtros);
     List<Criterio> exclusion = construirCriteriosExclusion(filtros);
@@ -73,13 +73,13 @@ public class ServiceColecciones {
   }
 
   public List<ColeccionDTO> obtenerTodasLasColecciones() {
-    return repositorioColecciones.getColecciones().stream()
+    return repositorioColecciones.findAll().stream()
             .map(ColeccionDTO::new) // convierte cada Coleccion a DTO
             .collect(Collectors.toList());
   }
 
   public ColeccionDTO obtenerColeccionPorId(UUID id) {
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+    Coleccion coleccion = repositorioColecciones.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     return new ColeccionDTO(coleccion);
   }
@@ -102,7 +102,7 @@ public class ServiceColecciones {
   }
 
   public ColeccionDTO actualizarColeccion(UUID id, ColeccionDTO coleccionDTO) {
-    Coleccion coleccion = repositorioColecciones.buscarXUUID(id)
+    Coleccion coleccion = repositorioColecciones.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     if (coleccionDTO.getTitulo() != null) coleccion.setTitulo(coleccionDTO.getTitulo());
     if (coleccionDTO.getDescripcion() != null) coleccion.setDescripcion(coleccionDTO.getDescripcion());
@@ -123,7 +123,7 @@ public class ServiceColecciones {
   }
 
   public void modificarAlgoritmo(UUID id, Map<String, Object> body) {
-    Coleccion c = repositorioColecciones.buscarXUUID(id)
+    Coleccion c = repositorioColecciones.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Colección no encontrada"));
 
     String nombre = null;
@@ -141,14 +141,14 @@ public class ServiceColecciones {
   }
 
   public void agregarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
-    Coleccion col = repositorioColecciones.buscarXUUID(idColeccion)
+    Coleccion col = repositorioColecciones.findById(idColeccion)
             .orElseThrow(() -> new NoSuchElementException("Colección no encontrada"));
     col.agregarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
     repositorioColecciones.update(col);
   }
 
   public void eliminarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
-    Coleccion col = repositorioColecciones.buscarXUUID(idColeccion)
+    Coleccion col = repositorioColecciones.findById(idColeccion)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     col.eliminarCriterioPertenencia(new CriterioFuenteDeDatos(idFuente));
     repositorioColecciones.update(col);

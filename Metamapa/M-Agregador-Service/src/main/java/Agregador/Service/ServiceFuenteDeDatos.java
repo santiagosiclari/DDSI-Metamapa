@@ -86,7 +86,7 @@ public class ServiceFuenteDeDatos {
   }
 
   public boolean existeHecho(Hecho h) {
-    return repositorioHechos.getHechos().stream().anyMatch(h2 -> Consenso.sonIguales(h, h2));
+    return repositorioHechos.findAll().stream().anyMatch(h2 -> Consenso.sonIguales(h, h2));
   }
 
   // ================== Mapping ==================

@@ -3,8 +3,7 @@ import Agregador.business.Agregador.Agregador;
 import Agregador.business.Consenso.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import Agregador.business.Hechos.Hecho;
 
 @Getter @Setter

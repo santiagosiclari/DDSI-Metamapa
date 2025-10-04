@@ -1,5 +1,4 @@
 package Agregador.Service;
-
 import Agregador.business.Hechos.Hecho;
 import Agregador.persistencia.RepositorioHechos;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ public class ServiceAgregador {
 
   // Devuelve el nombre de la categoría con más hechos reportados
   public String categoriaMasReportada() {
-    var hechos = repo.getHechos();                      // List<Hecho>
+    var hechos = repo.findAll();                      // List<Hecho>
     if (hechos == null || hechos.isEmpty()) return null;
 
     return hechos.stream()
@@ -82,5 +81,4 @@ public class ServiceAgregador {
     // Sin hora disponible
     return null;
   }
-
 }

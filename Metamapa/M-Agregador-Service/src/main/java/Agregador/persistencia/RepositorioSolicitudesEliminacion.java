@@ -5,12 +5,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-public class RepositorioSolicitudes {
-  //--------------------------------------------------Solicitudes de Eliminacion------------------------------------------------------------
+public class RepositorioSolicitudesEliminacion {
   private ArrayList<SolicitudEliminacion> solicitudesEliminacion = new ArrayList<>();
 
   // Metodo para obtener todas las solicitudes
-  public List<SolicitudEliminacion> findAllSolicitudesEliminacion() {
+  public List<SolicitudEliminacion> findAll() {
     return solicitudesEliminacion;  // Devuelve la lista completa de solicitudes
   }
 
@@ -46,34 +45,4 @@ public class RepositorioSolicitudes {
     /*public boolean deleteById(String id) {
         return solicitudes.removeIf(s -> s.getId().equals(id));  // Elimina la solicitud por ID
     }*/
-
-  //----------------------------------------------------------------Solicitudes de Edicion------------------------------------------------------------
-  // Lista en memoria para almacenar las solicitudes
-  private List<SolicitudEdicion> solicitudesEdicion = new ArrayList<>();
-
-  // Metodo para obtener todas las solicitudes de edicion
-  public List<SolicitudEdicion> findAllSolicitudesEdicion() {
-    return solicitudesEdicion;  // Devuelve la lista completa de solicitudes
-  }
-
-  // Metodo para guardar una solicitud
-  public void save(SolicitudEdicion solicitud) {
-    Optional<SolicitudEdicion> existingSolicitud = findSolicitudEdicionById(solicitud.getId());
-    existingSolicitud.ifPresent(SolicitudEdicion -> solicitudesEdicion.remove(SolicitudEdicion));
-    solicitudesEdicion.add(solicitud);  // Luego, agregamos la nueva versión
-  }
-
-  // Metodo para encontrar una solicitud por ID
-  public Optional<SolicitudEdicion> findSolicitudEdicionById(Integer id) {
-    return solicitudesEdicion.stream()
-            .filter(solicitud -> solicitud.getId().equals(id))  // Compara el ID de la solicitud
-            .findFirst();  // Devuelve el primer resultado, si lo encuentra
-  }
-  public ArrayList<SolicitudEdicion> getSolicitudesEdicionPendientes() {
-    return solicitudesEdicion.stream().filter(solicitud -> solicitud.getEstado() == EstadoSolicitud.PENDIENTE).collect(Collectors.toCollection(ArrayList::new));
-  }
-
-  public ArrayList<SolicitudEdicion> getSolicitudesEdicionAprobadas(){
-    return solicitudesEdicion.stream().filter(solicitud -> solicitud.getEstado() == EstadoSolicitud.APROBADA).collect(Collectors.toCollection(ArrayList::new));
-  }
 }

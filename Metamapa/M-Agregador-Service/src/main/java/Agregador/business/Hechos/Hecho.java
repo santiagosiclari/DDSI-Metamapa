@@ -1,14 +1,16 @@
 package Agregador.business.Hechos;
-
 import Agregador.business.Usuarios.Usuario;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
+@Entity
 @Getter @Setter
 public class Hecho {
+  @Id
+  private BigInteger id;
   private String titulo;
   private String descripcion;
   private String categoria;
@@ -17,11 +19,15 @@ public class Hecho {
   private LocalDate fechaHecho;
   private LocalDate fechaCarga;
   private LocalDate fechaModificacion;
+  @OneToOne
   private Usuario perfil;
-  private BigInteger id;
   private Boolean anonimo;
   private Boolean eliminado;
   private ArrayList<Multimedia> multimedia;
+  @ElementCollection
+  @CollectionTable(name = "hecho_metadata", joinColumns = @JoinColumn(name = "hecho_id"))
+  @MapKeyColumn(name = "clave")
+  @Column(name = "valor")
   private HashMap<String, String> metadata;
 
   //TODO: Chequear si Categoria lo modelamos como string o un enum
@@ -97,5 +103,4 @@ public class Hecho {
       throw new RuntimeException("Esa etiqueta ya existe");
     } else this.metadata.put(key, value);
   }
-
 }

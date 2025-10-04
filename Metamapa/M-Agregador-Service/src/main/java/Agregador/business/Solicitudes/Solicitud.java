@@ -1,17 +1,13 @@
 package Agregador.business.Solicitudes;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import java.math.BigInteger;
 
+@Setter @Getter
 public abstract class Solicitud {
-  @Setter @Getter
   //Hecho hechoAfectado;  // Hecho relacionado con la solicitud
   BigInteger hechoAfectado;
-  @Setter @Getter
   EstadoSolicitud estado; // Estado de la solicitud (puede ser un enum o clase)
-  /*@Getter
-  UUID id;*/
-  @Getter
+  //UUID id;
   protected Integer id;
   static protected Integer contadorID = 1;
 
