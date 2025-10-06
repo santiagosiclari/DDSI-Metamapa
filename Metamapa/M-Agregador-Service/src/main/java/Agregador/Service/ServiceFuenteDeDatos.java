@@ -17,7 +17,6 @@ public class ServiceFuenteDeDatos {
   private final RestTemplate restTemplate;
   private final RepositorioHechos repositorioHechos;
 
-
   private static final int FACTOR_TIPO = 1_000_000;
 
   // ==== Rutas (cambiá acá si loaders exponen distinto) ====
@@ -34,19 +33,30 @@ public class ServiceFuenteDeDatos {
   /** Trae hechos de UNA fuente (sin filtros) y los mapea a tu dominio. */
   public List<Hecho> getHechosDeFuente(String urlBase) {
     String url = urlBase + "/api-fuentesDeDatos/hechos";
-    ResponseEntity<List<Map<String,Object>>> resp = restTemplate.exchange(
+    ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
             url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
     );
-    List<Map<String,Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
-    return raw.stream().map(json -> jsonToHecho(json, (int)json.get("fuenteID"))).toList();
+    List<Map<String, Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
+    // imprimir raw para debug
+    //System.out.println("Hechos raw de la fuente " + urlBase + ": " + raw);
+    return raw.stream()
+            .map(json -> {
+              Object fuenteIdRaw = json.get("fuenteId");
+              if (fuenteIdRaw == null)
+                throw new IllegalArgumentException("Falta 'fuenteId' en el hecho: " + json);
+              int fuenteId = (Integer) fuenteIdRaw;
+              return jsonToHecho(json, fuenteId);
+            })
+            .toList();
   }
 
   public void actualizarHechos(String url) {
-      ArrayList<Hecho> hechos = new ArrayList<>(getHechosDeFuente(url));
+    ArrayList<Hecho> hechos = new ArrayList<>(getHechosDeFuente(url));
 
-      //TODO Normalizar y hacer chequeos de los datos enviados
+    //TODO Normalizar y hacer chequeos de los datos enviados
 
-      hechos.forEach(repositorioHechos::save);
+    hechos.forEach(repositorioHechos::save);
+    System.out.println("Total hechos guardados: " + repositorioHechos.findAll().size());
   }
 
   /** Trae hechos de UNA fuente aplicando filtros (query params). */
@@ -90,7 +100,7 @@ public class ServiceFuenteDeDatos {
   // ================== Mapping ==================
 
   @SuppressWarnings("unchecked")
-  private Hecho jsonToHecho(Map<String,Object> json, int idFuente) {
+  private Hecho jsonToHecho(Map<String,Object> json, Integer idFuente) {
     String titulo       = str(json.get("titulo"));
     String descripcion  = str(json.get("descripcion"));
     String categoria    = str(json.get("categoria"));

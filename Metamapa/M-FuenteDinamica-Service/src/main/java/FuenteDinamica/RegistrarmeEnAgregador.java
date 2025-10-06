@@ -1,25 +1,22 @@
 package FuenteDinamica;
 
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 @Component
 public class RegistrarmeEnAgregador {
-
   private final RestTemplate rest;
   private final Environment env;
   private final String registryEndpoint;
 
   public RegistrarmeEnAgregador(RestTemplate rest,
-                       Environment env,
-                       @Value("${registro.agregador}") String registryEndpoint) {
+                                Environment env,
+                                @Value("${registro.agregador}") String registryEndpoint) {
     this.rest = rest;
     this.env = env;
     this.registryEndpoint = registryEndpoint;
@@ -30,11 +27,11 @@ public class RegistrarmeEnAgregador {
     int port = event.getWebServer().getPort();
     String host = env.getProperty("server.address", "localhost");
 
-    String baseUrl = host + ":" + port;
+    String scheme = env.getProperty("server.ssl.enabled", "false").equals("true") ? "https" : "http";
+    String baseUrl = scheme + "://" + host + ":" + port;
 
     Map<String, Object> payload = Map.of(
-        "url", baseUrl
-
+            "url", baseUrl
     );
 
     try {

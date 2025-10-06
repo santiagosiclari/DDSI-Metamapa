@@ -16,15 +16,17 @@ import Agregador.Service.ServiceConsenso;
 public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioAgregador repositorioAgregador;
-  private final RepositorioHechos repositorioHechos = new RepositorioHechos();
+  private final RepositorioHechos repositorioHechos;
   private final ServiceAgregador serviceAgregador;
   private final ServiceConsenso serviceConsenso;
   private ArrayList<String> URLsFuentes = new ArrayList<String>();
 
   public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos,ServiceConsenso serviceConsenso,
-                             RepositorioAgregador repositorioAgregador, ServiceAgregador serviceAgregador) {
+                             RepositorioAgregador repositorioAgregador, ServiceAgregador serviceAgregador,
+                                RepositorioHechos repositorioHechos) {
     this.servicefuenteDeDatos = servicefuenteDeDatos;
     this.repositorioAgregador = repositorioAgregador;
+    this.repositorioHechos = repositorioHechos;
     this.serviceAgregador = serviceAgregador;
     this.serviceConsenso = serviceConsenso;
   }
@@ -43,17 +45,26 @@ public class ControllerAgregador {
       return ResponseEntity.noContent().build();
     }
     URLsFuentes.add(url);
+    System.out.println("Agregando fuente de datos: " + url);
+    //imprimir lista de URLs
+    System.out.println("Lista de URLs: " + URLsFuentes);
     return ResponseEntity.ok(url);
   }
 
-  @GetMapping("/actualizarHechos")
-  public void actualizarHechos() {
-    URLsFuentes.forEach(url -> servicefuenteDeDatos.actualizarHechos(url));
+  @PostMapping("/actualizarHechos")
+  public ResponseEntity<?> actualizarHechos() {
+    URLsFuentes.forEach(servicefuenteDeDatos::actualizarHechos);
+    return ResponseEntity.ok("Se actualizaron los hechos");
   }
-
 
   public void consensuarHechos() {
     serviceConsenso.consensuarHechos();
+  }
+
+  // Listar todos los hechos
+  @GetMapping("/hechos")
+  public ResponseEntity<List<Hecho>> getAgregadorHechos() {
+    return ResponseEntity.ok(repositorioHechos.findAll());
   }
 
   /*@GetMapping("/")
@@ -73,16 +84,4 @@ public class ControllerAgregador {
 //    repositorioAgregador.getAgregador().actualizarFuentesDeDatos(fuentes);
 //    return ResponseEntity.noContent().build();
 //  }
-
-  // esto se va a comunicar con el servicio de colecciones
-  // y las colecciones filtran estos hechos
-  @GetMapping("/hechos")
-  public ResponseEntity<List<Hecho>> getAgregadorHechos() {
-    List<Hecho> hechos = new ArrayList<Hecho>(repositorioHechos.findAll());
-
-    if (hechos == null || hechos.isEmpty()) {
-      return ResponseEntity.noContent().build();
-    }
-    return ResponseEntity.ok(hechos);
-  }
 }
