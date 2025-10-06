@@ -46,12 +46,6 @@ public class RepositorioHechos {
 
   }
 
-  /*public List<Hecho> filtrarPorCriterios(List<Criterio> inclusion, List<Criterio> exclusion) {
-    return hechos.stream()
-            .filter(h -> inclusion.stream().allMatch(c -> c.cumple(h)))
-            .filter(h -> exclusion.stream().noneMatch(c -> c.cumple(h)))
-            .toList();
-  }*/
   public List<Hecho> filtrarPorCriterios(List<Criterio> criterios) {
     return hechos.stream()
         .filter(h -> criterios.stream().allMatch(c -> c.cumple(h)))

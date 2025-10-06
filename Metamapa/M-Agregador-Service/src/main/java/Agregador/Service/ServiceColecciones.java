@@ -22,17 +22,11 @@ public class ServiceColecciones {
   }
 
   public List<Hecho> getHechosFiltrados(UUID id, ModosDeNavegacion modoNavegacion, FiltrosHechosDTO filtros) {
-    //System.out.println("Filtros recibidos: " + filtros);
     Coleccion coleccion = repositorioColecciones.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+    System.out.println("Filtros recibidos: " + filtros);
     List<Criterio> inclusion = construirCriteriosInclusion(filtros);
     List<Criterio> exclusion = construirCriteriosExclusion(filtros);
-   /* List<Criterio> totalFiltrosInclusion = Stream.concat(coleccion.getCriterios().stream(), inclusion.stream())
-            .distinct()
-            .collect(Collectors.toList());*/
-    /*List<Criterio> totalFiltrosExclusion = Stream.concat(coleccion.getCriterioNoPertenencia().stream(), exclusion.stream())
-            .distinct()
-            .collect(Collectors.toList());*/
     List<Criterio> todosLosCriterios = Stream.of(
             coleccion.getCriterios().stream(),
             inclusion.stream(),
@@ -41,8 +35,7 @@ public class ServiceColecciones {
         .flatMap(s -> s)   // achata todos los streams en uno solo
         .distinct()        // evita duplicados
         .toList();
-    //System.out.println("Filtros totales: " + totalFiltrosInclusion);
-    //System.out.println("Filtros totales: " + totalFiltrosExclusion);
+    System.out.println("Filtros totales: " + todosLosCriterios);
     // if (modoNavegacion == ModosDeNavegacion.IRRESTRICTA)
     return repositorioHechos.filtrarPorCriterios(todosLosCriterios);
     //TODO implementar modo CURADA
@@ -95,8 +88,10 @@ public class ServiceColecciones {
   public ColeccionDTO crearColeccion(ColeccionDTO coleccionDTO) {
     String nombre = coleccionDTO.getConsenso(); // o de tu body Map: (String) body.get("consenso")
     Consenso consenso = Consenso.fromString(nombre);
-
-    Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), consenso,(ArrayList)coleccionDTO.getCriterios());
+    ArrayList<Criterio> criterios = coleccionDTO.getCriterios().stream()
+            .map(CriterioDTO::toDomain)
+            .collect(Collectors.toCollection(ArrayList::new));
+    Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), consenso, criterios);
 
     repositorioColecciones.crear(coleccion);
     return new ColeccionDTO(coleccion);
