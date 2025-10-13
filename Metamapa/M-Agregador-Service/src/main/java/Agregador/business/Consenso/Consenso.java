@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "descripcion", discriminatorType = DiscriminatorType.STRING)
 public abstract class Consenso {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

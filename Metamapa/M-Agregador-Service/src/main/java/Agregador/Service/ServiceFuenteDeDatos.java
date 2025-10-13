@@ -1,5 +1,6 @@
 package Agregador.Service;
 import Agregador.business.Hechos.Hecho;
+import Agregador.persistencia.RepositorioHechosImpl;
 import java.time.LocalDate;
 import java.util.*;
 import Agregador.business.Consenso.Consenso;

@@ -92,10 +92,15 @@ public class ControllerColecciones {
 
   // Eliminar una colección (delete /colecciones/{id})
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> eliminarColeccion(@PathVariable UUID id) {
-    boolean ok = serviceColecciones.eliminarColeccion(id);
-    return ok ? ResponseEntity.noContent().build() // 204
-            : ResponseEntity.notFound().build(); // 404 si no existía
+  public ResponseEntity<?> eliminarColeccion(@PathVariable UUID id) {
+   try {
+     serviceColecciones.eliminarColeccion(id);
+     return ResponseEntity.noContent().build(); // 204
+   } catch (NoSuchElementException e) {
+     return ResponseEntity.status(404).body("Colección no encontrada: " + id);
+   } catch (Exception e) {
+     return ResponseEntity.status(500).body("Error interno");
+   }
   }
 
   @PostMapping("/fuentesDeDatos/{idColeccion}/{idFuente}")

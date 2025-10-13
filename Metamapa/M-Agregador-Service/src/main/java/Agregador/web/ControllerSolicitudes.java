@@ -20,11 +20,9 @@ public class ControllerSolicitudes {
             @RequestParam(required = false) Boolean spam) {
         try {
             List<SolicitudEliminacionDTO> solicitudes = service.obtenerTodasSolicitudesEliminacion(spam);
-
             if (solicitudes.isEmpty()) {
                 return ResponseEntity.noContent().build(); // 204 sin body
             }
-
             return ResponseEntity.ok(solicitudes);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 sin body
@@ -41,7 +39,6 @@ public class ControllerSolicitudes {
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.unprocessableEntity().build(); // 422 parámetro inválido
         }
-
         var r = (a == Accion.APROBAR) ? service.aprobar(id) : service.rechazar(id);
         return switch (r) {
             case OK        -> ResponseEntity.noContent().build();

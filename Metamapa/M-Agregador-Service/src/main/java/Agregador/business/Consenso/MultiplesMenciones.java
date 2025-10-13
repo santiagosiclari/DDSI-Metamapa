@@ -1,7 +1,11 @@
 package Agregador.business.Consenso;
 import Agregador.business.Hechos.Hecho;
 import java.util.ArrayList;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
+@Entity
+@DiscriminatorValue("MULTIPLES_MENCIONES")
 public class MultiplesMenciones extends Consenso {
   //si al menos dos fuentes contienen un mismo hecho y ninguna otra fuente
   //contiene otro de igual título pero diferentes atributos, se lo considera consensuado;
@@ -17,6 +21,5 @@ public class MultiplesMenciones extends Consenso {
         }
       }
       return aparicionesExactas >= 2 && !hayConflictos;
-
   }
 }

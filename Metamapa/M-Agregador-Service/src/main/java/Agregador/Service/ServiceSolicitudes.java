@@ -61,13 +61,16 @@ public class ServiceSolicitudes {
                 .toList();
     }
 
+
     public List<SolicitudEliminacionDTO> obtenerTodasSolicitudesEliminacion(Boolean spam) {
         if (Boolean.TRUE.equals(spam)) { // solo spam
-            return repoSolicitudesEliminacion.findAllSolicitudesEliminacionSpam().stream()
-                    .map(SolicitudEliminacionDTO::new)
-                    .toList();
+            //Comentado hasta arreglar el repository
+//            return repoSolicitudesEliminacion.findAllSolicitudesEliminacionSpam().stream()
+//                    .map(SolicitudEliminacionDTO::new)
+//                    .toList();
+            return new ArrayList<>();
         }
-    else if (Boolean.FALSE.equals(spam)) { // todas excepto spam
+        else if (Boolean.FALSE.equals(spam)) { // todas excepto spam
             return repoSolicitudesEliminacion.findAll().stream()
                     .filter(s -> s.getEstado() != EstadoSolicitud.SPAM)
                     .map(SolicitudEliminacionDTO::new)

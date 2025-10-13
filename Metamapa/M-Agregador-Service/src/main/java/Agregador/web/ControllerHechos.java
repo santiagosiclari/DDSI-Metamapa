@@ -20,9 +20,9 @@ public class ControllerHechos {
             : ResponseEntity.ok(categoria);
   }
 
-  @GetMapping("/hora")
+  /*@GetMapping("/hora")
   public ResponseEntity<Integer> horaMasReportada(@RequestParam String categoria) {
     Integer hora = service.horaMasReportada(categoria);
     return (hora == null) ? ResponseEntity.noContent().build() : ResponseEntity.ok(hora);
-  }
+  }*/
 }

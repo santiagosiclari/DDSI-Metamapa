@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import lombok.*;
 import Agregador.business.Hechos.Hecho;
 
+@Entity
 @Getter @Setter
 public class Coleccion {
     private String titulo;
@@ -20,7 +21,7 @@ public class Coleccion {
 
 //    private ModosDeNavegacion modoNavegacion;
 
-    private final Agregador agregador = Agregador.getInstance();
+    //private final Agregador agregador = Agregador.getInstance();
 
     public Coleccion(String titulo, String desc, Consenso consenso, ArrayList<Criterio> criterios){
         this.titulo=titulo;
@@ -29,6 +30,8 @@ public class Coleccion {
         this.criterios = criterios;
         this.handle = UUID.randomUUID();
     }
+
+    public Coleccion() {}
 
     public void agregarCriterio(Criterio criterio){
         this.criterios.add(criterio);

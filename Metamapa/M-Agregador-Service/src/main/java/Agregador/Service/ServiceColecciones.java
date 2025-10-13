@@ -6,7 +6,7 @@ import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
 import Agregador.persistencia.RepositorioColecciones;
-import Agregador.persistencia.RepositorioHechos;
+import Agregador.persistencia.RepositorioHechosImpl;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.*;
@@ -14,9 +14,9 @@ import java.util.stream.*;
 @Service
 public class ServiceColecciones {
   public final RepositorioColecciones repositorioColecciones;
-  public final RepositorioHechos repositorioHechos;
+  public final RepositorioHechosImpl repositorioHechos;
 
-  public ServiceColecciones(RepositorioColecciones repositorioColecciones, RepositorioHechos repositorioHechos) {
+  public ServiceColecciones(RepositorioColecciones repositorioColecciones, RepositorioHechosImpl repositorioHechos) {
     this.repositorioHechos = repositorioHechos;
     this.repositorioColecciones = repositorioColecciones;
   }
@@ -96,7 +96,7 @@ public class ServiceColecciones {
             .collect(Collectors.toCollection(ArrayList::new));
     Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), consenso, criterios);
 
-    repositorioColecciones.crear(coleccion);
+    repositorioColecciones.save(coleccion);
     return new ColeccionDTO(coleccion);
   }
 
@@ -122,24 +122,24 @@ public class ServiceColecciones {
     if (body.get("consenso") != null) nombre = body.get("consenso").toString();
     if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("El campo 'consenso' es obligatorio");
     c.setConsenso(Consenso.fromString(nombre.trim()));
-    repositorioColecciones.update(c);
+    repositorioColecciones.save(c);
   }
 
-  public boolean eliminarColeccion(UUID id) {
-    return repositorioColecciones.deleteById(id);
+  public void eliminarColeccion(UUID id) {
+    repositorioColecciones.deleteById(id);
   }
 
   public void agregarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
     Coleccion col = repositorioColecciones.findById(idColeccion)
             .orElseThrow(() -> new NoSuchElementException("Colección no encontrada"));
     col.agregarCriterio(new CriterioFuenteDeDatos(idFuente, true));
-    repositorioColecciones.update(col);
+    repositorioColecciones.save(col);
   }
 
   public void eliminarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
     Coleccion col = repositorioColecciones.findById(idColeccion)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
     col.eliminarCriterio(new CriterioFuenteDeDatos(idFuente,true));
-    repositorioColecciones.update(col);
+    repositorioColecciones.save(col);
   }
 }

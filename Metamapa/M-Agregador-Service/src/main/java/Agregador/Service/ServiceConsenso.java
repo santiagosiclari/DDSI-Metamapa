@@ -17,7 +17,7 @@ public class ServiceConsenso {
 
   public void consensuarHechos() {
     ArrayList<Hecho> hechos = (ArrayList<Hecho>) repositorioHechos.findAll();
-    ArrayList<Consenso> consensos = repositorioConsenso.findAll();
+    ArrayList<Consenso> consensos = (ArrayList<Consenso>) repositorioConsenso.findAll();
 
     hechos.forEach(h -> consensos.forEach(c -> {
                                             if(c.esConsensuado(h,hechos))

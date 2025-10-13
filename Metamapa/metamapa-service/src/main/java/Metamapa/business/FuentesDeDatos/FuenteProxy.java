@@ -3,9 +3,7 @@ import Metamapa.business.Parsers.HechoParser;
 import Metamapa.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
-import lombok.Getter;
-import lombok.Setter;
-//import infrastructure.dto.client.MetaMapaRestClient;
+import lombok.*;
 
 @JsonTypeName("FUENTEPROXY")
 public abstract class FuenteProxy {

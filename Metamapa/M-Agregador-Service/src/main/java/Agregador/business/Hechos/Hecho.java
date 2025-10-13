@@ -34,7 +34,7 @@ public class Hecho {
       joinColumns = @JoinColumn(name = "consensoHecho_hecho"),
       inverseJoinColumns = @JoinColumn(name = "consensoHecho_consenso")
   )
-  private HashSet<Consenso> consensos;
+  private Set<Consenso> consensos;
   @ElementCollection
   @CollectionTable(name = "hecho_metadata", joinColumns = @JoinColumn(name = "hecho_id"))
   @MapKeyColumn(name = "clave")
@@ -68,7 +68,7 @@ public class Hecho {
     this.eliminado = false;
     this.multimedia = multimedia;
     this.metadata = new HashMap<>();
-    this.consensos = new HashSet<Consenso>();
+    this.consensos = new HashSet<>();
     this.id = BigInteger.valueOf(fuenteId.longValue()).multiply(BASE).add(BigInteger.valueOf(hechoId.longValue()));
     //TODO FuenteId tiene que venir de la siguiente froma xyyyyyy siendo x el tipo de fuente 1 para dinamica, 2 para estaica, 3 para proxy. y despues yyyyyy es el id de la fuente. esto se logra para sumandole 1000000 a un id de fuente dinamica, 2000000 para estatica y 3000000 para proxu
     // prefijos 1000000/2000000/3000000 para tipo de fuente → ya quedan dentro de fuenteId

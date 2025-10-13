@@ -12,29 +12,26 @@ import Agregador.Service.ServiceConsenso;
 @RequestMapping("/api-agregador")
 public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
-  private final RepositorioAgregador repositorioAgregador;
   private final RepositorioHechos repositorioHechos;
   private final ServiceAgregador serviceAgregador;
   private final ServiceConsenso serviceConsenso;
   private final Set<String> URLsFuentes = new HashSet<>();
 
   public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos, ServiceConsenso serviceConsenso,
-                             RepositorioAgregador repositorioAgregador, ServiceAgregador serviceAgregador,
+                             ServiceAgregador serviceAgregador,
                              RepositorioHechos repositorioHechos) {
     this.servicefuenteDeDatos = servicefuenteDeDatos;
-    this.repositorioAgregador = repositorioAgregador;
     this.repositorioHechos = repositorioHechos;
     this.serviceAgregador = serviceAgregador;
     this.serviceConsenso = serviceConsenso;
   }
 
-  /*
-    public void guardarHechos(int idFuente){
+  /*  public void guardarHechos(int idFuente){
       ArrayList<Map<String,Object>> hechos = servicefuenteDeDatos.getHechosDeFuente(idFuente);
 
       hechos.forEach(h -> repositorioAgregador.persistirHechos(h));
-    }
-  */
+    }*/
+
   @PostMapping("/fuenteDeDatos")
   public ResponseEntity<String> agregarFuente(@RequestBody Map<String, Object> body) {
     String url = (String) body.get("url");

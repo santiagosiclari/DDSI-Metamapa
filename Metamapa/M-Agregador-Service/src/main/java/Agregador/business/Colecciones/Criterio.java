@@ -1,4 +1,7 @@
 package Agregador.business.Colecciones;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.*;
@@ -14,4 +17,10 @@ public abstract class Criterio {
   public boolean cumple(Hecho hecho) {
     return inclusion;
   }
+
+  public Predicate toPredicate(Root<Hecho> root, CriteriaBuilder cb)
+  {
+    return null;
+  }
+
 }
