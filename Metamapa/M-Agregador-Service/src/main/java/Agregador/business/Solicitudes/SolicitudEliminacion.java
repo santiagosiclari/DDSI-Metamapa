@@ -1,7 +1,7 @@
 package Agregador.business.Solicitudes;
+import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import java.math.BigInteger;
 
 @Entity
 public class SolicitudEliminacion extends Solicitud {
@@ -9,9 +9,8 @@ public class SolicitudEliminacion extends Solicitud {
   public String motivo;
   static private Integer contadorID = 1;
 
-  public SolicitudEliminacion(BigInteger hechoAfectado, String motivo){
+  public SolicitudEliminacion(Hecho hechoAfectado, String motivo){
     super(hechoAfectado, EstadoSolicitud.PENDIENTE); //por defecto se inicializan pendientes
-
     Boolean esSpam;
     try {
      esSpam = DetectorDeSpam.esSpam(motivo);
@@ -20,7 +19,7 @@ public class SolicitudEliminacion extends Solicitud {
       //a revisar que hacer en caso de que la API falle para detectar el spam
       esSpam = true;
    }
-    if(esSpam)this.estado = EstadoSolicitud.SPAM; // EstadoSolicitud.RECHAZADA
+    if(esSpam) setEstado(EstadoSolicitud.SPAM); // EstadoSolicitud.RECHAZADA
     this.motivo = motivo;
     this.id = contadorID++;
   }

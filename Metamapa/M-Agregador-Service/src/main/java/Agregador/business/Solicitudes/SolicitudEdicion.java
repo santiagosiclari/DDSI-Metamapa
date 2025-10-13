@@ -1,7 +1,8 @@
 package Agregador.business.Solicitudes;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
+
+import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import Agregador.business.Hechos.Multimedia;
@@ -29,7 +30,7 @@ public class SolicitudEdicion extends Solicitud {
                           ArrayList<Multimedia> multimediaMod,
                           Boolean anonimidadMod,
                           String sugerencia,
-                          BigInteger hechoAfectado) {
+                          Hecho hechoAfectado) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE);
     /* // SE VERIFICA EN EL ServiceSolicitudes, AL CREARSE UNA
     if(hechoAfectado.getFechaCarga().plusDays(7).isBefore(LocalDate.now()))

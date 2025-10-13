@@ -1,14 +1,11 @@
 package Agregador.business.Colecciones;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 import Agregador.business.Hechos.TipoMultimedia;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 
-
+@Entity
 public class CriterioMultimedia extends Criterio {
   @Getter
   private TipoMultimedia tipoMultimedia;
@@ -17,6 +14,8 @@ public class CriterioMultimedia extends Criterio {
     this.tipoMultimedia = tipoMultimedia;
     this.inclusion = inclusion;
   }
+
+  public CriterioMultimedia() {}
 
   @Override
   public boolean cumple(Hecho hecho) {
@@ -31,5 +30,4 @@ public class CriterioMultimedia extends Criterio {
 
     return inclusion ? tipoIgual : cb.not(tipoIgual);
   }
-
 }

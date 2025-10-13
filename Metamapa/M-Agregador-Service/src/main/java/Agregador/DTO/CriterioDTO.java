@@ -18,7 +18,7 @@ public class CriterioDTO {
   private Float latitud;
   private Float longitud;
   private String tipoMultimedia;
-  private boolean inclusion;
+  private Boolean inclusion;
 
   public CriterioDTO() {}
 
@@ -46,7 +46,8 @@ public class CriterioDTO {
 
   public CriterioDTO(Criterio criterio) {
     this.tipo = criterio.getClass().getSimpleName().toLowerCase();
-    this.inclusion = criterio.isInclusion();
+    System.out.println("INCLUSION!!!!!!!!!!!!!!!!!: " + criterio.getInclusion());
+    this.inclusion = criterio.getInclusion();
     if (criterio instanceof CriterioTitulo ct) {
       this.valor = ct.getTitulo();
     } else if (criterio instanceof CriterioDescripcion cd) {

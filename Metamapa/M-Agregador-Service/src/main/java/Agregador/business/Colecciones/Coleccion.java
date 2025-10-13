@@ -1,5 +1,4 @@
 package Agregador.business.Colecciones;
-import Agregador.business.Agregador.Agregador;
 import Agregador.business.Consenso.*;
 import jakarta.persistence.*;
 import java.util.*;
@@ -10,21 +9,17 @@ import Agregador.business.Hechos.Hecho;
 @Entity
 @Getter @Setter
 public class Coleccion {
-    private String titulo;
-    private String descripcion;
-    @OneToMany
-    private ArrayList<Criterio> criterios;
     @Id
     private UUID handle;
-    @ManyToOne
+    private String titulo;
+    private String descripcion;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Criterio> criterios = new ArrayList<>();
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Consenso consenso;
 
-//    private ModosDeNavegacion modoNavegacion;
-
-    //private final Agregador agregador = Agregador.getInstance();
-
     public Coleccion(String titulo, String desc, Consenso consenso, ArrayList<Criterio> criterios){
-        this.titulo=titulo;
+        this.titulo = titulo;
         this.descripcion = desc;
         this.consenso = consenso;
         this.criterios = criterios;
@@ -41,7 +36,6 @@ public class Coleccion {
     }
 
     public ArrayList<Hecho> filtrarPorCriterios(ArrayList<Hecho> hechos, ArrayList<Criterio> criterioPertenenciaAdicional, ArrayList<Criterio> criterioNoPertenenciaAdicional, ModosDeNavegacion modoDeNavegacion) {
-
         hechos = hechos.stream()
             .filter(h -> criterios.stream().allMatch(c -> c.cumple(h))).collect(Collectors.toCollection(ArrayList::new));
 

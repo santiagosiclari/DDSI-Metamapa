@@ -1,5 +1,4 @@
 package Agregador.persistencia;
-
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Consenso.Consenso;
 import Agregador.business.Hechos.Hecho;

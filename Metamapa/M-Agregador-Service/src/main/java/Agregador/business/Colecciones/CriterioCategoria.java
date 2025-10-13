@@ -1,11 +1,10 @@
 package Agregador.business.Colecciones;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.Entity;
+import jakarta.persistence.criteria.*;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 
-
+@Entity
 public class CriterioCategoria extends Criterio {
   @Getter
   private String categoria;
@@ -14,6 +13,8 @@ public class CriterioCategoria extends Criterio {
     this.categoria = categoria;
     this.inclusion = inclusion;
   }
+
+  public CriterioCategoria() {}
 
   @Override
   public boolean cumple(Hecho hechoAValidar){

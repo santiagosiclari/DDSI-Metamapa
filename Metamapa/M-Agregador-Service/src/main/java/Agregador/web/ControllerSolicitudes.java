@@ -56,6 +56,8 @@ public class ControllerSolicitudes {
             return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El motivo no es válido");
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El hecho con el ID proporcionado no existe");
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -99,10 +101,13 @@ public class ControllerSolicitudes {
 
     //Crea una solicitud de edicion
     @PostMapping(value = "/solicitudesEdicion", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<SolicitudEdicionDTO> subirSolicitudEdicion(@RequestBody SolicitudEdicionDTO solicitudEdicionDTO) {
+    public ResponseEntity<?> subirSolicitudEdicion(@RequestBody SolicitudEdicionDTO solicitudEdicionDTO) {
         try {
             SolicitudEdicionDTO respuestaDTO = service.crearSolicitudEdicion(solicitudEdicionDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(respuestaDTO);
+        }
+        catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El hecho con el ID proporcionado no existe");
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

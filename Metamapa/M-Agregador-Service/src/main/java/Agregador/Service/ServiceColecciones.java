@@ -6,6 +6,7 @@ import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
 import Agregador.persistencia.RepositorioColecciones;
+import Agregador.persistencia.RepositorioConsenso;
 import Agregador.persistencia.RepositorioHechosImpl;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -15,10 +16,12 @@ import java.util.stream.*;
 public class ServiceColecciones {
   public final RepositorioColecciones repositorioColecciones;
   public final RepositorioHechosImpl repositorioHechos;
+  public final RepositorioConsenso repositorioConsenso;
 
-  public ServiceColecciones(RepositorioColecciones repositorioColecciones, RepositorioHechosImpl repositorioHechos) {
+  public ServiceColecciones(RepositorioColecciones repositorioColecciones, RepositorioHechosImpl repositorioHechos, RepositorioConsenso repositorioConsenso) {
     this.repositorioHechos = repositorioHechos;
     this.repositorioColecciones = repositorioColecciones;
+    this.repositorioConsenso = repositorioConsenso;
   }
 
   public List<Hecho> getHechosFiltrados(UUID id, ModosDeNavegacion modoNavegacion, FiltrosHechosDTO filtros) {
@@ -89,13 +92,14 @@ public class ServiceColecciones {
   }
 
   public ColeccionDTO crearColeccion(ColeccionDTO coleccionDTO) {
-    String nombre = coleccionDTO.getConsenso(); // o de tu body Map: (String) body.get("consenso")
-    Consenso consenso = Consenso.fromString(nombre);
+    String nombre = coleccionDTO.getConsenso();
+    // Buscar el consenso existente
+    Consenso consenso = repositorioConsenso.findByDescripcion(nombre)
+            .orElseThrow(() -> new RuntimeException("Consenso no encontrado: " + nombre));
     ArrayList<Criterio> criterios = coleccionDTO.getCriterios().stream()
             .map(CriterioDTO::toDomain)
             .collect(Collectors.toCollection(ArrayList::new));
     Coleccion coleccion = new Coleccion(coleccionDTO.getTitulo(), coleccionDTO.getDescripcion(), consenso, criterios);
-
     repositorioColecciones.save(coleccion);
     return new ColeccionDTO(coleccion);
   }

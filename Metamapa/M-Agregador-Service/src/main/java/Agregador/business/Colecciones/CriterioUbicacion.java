@@ -1,15 +1,14 @@
 package Agregador.business.Colecciones;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.Entity;
+import jakarta.persistence.criteria.*;
 import java.util.Objects;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 
+@Entity
+@Getter
 public class CriterioUbicacion extends Criterio {
-  @Getter
   private Float latitud;
-  @Getter
   private Float longitud;
 
   public CriterioUbicacion(Float latitud, Float longitud, boolean inclusion) {
@@ -17,6 +16,8 @@ public class CriterioUbicacion extends Criterio {
     this.longitud = longitud;
     this.inclusion = inclusion;
   }
+
+  public CriterioUbicacion() {}
 
   @Override
   public boolean cumple(Hecho hechoAValidar) {
@@ -30,5 +31,4 @@ public class CriterioUbicacion extends Criterio {
     Predicate combined = cb.and(latEqual, lonEqual);
     return inclusion ? combined : cb.not(combined);
   }
-
 }

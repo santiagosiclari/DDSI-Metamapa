@@ -36,7 +36,7 @@ public class SolicitudEdicionDTO {
     this.multimediaMod = solicitudEdicion.getMultimediaMod();
     this.anonimidadMod = solicitudEdicion.getAnonimidadMod();
     this.sugerencia = solicitudEdicion.getSugerencia();
-    this.hechoAfectado = solicitudEdicion.getHechoAfectado();
+    this.hechoAfectado = solicitudEdicion.getHechoAfectado().getId();
     this.estado = solicitudEdicion.getEstado().name();  // Estado como String
     this.id = solicitudEdicion.getId();
   }

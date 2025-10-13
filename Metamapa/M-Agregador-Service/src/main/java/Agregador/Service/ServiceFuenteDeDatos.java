@@ -1,6 +1,5 @@
 package Agregador.Service;
 import Agregador.business.Hechos.Hecho;
-import Agregador.persistencia.RepositorioHechosImpl;
 import java.time.LocalDate;
 import java.util.*;
 import Agregador.business.Consenso.Consenso;
@@ -53,7 +52,7 @@ public class ServiceFuenteDeDatos {
   public void actualizarHechos(String url) {
     List<Hecho> hechos = getHechosDeFuente(url);
     // Normalizar y persistir
-    normalizador.normalizarYUnificar(hechos).forEach(repositorioHechos::save);
+    repositorioHechos.saveAll(normalizador.normalizarYUnificar(hechos));
     System.out.println("Total hechos guardados: " + repositorioHechos.findAll().size());
   }
 

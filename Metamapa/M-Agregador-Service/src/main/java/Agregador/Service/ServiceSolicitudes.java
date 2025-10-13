@@ -43,7 +43,9 @@ public class ServiceSolicitudes {
     }
 
     public SolicitudEliminacionDTO crearSolicitud(SolicitudEliminacionDTO dto) {
-        SolicitudEliminacion solicitud = new SolicitudEliminacion(dto.getHechoAfectado(), dto.getMotivo());
+        Hecho hecho = repoHechos.findById(dto.getHechoAfectado())
+                .orElseThrow(() -> new NoSuchElementException("Hecho no encontrado"));
+        SolicitudEliminacion solicitud = new SolicitudEliminacion(hecho, dto.getMotivo());
         this.repoSolicitudesEliminacion.save(solicitud);
         return new SolicitudEliminacionDTO(solicitud);
     }
@@ -90,7 +92,7 @@ public class ServiceSolicitudes {
 
     public SolicitudEdicionDTO crearSolicitudEdicion(SolicitudEdicionDTO dto) {
         Hecho hecho = repoHechos.findById(dto.getHechoAfectado())
-                .orElseThrow(() -> new IllegalArgumentException("Hecho no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Hecho no encontrado"));
         if (hecho.getFechaCarga().plusDays(7).isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Paso mas de una semana de la carga del Hecho");
         }
@@ -104,7 +106,7 @@ public class ServiceSolicitudes {
                 dto.getMultimediaMod(),
                 dto.getAnonimidadMod(),
                 dto.getSugerencia(),
-                dto.getHechoAfectado()
+                hecho
         );
         repoSolicitudesEdicion.save(solicitud);
         return new SolicitudEdicionDTO(solicitud);
@@ -126,7 +128,7 @@ public class ServiceSolicitudes {
         solicitud.setEstado(nuevoEstado);
         repoSolicitudesEdicion.save(solicitud);
         if (nuevoEstado == EstadoSolicitud.APROBADA) {
-            Hecho hecho = repoHechos.findById(solicitud.getHechoAfectado())
+            Hecho hecho = repoHechos.findById(solicitud.getHechoAfectado().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Hecho no encontrado"));
             hecho.editarHecho(solicitud.getTituloMod(),
                     solicitud.getDescMod(),

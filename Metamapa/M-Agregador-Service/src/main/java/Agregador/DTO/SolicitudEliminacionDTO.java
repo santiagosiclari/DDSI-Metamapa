@@ -19,7 +19,7 @@ public class SolicitudEliminacionDTO {
   public SolicitudEliminacionDTO(SolicitudEliminacion solicitudEliminacion) {
     this.motivo = solicitudEliminacion.getMotivo();
     this.estado = solicitudEliminacion.getEstado();
-    this.hechoAfectado = solicitudEliminacion.getHechoAfectado();
+    this.hechoAfectado = solicitudEliminacion.getHechoAfectado().getId();
     this.id = solicitudEliminacion.getId();
   }
 }

@@ -1,14 +1,17 @@
 package Agregador.business.Consenso;
 
 import Agregador.business.Hechos.Hecho;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 
 @Entity
 @DiscriminatorValue("ABSOLUTO")
 public class Absoluto extends Consenso {
-// si todas las fuentes contienen el mismo, se lo considera consensuado.
+  public Absoluto() {
+    super("Absoluto");
+  }
+
+  // si todas las fuentes contienen el mismo, se lo considera consensuado.
   @Override
   public boolean esConsensuado(Hecho hecho, ArrayList<Hecho> hechos) {
     int apariciones = 0;

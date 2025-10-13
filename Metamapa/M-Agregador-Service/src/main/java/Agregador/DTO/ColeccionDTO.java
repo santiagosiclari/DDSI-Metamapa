@@ -14,8 +14,7 @@ public class ColeccionDTO {
   private String descripcion;
   private UUID handle;
   private String consenso;
-  private List<CriterioDTO> criterios= new ArrayList<>();
-  //private List<CriterioDTO> criteriosNoPertenencia = new ArrayList<>();
+  private List<CriterioDTO> criterios = new ArrayList<>();
 
   public ColeccionDTO() {}
 
@@ -25,31 +24,14 @@ public class ColeccionDTO {
     this.descripcion = coleccion.getDescripcion();
     this.handle = coleccion.getHandle();
     this.consenso = Consenso.toString(coleccion.getConsenso()); // ← String
-    /*if (coleccion.getCriterioPertenencia() != null) {
-      this.criteriosPertenencia = coleccion.getCriterioPertenencia().stream()
-              .map(CriterioDTO::new) // necesitaría un constructor Criterio -> CriterioDTO
-              .collect(Collectors.toList());
-    }
-    if (coleccion.getCriterioNoPertenencia() != null) {
-      this.criteriosNoPertenencia = coleccion.getCriterioNoPertenencia().stream()
-              .map(CriterioDTO::new)
-              .collect(Collectors.toList());
-    }*/
     if (coleccion.getCriterios() != null) {
       this.criterios = coleccion.getCriterios().stream()
           .map(CriterioDTO::new) // necesitaría un constructor Criterio -> CriterioDTO
           .collect(Collectors.toList());
     }
   }
-  public Coleccion toDomain() {
-    /*ArrayList<Criterio> pert = this.criteriosPertenencia == null ? new ArrayList<>() :
-            this.criteriosPertenencia.stream().map(CriterioDTO::toDomain)
-                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
 
-    ArrayList<Criterio> noPert = this.criteriosNoPertenencia == null ? new ArrayList<>() :
-            this.criteriosNoPertenencia.stream().map(CriterioDTO::toDomain)
-                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
-*/
+  public Coleccion toDomain() {
     ArrayList<Criterio> criterios = this.criterios == null ? new ArrayList<>() :
         this.criterios.stream().map(CriterioDTO::toDomain)
             .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));

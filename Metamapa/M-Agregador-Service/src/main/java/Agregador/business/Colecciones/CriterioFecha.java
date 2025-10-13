@@ -1,16 +1,15 @@
 package Agregador.business.Colecciones;
 
 import java.time.LocalDate;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 
+@Entity
+@Getter
 public class CriterioFecha extends Criterio {
-  @Getter
   public LocalDate fechaDesde;
-  @Getter
   public LocalDate fechaHasta;
 
   public CriterioFecha(LocalDate fechaDesde, LocalDate fechaHasta,boolean inclusion) {
@@ -18,6 +17,8 @@ public class CriterioFecha extends Criterio {
     this.fechaHasta = fechaHasta;
     this.inclusion = inclusion;
   }
+
+  public CriterioFecha() {}
 
   public boolean cumple(Hecho hechoAValidar) {
     LocalDate fechaAValidar = hechoAValidar.getFechaHecho();

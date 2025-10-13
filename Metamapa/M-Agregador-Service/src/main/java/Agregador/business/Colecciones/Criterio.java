@@ -1,26 +1,32 @@
 package Agregador.business.Colecciones;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import lombok.Getter;
+import jakarta.persistence.criteria.*;
+import lombok.*;
 import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.JOINED)
+@Getter @Setter
+@Access(AccessType.FIELD)
 public abstract class Criterio {
   @Id
-  Integer id;
-  @Getter
-  boolean inclusion;
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "criterio_seq")
+  @SequenceGenerator(name = "criterio_seq", sequenceName = "criterio_seq", allocationSize = 1)
+  private Integer id;
+  @Column(nullable = false)
+  Boolean inclusion;
+
+  public Criterio() {}
+
+  public Criterio(Boolean inclusion) {
+    this.inclusion = inclusion;
+  }
 
   public boolean cumple(Hecho hecho) {
     return inclusion;
   }
 
-  public Predicate toPredicate(Root<Hecho> root, CriteriaBuilder cb)
-  {
+  public Predicate toPredicate(Root<Hecho> root, CriteriaBuilder cb) {
     return null;
   }
-
 }

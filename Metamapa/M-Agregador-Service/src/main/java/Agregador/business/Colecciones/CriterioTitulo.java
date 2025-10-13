@@ -1,19 +1,20 @@
 package Agregador.business.Colecciones;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 
-
+@Entity
 public class CriterioTitulo extends Criterio {
   @Getter
-  private final String titulo;
+  private String titulo;
 
   public CriterioTitulo(String titulo, boolean inclusion) {
     this.titulo = titulo;
     this.inclusion = inclusion;
   }
+
+  public CriterioTitulo() {}
 
   @Override
   public boolean cumple(Hecho hechoAValidar){
@@ -25,5 +26,4 @@ public class CriterioTitulo extends Criterio {
     Predicate igual = cb.equal(root.get("titulo"), titulo);
     return inclusion ? igual : cb.not(igual);
   }
-
 }

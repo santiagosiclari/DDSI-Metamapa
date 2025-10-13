@@ -1,21 +1,21 @@
 package Agregador.business.Colecciones;
-
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 import java.util.Objects;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 
-
+@Entity
 public class CriterioFuenteDeDatos extends Criterio {
   @Getter
   private Integer idFuenteDeDatos;
 
-  public CriterioFuenteDeDatos(Integer idFuenteDeDatos, boolean inclusion) {
-    this.idFuenteDeDatos = idFuenteDeDatos;
+  public CriterioFuenteDeDatos(Integer idFuenteDeDatos, Boolean inclusion) {
     this.inclusion = inclusion;
+    this.idFuenteDeDatos = idFuenteDeDatos;
   }
+
+  public CriterioFuenteDeDatos() {}
 
   @Override
   public boolean cumple(Hecho hechoAValidar){
@@ -24,9 +24,10 @@ public class CriterioFuenteDeDatos extends Criterio {
     return inclusion == Objects.equals(hechoAValidar.getIdFuente(), this.idFuenteDeDatos);
   }
 
+  @Override
   public Predicate toPredicate(Root<Hecho> root, CriteriaBuilder cb) {
-    //todo arreglar porque no existe el campo fuente de datos en la tabla
-    Predicate igual = cb.equal(root.get("idFuente"), idFuenteDeDatos);
-    return inclusion ? igual : cb.not(igual);
+    // No se puede hacer en SQL porque idFuente no es atributo persistido
+    // Devolvemos un "true" genérico para no filtrar nada a nivel SQL
+    return cb.conjunction(); // o cb.isTrue(cb.literal(true))
   }
 }
