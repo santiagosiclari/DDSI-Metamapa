@@ -39,8 +39,9 @@ public class Hecho {
   @CollectionTable(name = "hecho_metadata", joinColumns = @JoinColumn(name = "hecho_id"))
   @MapKeyColumn(name = "clave")
   @Column(name = "valor")
-  private HashMap<String, String> metadata;
+  private Map<String, String> metadata;
 
+  
   //TODO: Chequear si Categoria lo modelamos como string o un enum
   public Hecho(){}
   public Hecho(
