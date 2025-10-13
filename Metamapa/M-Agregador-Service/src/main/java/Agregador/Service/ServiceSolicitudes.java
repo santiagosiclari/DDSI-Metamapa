@@ -1,6 +1,5 @@
 package Agregador.Service;
-import Agregador.DTO.SolicitudEdicionDTO;
-import Agregador.DTO.SolicitudEliminacionDTO;
+import Agregador.DTO.*;
 import Agregador.business.Hechos.Hecho;
 import Agregador.business.Solicitudes.*;
 import Agregador.persistencia.*;
@@ -35,7 +34,7 @@ public class ServiceSolicitudes {
     // @Transactional
     public Result rechazar(Integer id) {
         SolicitudEliminacion s = repoSolicitudesEliminacion.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
+                .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
         if (s.getEstado() != EstadoSolicitud.PENDIENTE) return Result.CONFLICT;
         s.rechazarSolicitud();
         repoSolicitudesEliminacion.save(s);
@@ -66,23 +65,18 @@ public class ServiceSolicitudes {
 
     public List<SolicitudEliminacionDTO> obtenerTodasSolicitudesEliminacion(Boolean spam) {
         if (Boolean.TRUE.equals(spam)) { // solo spam
-            //Comentado hasta arreglar el repository
-//            return repoSolicitudesEliminacion.findAllSolicitudesEliminacionSpam().stream()
-//                    .map(SolicitudEliminacionDTO::new)
-//                    .toList();
-            return new ArrayList<>();
+            return toDTOs(repoSolicitudesEliminacion.findByEstado(EstadoSolicitud.SPAM));
+        } else if (Boolean.FALSE.equals(spam)) {
+            return toDTOs(repoSolicitudesEliminacion.findAllWhereEstadoNot(EstadoSolicitud.SPAM));
+        } else { // todos
+            return toDTOs(repoSolicitudesEliminacion.findAll());
         }
-        else if (Boolean.FALSE.equals(spam)) { // todas excepto spam
-            return repoSolicitudesEliminacion.findAll().stream()
-                    .filter(s -> s.getEstado() != EstadoSolicitud.SPAM)
-                    .map(SolicitudEliminacionDTO::new)
-                    .toList();
-        }
-        else { // spam == null → todas
-            return repoSolicitudesEliminacion.findAll().stream()
-                    .map(SolicitudEliminacionDTO::new)
-                    .toList();
-        }
+    }
+
+    private List<SolicitudEliminacionDTO> toDTOs(List<SolicitudEliminacion> entidades) {
+        return entidades.stream()
+                .map(SolicitudEliminacionDTO::new)
+                .toList();
     }
 
     public SolicitudEdicionDTO obtenerSolicitudEdicionPorId(Integer id) {

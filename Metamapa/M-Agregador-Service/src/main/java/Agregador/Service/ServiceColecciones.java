@@ -1,13 +1,9 @@
 package Agregador.Service;
-import Agregador.DTO.ColeccionDTO;
-import Agregador.DTO.CriterioDTO;
-import Agregador.DTO.FiltrosHechosDTO;
+import Agregador.DTO.*;
 import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
-import Agregador.persistencia.RepositorioColecciones;
-import Agregador.persistencia.RepositorioConsenso;
-import Agregador.persistencia.RepositorioHechosImpl;
+import Agregador.persistencia.*;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.*;
@@ -31,15 +27,15 @@ public class ServiceColecciones {
     List<Criterio> inclusion = construirCriteriosInclusion(filtros);
     List<Criterio> exclusion = construirCriteriosExclusion(filtros);
     List<Criterio> todosLosCriterios = Stream.of(
-            coleccion.getCriterios().stream(),
-            inclusion.stream(),
-            exclusion.stream()
-        )
-        .flatMap(s -> s)   // achata todos los streams en uno solo
-        .distinct()        // evita duplicados
-        .toList();
+                    coleccion.getCriterios().stream(),
+                    inclusion.stream(),
+                    exclusion.stream()
+            )
+            .flatMap(s -> s)   // achata todos los streams en uno solo
+            .distinct()        // evita duplicados
+            .toList();
     System.out.println("Filtros totales: " + todosLosCriterios);
-    if (modoNavegacion == ModosDeNavegacion.CURADA){
+    if (modoNavegacion == ModosDeNavegacion.CURADA) {
       Consenso consensoColeccion = coleccion.getConsenso();
       System.out.println("Consenso: " + consensoColeccion.toString());
       return repositorioHechos.filtrarPorCriterios(todosLosCriterios, consensoColeccion);
@@ -49,33 +45,33 @@ public class ServiceColecciones {
 
   private List<Criterio> construirCriteriosInclusion(FiltrosHechosDTO filtros) {
     List<Criterio> inclusion = new ArrayList<>();
-    if (filtros.getTituloP() != null) inclusion.add(new CriterioTitulo(filtros.getTituloP(),true));
-    if (filtros.getDescripcionP() != null) inclusion.add(new CriterioDescripcion(filtros.getDescripcionP(),true));
-    if (filtros.getCategoriaP() != null) inclusion.add(new CriterioCategoria(filtros.getCategoriaP(),true));
+    if (filtros.getTituloP() != null) inclusion.add(new CriterioTitulo(filtros.getTituloP(), true));
+    if (filtros.getDescripcionP() != null) inclusion.add(new CriterioDescripcion(filtros.getDescripcionP(), true));
+    if (filtros.getCategoriaP() != null) inclusion.add(new CriterioCategoria(filtros.getCategoriaP(), true));
     if (filtros.getFechaReporteDesdeP() != null || filtros.getFechaReporteHastaP() != null)
-      inclusion.add(new CriterioFechaReportaje(filtros.getFechaReporteDesdeP(), filtros.getFechaReporteHastaP(),true));
+      inclusion.add(new CriterioFechaReportaje(filtros.getFechaReporteDesdeP(), filtros.getFechaReporteHastaP(), true));
     if (filtros.getFechaAcontecimientoDesdeP() != null || filtros.getFechaAcontecimientoHastaP() != null)
-      inclusion.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeP(), filtros.getFechaAcontecimientoHastaP(),true));
+      inclusion.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeP(), filtros.getFechaAcontecimientoHastaP(), true));
     if (filtros.getLatitudP() != null && filtros.getLongitudP() != null)
       inclusion.add(new CriterioUbicacion(filtros.getLatitudP(), filtros.getLongitudP(), true));
     if (filtros.getTipoMultimediaP() != null)
-      inclusion.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaP()),true));
+      inclusion.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaP()), true));
     return inclusion;
   }
 
   private List<Criterio> construirCriteriosExclusion(FiltrosHechosDTO filtros) {
     List<Criterio> exclusion = new ArrayList<>();
-    if (filtros.getTituloNP() != null) exclusion.add(new CriterioTitulo(filtros.getTituloNP(),false));
-    if (filtros.getDescripcionNP() != null) exclusion.add(new CriterioDescripcion(filtros.getDescripcionNP(),false));
-    if (filtros.getCategoriaNP() != null) exclusion.add(new CriterioCategoria(filtros.getCategoriaNP(),false));
+    if (filtros.getTituloNP() != null) exclusion.add(new CriterioTitulo(filtros.getTituloNP(), false));
+    if (filtros.getDescripcionNP() != null) exclusion.add(new CriterioDescripcion(filtros.getDescripcionNP(), false));
+    if (filtros.getCategoriaNP() != null) exclusion.add(new CriterioCategoria(filtros.getCategoriaNP(), false));
     if (filtros.getFechaReporteDesdeNP() != null || filtros.getFechaReporteHastaNP() != null)
-      exclusion.add(new CriterioFechaReportaje(filtros.getFechaReporteDesdeNP(), filtros.getFechaReporteHastaNP(),false));
+      exclusion.add(new CriterioFechaReportaje(filtros.getFechaReporteDesdeNP(), filtros.getFechaReporteHastaNP(), false));
     if (filtros.getFechaAcontecimientoDesdeNP() != null || filtros.getFechaAcontecimientoHastaNP() != null)
-      exclusion.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeNP(), filtros.getFechaAcontecimientoHastaNP(),false));
+      exclusion.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeNP(), filtros.getFechaAcontecimientoHastaNP(), false));
     if (filtros.getLatitudNP() != null && filtros.getLongitudNP() != null)
       exclusion.add(new CriterioUbicacion(filtros.getLatitudNP(), filtros.getLongitudNP(), false));
     if (filtros.getTipoMultimediaNP() != null)
-      exclusion.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaNP()),false));
+      exclusion.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaNP()), false));
     return exclusion;
   }
 
@@ -143,7 +139,7 @@ public class ServiceColecciones {
   public void eliminarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
     Coleccion col = repositorioColecciones.findById(idColeccion)
             .orElseThrow(() -> new IllegalArgumentException("Colección no encontrada"));
-    col.eliminarCriterio(new CriterioFuenteDeDatos(idFuente,true));
+    col.eliminarCriterio(new CriterioFuenteDeDatos(idFuente, true));
     repositorioColecciones.save(col);
   }
 }

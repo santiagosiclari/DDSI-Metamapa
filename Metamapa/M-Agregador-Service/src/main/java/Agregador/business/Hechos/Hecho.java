@@ -6,8 +6,6 @@ import java.util.*;
 import jakarta.persistence.*;
 import lombok.*;
 import Agregador.business.Consenso.*;
-import java.util.Set;
-import java.util.HashSet;
 
 @Entity
 @Getter @Setter
@@ -41,7 +39,6 @@ public class Hecho {
   @Column(name = "valor")
   private Map<String, String> metadata;
 
-  
   //TODO: Chequear si Categoria lo modelamos como string o un enum
   public Hecho(){}
   public Hecho(

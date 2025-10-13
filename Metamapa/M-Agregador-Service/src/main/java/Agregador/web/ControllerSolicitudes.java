@@ -1,7 +1,5 @@
 package Agregador.web;
-import Agregador.DTO.AccionSolicitudDTO;
-import Agregador.DTO.SolicitudEdicionDTO;
-import Agregador.DTO.SolicitudEliminacionDTO;
+import Agregador.DTO.*;
 import Agregador.Service.ServiceSolicitudes;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +39,10 @@ public class ControllerSolicitudes {
         }
         var r = (a == Accion.APROBAR) ? service.aprobar(id) : service.rechazar(id);
         return switch (r) {
-            case OK        -> ResponseEntity.noContent().build();
+            case OK -> ResponseEntity.noContent().build();
             case NOT_FOUND -> ResponseEntity.notFound().build();
-            case CONFLICT  -> ResponseEntity.status(409).build();
-            default        -> ResponseEntity.unprocessableEntity().build();
+            case CONFLICT -> ResponseEntity.status(409).build();
+            default -> ResponseEntity.unprocessableEntity().build();
         };
     }
 
@@ -105,8 +103,7 @@ public class ControllerSolicitudes {
         try {
             SolicitudEdicionDTO respuestaDTO = service.crearSolicitudEdicion(solicitudEdicionDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(respuestaDTO);
-        }
-        catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El hecho con el ID proporcionado no existe");
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

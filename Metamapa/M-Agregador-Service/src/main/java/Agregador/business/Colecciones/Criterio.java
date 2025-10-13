@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter @Setter
-@Access(AccessType.FIELD)
 public abstract class Criterio {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "criterio_seq")

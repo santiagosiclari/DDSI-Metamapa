@@ -1,6 +1,5 @@
 package Agregador.web;
-import Agregador.DTO.ColeccionDTO;
-import Agregador.DTO.FiltrosHechosDTO;
+import Agregador.DTO.*;
 import Agregador.Service.ServiceColecciones;
 import Agregador.business.Consenso.ModosDeNavegacion;
 import Agregador.business.Hechos.Hecho;

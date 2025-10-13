@@ -1,7 +1,6 @@
 package Agregador.business.Solicitudes;
 import java.time.LocalDate;
 import java.util.*;
-
 import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -33,8 +32,7 @@ public class SolicitudEdicion extends Solicitud {
                           Hecho hechoAfectado) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE);
     /* // SE VERIFICA EN EL ServiceSolicitudes, AL CREARSE UNA
-    if(hechoAfectado.getFechaCarga().plusDays(7).isBefore(LocalDate.now()))
-    {
+    if(hechoAfectado.getFechaCarga().plusDays(7).isBefore(LocalDate.now())){
         throw new RuntimeException("Paso mas de una semana de la carga del Hecho");
     }*/
     this.tituloMod = tituloMod;
@@ -60,6 +58,7 @@ public class SolicitudEdicion extends Solicitud {
     super.aceptarSolicitud();
     //hechoAfectado.editarHecho(this);
   }
+
   public void rechazarSolicitud(){
     super.rechazarSolicitud();
   }

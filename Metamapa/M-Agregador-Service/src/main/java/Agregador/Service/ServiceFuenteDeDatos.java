@@ -28,7 +28,6 @@ public class ServiceFuenteDeDatos {
   }
 
   // ================== API ==================
-
   /** Trae hechos de UNA fuente (sin filtros) y los mapea a tu dominio. */
   public List<Hecho> getHechosDeFuente(String urlBase) {
     String url = urlBase + "/api-fuentesDeDatos/hechos";
@@ -93,7 +92,6 @@ public class ServiceFuenteDeDatos {
   }
 
   // ================== Mapping ==================
-
   @SuppressWarnings("unchecked")
   private Hecho jsonToHecho(Map<String,Object> json, Integer idFuente) {
     String titulo       = str(json.get("titulo"));

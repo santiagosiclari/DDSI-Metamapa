@@ -1,5 +1,4 @@
 package Agregador.web;
-import Agregador.Service.ServiceAgregador;
 import Agregador.business.Hechos.Hecho;
 import java.util.*;
 import Agregador.Service.ServiceFuenteDeDatos;
@@ -13,16 +12,12 @@ import Agregador.Service.ServiceConsenso;
 public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioHechos repositorioHechos;
-  private final ServiceAgregador serviceAgregador;
   private final ServiceConsenso serviceConsenso;
   private final Set<String> URLsFuentes = new HashSet<>();
 
-  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos, ServiceConsenso serviceConsenso,
-                             ServiceAgregador serviceAgregador,
-                             RepositorioHechos repositorioHechos) {
+  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos, ServiceConsenso serviceConsenso, RepositorioHechos repositorioHechos) {
     this.servicefuenteDeDatos = servicefuenteDeDatos;
     this.repositorioHechos = repositorioHechos;
-    this.serviceAgregador = serviceAgregador;
     this.serviceConsenso = serviceConsenso;
   }
 
@@ -47,6 +42,7 @@ public class ControllerAgregador {
 
   @PostMapping("/actualizarHechos")
   public ResponseEntity<?> actualizarHechos() {
+    System.out.println("Actualizando hechos de las fuentes de datos!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     URLsFuentes.forEach(servicefuenteDeDatos::actualizarHechos);
     return ResponseEntity.ok("Se actualizaron los hechos");
   }

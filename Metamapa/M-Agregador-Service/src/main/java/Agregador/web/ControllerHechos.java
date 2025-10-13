@@ -1,5 +1,4 @@
 package Agregador.web;
-
 import Agregador.Service.ServiceAgregador;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +19,9 @@ public class ControllerHechos {
             : ResponseEntity.ok(categoria);
   }
 
-  /*@GetMapping("/hora")
+  @GetMapping("/hora")
   public ResponseEntity<Integer> horaMasReportada(@RequestParam String categoria) {
     Integer hora = service.horaMasReportada(categoria);
     return (hora == null) ? ResponseEntity.noContent().build() : ResponseEntity.ok(hora);
-  }*/
+  }
 }

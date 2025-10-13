@@ -46,7 +46,6 @@ public class Usuario {
   @Column(name = "apellido", length = 255)
   private String apellido;
   private Integer edad;
-
   private List<Integer> solicitudesDeEliminacion;
   private List<Integer> solicitudesDeEdicion;
 

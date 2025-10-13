@@ -9,17 +9,16 @@ public class SolicitudEliminacion extends Solicitud {
   public String motivo;
   static private Integer contadorID = 1;
 
-  public SolicitudEliminacion(Hecho hechoAfectado, String motivo){
+  public SolicitudEliminacion(Hecho hechoAfectado, String motivo) {
     super(hechoAfectado, EstadoSolicitud.PENDIENTE); //por defecto se inicializan pendientes
     Boolean esSpam;
     try {
-     esSpam = DetectorDeSpam.esSpam(motivo);
-    }
-   catch (Exception e) {
+      esSpam = DetectorDeSpam.esSpam(motivo);
+    } catch (Exception e) {
       //a revisar que hacer en caso de que la API falle para detectar el spam
       esSpam = true;
-   }
-    if(esSpam) setEstado(EstadoSolicitud.SPAM); // EstadoSolicitud.RECHAZADA
+    }
+    if (esSpam) setEstado(EstadoSolicitud.SPAM); // EstadoSolicitud.RECHAZADA
     this.motivo = motivo;
     this.id = contadorID++;
   }
@@ -31,6 +30,7 @@ public class SolicitudEliminacion extends Solicitud {
     super.aceptarSolicitud();
    // hechoAfectado.setEliminado(true);
   }
+
   public void rechazarSolicitud(){
     super.rechazarSolicitud();
   }

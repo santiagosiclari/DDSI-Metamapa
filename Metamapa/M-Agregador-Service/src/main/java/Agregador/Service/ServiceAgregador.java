@@ -19,7 +19,7 @@ public class ServiceAgregador {
   // Devuelve el nombre de la categoría con más hechos reportados
   public String categoriaMasReportada() {
     var hechos = repo.findAll();                      // List<Hecho>
-    if (hechos == null || hechos.isEmpty()) return null;
+    if (hechos.isEmpty()) return null;
     return hechos.stream()
             .map(Hecho::getCategoria)
             .filter(Objects::nonNull)
@@ -30,9 +30,9 @@ public class ServiceAgregador {
             .orElse(null);
   }
 
-  /*public Integer horaMasReportada(String categoria) {
+  public Integer horaMasReportada(String categoria) {
     // Traé los hechos de esa categoría (y NO eliminados, si aplica)
-    List<Hecho> hechos = repo.findByCategoriaAndEliminadoFalse(categoria);
+    List<Hecho> hechos = repo.findByCategoriaIgnoreCaseAndEliminadoFalse(categoria);
     // Extraé la hora (0–23) de cada hecho
     Map<Integer, Long> conteoPorHora = hechos.stream()
             .map(this::horaDelHecho)                  // Integer 0..23 o null
@@ -43,7 +43,8 @@ public class ServiceAgregador {
             .max(Map.Entry.comparingByValue())
             .map(Map.Entry::getKey)
             .orElse(null); // si no hay datos con hora
-  }*/
+  }
+
   /**
    * Extrae la hora del hecho.
    * Recomendado: migrar Hecho.fechaHecho -> LocalDateTime.
