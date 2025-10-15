@@ -19,10 +19,9 @@ public class ControllerColecciones {
 
   @GetMapping("/{id}/hechos")
   public ResponseEntity<List<Hecho>> getHechosColeccion(@PathVariable UUID id,
-                                                        @RequestParam(defaultValue = "IRRESTRICTA") ModosDeNavegacion modoNavegacion,
-                                                        @Valid FiltrosHechosDTO filtros
-  ) {
-    List<Hecho> hechos = serviceColecciones.getHechosFiltrados(id, modoNavegacion, filtros);
+                                                        @RequestParam(defaultValue = "IRRESTRICTA") ModosDeNavegacion modoNav,
+                                                        @Valid FiltrosHechosDTO filtros) {
+    List<Hecho> hechos = serviceColecciones.getHechosFiltrados(id, modoNav, filtros);
     return ResponseEntity.ok(hechos);
   }
 

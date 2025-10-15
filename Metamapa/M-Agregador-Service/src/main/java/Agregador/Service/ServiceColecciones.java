@@ -138,7 +138,10 @@ public class ServiceColecciones {
   public void eliminarFuenteDeDatos(UUID idColeccion, Integer idFuente) {
     Coleccion col = repositorioColecciones.findById(idColeccion)
             .orElseThrow(() -> new NoSuchElementException("Colección no encontrada"));
-    col.eliminarCriterio(new CriterioFuenteDeDatos(idFuente, true));
+    col.getCriterios().removeIf(c ->
+            c instanceof CriterioFuenteDeDatos cfd &&
+                    cfd.getIdFuenteDeDatos().equals(idFuente)
+    );
     repositorioColecciones.save(col);
   }
 }
