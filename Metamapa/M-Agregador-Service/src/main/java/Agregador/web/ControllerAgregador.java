@@ -39,6 +39,10 @@ public class ControllerAgregador {
     System.out.println("Lista de URLs: " + URLsFuentes);
     return ResponseEntity.ok(url);
   }
+  @GetMapping("/fuenteDeDatos")
+  public ResponseEntity<Set<String>> getFuentes() {
+      return ResponseEntity.ok(URLsFuentes);
+  }
 
   @PostMapping("/actualizarHechos")
   public ResponseEntity<?> actualizarHechos() {

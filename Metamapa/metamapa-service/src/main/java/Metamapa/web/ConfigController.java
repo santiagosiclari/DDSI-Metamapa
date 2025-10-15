@@ -1,29 +1,37 @@
-package Metamapa.web;
+package metamapa.web;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Genera un archivo JS dinámico (/config.js)
+ * con las URLs de servicios configuradas en application.properties.
+ *
+ * Esto permite que el front-end lea window.METAMAPA.API_*
+ * sin hardcodear las URLs en los archivos JS.
+ */
 @RestController
 public class ConfigController {
 
-  // Lee el valor desde application.properties
+  @Value("${M.FuenteDinamica.Service.url}")
+  private String fuenteDinamicaUrl;
+
   @Value("${M.Agregador.Service.url}")
   private String agregadorUrl;
 
+  @Value("${M.Colecciones.Service.url:${M.Agregador.Service.url}/../api-colecciones}")
+  private String coleccionesUrl;
+
   @GetMapping(value = "/config.js", produces = "application/javascript")
   public String configJs() {
-    String base = agregadorUrl.endsWith("/") ?
-        agregadorUrl.substring(0, agregadorUrl.length() - 1) : agregadorUrl;
-
     return """
-        window.METAMAPA = {
-            API_AGREGADOR: '%s/api-agregador',
-            API_HECHOS: '%s/api-hechos',
-            API_COLECCIONES: '%s/api-colecciones',
-            API_SOLICITUDES: '%s/api-solicitudes',
-            API_ESTADISTICAS: '%s/api-estadisticas'
-        };
-        """.formatted(base, base, base, base,base);
+            window.METAMAPA = {
+                API_FUENTE_DINAMICA: '%s/api-fuentesDeDatos',
+                API_AGREGADOR: '%s/api-agregador',
+                API_COLECCIONES: '%s/api-colecciones'
+            };
+            console.log("🌐 Configuración MetaMapa cargada:", window.METAMAPA);
+        """.formatted(fuenteDinamicaUrl, agregadorUrl, coleccionesUrl);
   }
 }

@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/api-fuentesDeDatos")
+@RequestMapping("/api-fuentesDeDatos") //Cambuiar a /api-fuente
 public class ControllerFuenteDinamica {
   public RepositorioFuentes repositorioFuentes;
   public RepositorioHechos repositorioHechos;
