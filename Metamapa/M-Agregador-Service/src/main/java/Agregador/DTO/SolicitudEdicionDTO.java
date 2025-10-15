@@ -21,7 +21,7 @@ public class SolicitudEdicionDTO {
   private ArrayList<Multimedia> multimediaMod;
   private Boolean anonimidadMod;
   private String sugerencia;
-  private int id;
+  private Integer id;
 
   public SolicitudEdicionDTO() {}
 

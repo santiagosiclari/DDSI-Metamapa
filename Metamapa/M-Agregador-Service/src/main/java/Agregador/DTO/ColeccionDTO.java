@@ -42,4 +42,11 @@ public class ColeccionDTO {
             criterios
     );
   }
+
+  public ColeccionDTO(String titulo, String descripcion, String consenso, List<CriterioDTO> criterios) {
+    this.titulo = titulo;
+    this.descripcion = descripcion;
+    this.consenso = consenso;
+    this.criterios = criterios != null ? criterios : new ArrayList<>();
+  }
 }

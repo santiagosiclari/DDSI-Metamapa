@@ -8,10 +8,9 @@ import java.math.BigInteger;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SolicitudEliminacionDTO {
   private String motivo;
-
   private EstadoSolicitud estado;
   private BigInteger hechoAfectado;
-  private int id;
+  private Integer id;
 
   public SolicitudEliminacionDTO() {}
 
