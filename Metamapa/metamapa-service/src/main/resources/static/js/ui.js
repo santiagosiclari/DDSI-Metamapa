@@ -151,6 +151,122 @@ function agregarMultimedia() {
     </div>`;
     cont.appendChild(row);
 }
+function agregarCriterio(criterioExistente = null) {
+    const container = document.getElementById("criteriosContainer");
+    const div = document.createElement("div");
+    div.className = "criterio-box p-2 border rounded mb-2";
+
+    div.innerHTML = `
+    <div class="row mb-2">
+      <div class="col-md-4">
+        <label class="form-label">Tipo</label>
+        <select name="tipo" class="form-select tipo-criterio">
+          <option value="titulo">Título</option>
+          <option value="descripcion">Descripción</option>
+          <option value="categoria">Categoría</option>
+          <option value="fecha">Fecha</option>
+          <option value="fechareportaje">Fecha Reportaje</option>
+          <option value="fuente">Fuente</option>
+          <option value="ubicacion">Ubicación</option>
+          <option value="multimedia">Multimedia</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Valor</label>
+        <input type="text" name="valor" class="form-control" placeholder="Valor o texto">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Incluir</label>
+        <select name="inclusion" class="form-select">
+          <option value="true" selected>Incluir</option>
+          <option value="false">Excluir</option>
+        </select>
+      </div>
+      <div class="col-md-1 d-flex align-items-end">
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.criterio-box').remove()">✕</button>
+      </div>
+    </div>
+
+    <!-- Campos específicos por tipo -->
+    <div class="row mb-2 campos-fecha d-none">
+      <div class="col">
+        <label>Desde</label>
+        <input type="date" name="fechaDesde" class="form-control">
+      </div>
+      <div class="col">
+        <label>Hasta</label>
+        <input type="date" name="fechaHasta" class="form-control">
+      </div>
+    </div>
+
+    <div class="row mb-2 campos-fuente d-none">
+      <div class="col">
+        <label>ID Fuente</label>
+        <input type="number" name="idFuenteDeDatos" class="form-control" placeholder="1">
+      </div>
+    </div>
+
+<div class="row mb-2 campos-ubicacion d-none">
+  <div class="col">
+    <label>Latitud</label>
+    <input type="number" step="any" name="latitud" class="form-control" readonly>
+  </div>
+  <div class="col">
+    <label>Longitud</label>
+    <input type="number" step="any" name="longitud" class="form-control" readonly>
+  </div>
+  <div class="col d-flex align-items-end">
+    <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar en mapa</button>
+  </div>
+</div>
+
+
+    <div class="row mb-2 campos-multimedia d-none">
+      <div class="col">
+        <label>Tipo de Multimedia</label>
+        <select name="tipoMultimedia" class="form-select">
+          <option value="FOTO">FOTO</option>
+          <option value="VIDEO">VIDEO</option>
+          <option value="AUDIO">AUDIO</option>
+        </select>
+      </div>
+    </div>
+  `;
+
+    const tipoSelect = div.querySelector(".tipo-criterio");
+    tipoSelect.addEventListener("change", () => actualizarCamposCriterio(div, tipoSelect.value));
+
+    // Si es un criterio cargado desde una colección existente
+    if (criterioExistente) {
+        tipoSelect.value = criterioExistente.tipo;
+        div.querySelector('[name="valor"]').value = criterioExistente.valor || "";
+        div.querySelector('[name="inclusion"]').value = criterioExistente.inclusion ? "true" : "false";
+        if (criterioExistente.fechaDesde) div.querySelector('[name="fechaDesde"]').value = criterioExistente.fechaDesde;
+        if (criterioExistente.fechaHasta) div.querySelector('[name="fechaHasta"]').value = criterioExistente.fechaHasta;
+        if (criterioExistente.idFuenteDeDatos) div.querySelector('[name="idFuenteDeDatos"]').value = criterioExistente.idFuenteDeDatos;
+        if (criterioExistente.latitud) div.querySelector('[name="latitud"]').value = criterioExistente.latitud;
+        if (criterioExistente.longitud) div.querySelector('[name="longitud"]').value = criterioExistente.longitud;
+        if (criterioExistente.tipoMultimedia) div.querySelector('[name="tipoMultimedia"]').value = criterioExistente.tipoMultimedia;
+        actualizarCamposCriterio(div, criterioExistente.tipo);
+    }
+
+    container.appendChild(div);
+}
+
+function actualizarCamposCriterio(div, tipo) {
+    div.querySelectorAll(".campos-fecha, .campos-fuente, .campos-ubicacion, .campos-multimedia")
+        .forEach(el => el.classList.add("d-none"));
+
+    if (tipo === "fecha" || tipo === "fechareportaje")
+        div.querySelector(".campos-fecha").classList.remove("d-none");
+    if (tipo === "fuente")
+        div.querySelector(".campos-fuente").classList.remove("d-none");
+    if (tipo === "ubicacion")
+        div.querySelector(".campos-ubicacion").classList.remove("d-none");
+    if (tipo === "multimedia")
+        div.querySelector(".campos-multimedia").classList.remove("d-none");
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const formHecho = document.getElementById("formHecho");
@@ -193,5 +309,49 @@ function limpiarFormularioHecho() {
 
     // limpiar resultado de estado
     const res = document.getElementById("resultadoHecho");
+    if (res) res.innerHTML = "";
+}
+function limpiarFormularioColeccion() {
+    const form = document.getElementById("formColeccion");
+    if (!form) return;
+    form.reset();
+    document.getElementById("criteriosContainer").innerHTML = "";
+    const res = document.getElementById("resultadoColeccion");
+    if (res) res.innerHTML = "";
+}
+const modalColeccion = document.getElementById("modalColeccion");
+modalColeccion.addEventListener("hidden.bs.modal", limpiarFormularioColeccion);
+async function editarColeccion(id) {
+    const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}/${id}`);
+    if (!resp.ok) {
+        alert("Error al obtener la colección.");
+        return;
+    }
+
+    const c = await resp.json();
+    console.log("✏️ Editando colección:", c);
+
+    // Abrir modal con datos
+    const modal = new bootstrap.Modal(document.getElementById("modalColeccion"));
+    const form = document.getElementById("formColeccion");
+    form.idColeccion.value = id;
+    form.titulo.value = c.titulo;
+    form.descripcion.value = c.descripcion;
+    form.consenso.value = c.consenso || "mayoria";
+    document.getElementById("criteriosContainer").innerHTML = "";
+    (c.criterios || []).forEach(cr => agregarCriterio(cr));
+
+    document.getElementById("modalColeccionTitle").innerText = "Editar Colección";
+    modal.show();
+}
+const modalColeccion = document.getElementById("modalColeccion");
+modalColeccion.addEventListener("hidden.bs.modal", limpiarFormularioColeccion);
+function limpiarFormularioColeccion() {
+    const form = document.getElementById("formColeccion");
+    if (!form) return;
+    form.reset();
+    document.getElementById("criteriosContainer").innerHTML = "";
+    document.getElementById("modalColeccionTitle").innerText = "Nueva Colección";
+    const res = document.getElementById("resultadoColeccion");
     if (res) res.innerHTML = "";
 }

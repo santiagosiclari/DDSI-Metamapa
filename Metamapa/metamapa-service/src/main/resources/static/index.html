@@ -96,23 +96,42 @@
     </div>
 </div>
 
-<!-- ========== MODAL CREAR COLECCIÓN ========== -->
+<!-- Modal: Crear o Editar Colección -->
 <div class="modal fade" id="modalColeccion" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Nueva Colección</h5>
+                <h5 class="modal-title" id="modalColeccionTitle">Nueva Colección</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <form id="formColeccion" class="modal-body">
+                <input type="hidden" name="idColeccion" id="idColeccion">
+
                 <div class="mb-3">
                     <label class="form-label">Título</label>
                     <input name="titulo" class="form-control" required>
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label">Descripción</label>
-                    <textarea name="descripcion" class="form-control"></textarea>
+                    <textarea name="descripcion" class="form-control" required></textarea>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tipo de consenso</label>
+                    <select name="consenso" class="form-select">
+                        <option value="mayoria">Mayoría</option>
+                        <option value="unanimidad">Unanimidad</option>
+                        <option value="promedio">Promedio</option>
+                    </select>
+                </div>
+
+                <hr>
+                <h6>🧩 Criterios de la colección</h6>
+                <div id="criteriosContainer"></div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="agregarCriterio()">+ Agregar criterio</button>
+
                 <div id="resultadoColeccion" class="mt-3 text-center"></div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Guardar</button>
@@ -121,6 +140,9 @@
         </div>
     </div>
 </div>
+
+
+
 
 <!-- ========== MODAL DETALLE DE HECHO ========== -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" aria-hidden="true">
@@ -141,5 +163,32 @@
 <script src="js/api.js"></script>
 <script src="js/mapa.js"></script>
 <script src="js/ui.js"></script>
+
+<!-- Modal: Seleccionar ubicación -->
+<div class="modal fade" id="modalUbicacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Seleccionar área de ubicación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="mapaUbicacion" style="height: 400px; border-radius: 10px;"></div>
+                <div class="mt-3">
+                    <label class="form-label">Radio (km):</label>
+                    <input type="range" id="radioSlider" min="1" max="50" value="5" class="form-range">
+                    <span id="radioLabel">5 km</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="confirmarUbicacion()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

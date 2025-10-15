@@ -47,7 +47,7 @@ public class ServiceColecciones {
       if (filtros.getFechaAcontecimientoDesdeP() != null || filtros.getFechaAcontecimientoHastaP() != null)
         criterios.add(new CriterioFecha(filtros.getFechaAcontecimientoDesdeP(), filtros.getFechaAcontecimientoHastaP(), true));
       if (filtros.getLatitudP() != null && filtros.getLongitudP() != null)
-        criterios.add(new CriterioUbicacion(filtros.getLatitudP(), filtros.getLongitudP(), true));
+        criterios.add(new CriterioUbicacion(filtros.getLatitudP(), filtros.getLongitudP(),filtros.getRadio(), true));
       if (filtros.getTipoMultimediaP() != null) criterios.add(new CriterioMultimedia(TipoMultimedia.valueOf(filtros.getTipoMultimediaP()), true));
     } else {
       if (filtros.getTituloNP() != null) criterios.add(new CriterioTitulo(filtros.getTituloNP(), false));

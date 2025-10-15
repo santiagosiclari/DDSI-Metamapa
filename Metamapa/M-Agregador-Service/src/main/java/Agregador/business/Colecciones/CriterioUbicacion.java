@@ -10,10 +10,12 @@ import Agregador.business.Hechos.Hecho;
 public class CriterioUbicacion extends Criterio {
   private Float latitud;
   private Float longitud;
+  private Integer radio;
 
-  public CriterioUbicacion(Float latitud, Float longitud, boolean inclusion) {
+  public CriterioUbicacion(Float latitud, Float longitud, Integer radio, boolean inclusion) {
     this.latitud = latitud;
     this.longitud = longitud;
+    this.radio = radio;
     this.inclusion = inclusion;
   }
 
@@ -28,7 +30,8 @@ public class CriterioUbicacion extends Criterio {
   public Predicate toPredicate(Root<Hecho> root, CriteriaBuilder cb) {
     Predicate latEqual = cb.equal(root.get("latitud"), latitud);
     Predicate lonEqual = cb.equal(root.get("longitud"), longitud);
-    Predicate combined = cb.and(latEqual, lonEqual);
+    Predicate radEqual = cb.equal(root.get("radio"), radio);
+    Predicate combined = cb.and(latEqual, lonEqual,radEqual);
     return inclusion ? combined : cb.not(combined);
   }
 }

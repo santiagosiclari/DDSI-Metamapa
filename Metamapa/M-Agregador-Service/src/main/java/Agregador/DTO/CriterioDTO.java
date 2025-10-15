@@ -18,6 +18,7 @@ public class CriterioDTO {
   private Integer idFuenteDeDatos;
   private Float latitud;
   private Float longitud;
+  private Integer radio;
   private String tipoMultimedia;
   private Boolean inclusion;
 
@@ -47,7 +48,7 @@ public class CriterioDTO {
         }
       }
       case "fuente", "criteriofuentededatos" -> new CriterioFuenteDeDatos(idFuenteDeDatos,this.inclusion); // << alias OK
-      case "ubicacion" -> new CriterioUbicacion(latitud, longitud,this.inclusion);
+      case "ubicacion" -> new CriterioUbicacion(latitud, longitud,radio,this.inclusion);
       case "multimedia" -> new CriterioMultimedia(TipoMultimedia.valueOf(tipoMultimedia),this.inclusion);
       default -> throw new IllegalArgumentException("Tipo de criterio desconocido: " + tipo);
     };
@@ -74,6 +75,7 @@ public class CriterioDTO {
     } else if (criterio instanceof CriterioUbicacion cu) {
       this.latitud = cu.getLatitud();
       this.longitud = cu.getLongitud();
+      this.radio =cu.getRadio();
     } else if (criterio instanceof CriterioMultimedia cm) {
       this.tipoMultimedia = cm.getTipoMultimedia().name();
     }

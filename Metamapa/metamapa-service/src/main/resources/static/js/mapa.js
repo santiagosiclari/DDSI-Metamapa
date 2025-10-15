@@ -157,3 +157,96 @@ function limpiarMapaSeleccion() {
         marcadorSeleccion = null;
     }
 }
+// =============================
+// 🌍 MAPA DE UBICACIÓN (criterios)
+// =============================
+let mapaUbicacion;
+let marcadorUbicacion;
+let circuloUbicacion;
+let radioActual = 5; // km
+let inputLatDestino, inputLonDestino;
+
+function abrirMapaUbicacion(btn) {
+    // Guardar inputs de destino del criterio actual
+    const parent = btn.closest(".criterio-box");
+    inputLatDestino = parent.querySelector('[name="latitud"]');
+    inputLonDestino = parent.querySelector('[name="longitud"]');
+
+    const modal = new bootstrap.Modal(document.getElementById("modalUbicacion"));
+    modal.show();
+
+    setTimeout(() => inicializarMapaUbicacion(), 300);
+}
+
+function inicializarMapaUbicacion() {
+    if (!mapaUbicacion) {
+        mapaUbicacion = L.map("mapaUbicacion").setView([-34.61, -58.38], 11);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(mapaUbicacion);
+
+        // Click para seleccionar centro
+        mapaUbicacion.on("click", e => {
+            const { lat, lng } = e.latlng;
+            colocarMarcadorUbicacion(lat, lng);
+        });
+
+        // Slider de radio
+        const slider = document.getElementById("radioSlider");
+        slider.addEventListener("input", e => {
+            radioActual = parseInt(e.target.value);
+            document.getElementById("radioLabel").innerText = `${radioActual} km`;
+            actualizarCirculoRadio();
+        });
+    }
+
+    setTimeout(() => mapaUbicacion.invalidateSize(), 300);
+}
+
+function colocarMarcadorUbicacion(lat, lng) {
+    if (marcadorUbicacion) {
+        marcadorUbicacion.setLatLng([lat, lng]);
+    } else {
+        marcadorUbicacion = L.marker([lat, lng], { draggable: true }).addTo(mapaUbicacion);
+        marcadorUbicacion.on("drag", e => {
+            const pos = e.target.getLatLng();
+            actualizarCirculoRadio(pos.lat, pos.lng);
+        });
+    }
+    actualizarCirculoRadio(lat, lng);
+}
+
+function actualizarCirculoRadio(lat, lng) {
+    if (!lat && marcadorUbicacion) {
+        const pos = marcadorUbicacion.getLatLng();
+        lat = pos.lat; lng = pos.lng;
+    }
+    if (!lat) return;
+
+    const radiusMeters = radioActual * 1000; // km -> m
+    if (circuloUbicacion) mapaUbicacion.removeLayer(circuloUbicacion);
+
+    circuloUbicacion = L.circle([lat, lng], {
+        radius: radiusMeters,
+        color: "green",
+        fillColor: "rgba(0,200,0,0.2)",
+        fillOpacity: 0.4
+    }).addTo(mapaUbicacion);
+
+    mapaUbicacion.setView([lat, lng], 12);
+}
+
+function confirmarUbicacion() {
+    if (!marcadorUbicacion) {
+        alert("Debes seleccionar un punto en el mapa.");
+        return;
+    }
+
+    const { lat, lng } = marcadorUbicacion.getLatLng();
+    inputLatDestino.value = lat.toFixed(6);
+    inputLonDestino.value = lng.toFixed(6);
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById("modalUbicacion"));
+    modal.hide();
+}
