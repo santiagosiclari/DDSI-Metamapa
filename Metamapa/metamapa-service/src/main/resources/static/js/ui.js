@@ -215,10 +215,15 @@ function agregarCriterio(criterioExistente = null) {
     <label>Longitud</label>
     <input type="number" step="any" name="longitud" class="form-control" readonly>
   </div>
+  <div class="col">
+    <label>Radio (km)</label>
+    <input type="number" step="0.1" name="radio" class="form-control" readonly>
+  </div>
   <div class="col d-flex align-items-end">
     <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar en mapa</button>
   </div>
 </div>
+
 
 
     <div class="row mb-2 campos-multimedia d-none">

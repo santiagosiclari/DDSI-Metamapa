@@ -158,19 +158,19 @@ function limpiarMapaSeleccion() {
     }
 }
 // =============================
-// 🌍 MAPA DE UBICACIÓN (criterios)
+// 🌍 MAPA DE UBICACIÓN (criterios con radio)
 // =============================
 let mapaUbicacion;
 let marcadorUbicacion;
 let circuloUbicacion;
 let radioActual = 5; // km
-let inputLatDestino, inputLonDestino;
+let inputLatDestino, inputLonDestino, inputRadioDestino;
 
 function abrirMapaUbicacion(btn) {
-    // Guardar inputs de destino del criterio actual
     const parent = btn.closest(".criterio-box");
     inputLatDestino = parent.querySelector('[name="latitud"]');
     inputLonDestino = parent.querySelector('[name="longitud"]');
+    inputRadioDestino = parent.querySelector('[name="radio"]');
 
     const modal = new bootstrap.Modal(document.getElementById("modalUbicacion"));
     modal.show();
@@ -186,18 +186,16 @@ function inicializarMapaUbicacion() {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(mapaUbicacion);
 
-        // Click para seleccionar centro
         mapaUbicacion.on("click", e => {
             const { lat, lng } = e.latlng;
             colocarMarcadorUbicacion(lat, lng);
         });
 
-        // Slider de radio
         const slider = document.getElementById("radioSlider");
         slider.addEventListener("input", e => {
-            radioActual = parseInt(e.target.value);
+            radioActual = parseFloat(e.target.value);
             document.getElementById("radioLabel").innerText = `${radioActual} km`;
-            actualizarCirculoRadio();
+            actualizarCirculoUbicacion();
         });
     }
 
@@ -211,20 +209,20 @@ function colocarMarcadorUbicacion(lat, lng) {
         marcadorUbicacion = L.marker([lat, lng], { draggable: true }).addTo(mapaUbicacion);
         marcadorUbicacion.on("drag", e => {
             const pos = e.target.getLatLng();
-            actualizarCirculoRadio(pos.lat, pos.lng);
+            actualizarCirculoUbicacion(pos.lat, pos.lng);
         });
     }
-    actualizarCirculoRadio(lat, lng);
+    actualizarCirculoUbicacion(lat, lng);
 }
 
-function actualizarCirculoRadio(lat, lng) {
+function actualizarCirculoUbicacion(lat, lng) {
     if (!lat && marcadorUbicacion) {
         const pos = marcadorUbicacion.getLatLng();
         lat = pos.lat; lng = pos.lng;
     }
     if (!lat) return;
 
-    const radiusMeters = radioActual * 1000; // km -> m
+    const radiusMeters = radioActual * 1000;
     if (circuloUbicacion) mapaUbicacion.removeLayer(circuloUbicacion);
 
     circuloUbicacion = L.circle([lat, lng], {
@@ -246,6 +244,7 @@ function confirmarUbicacion() {
     const { lat, lng } = marcadorUbicacion.getLatLng();
     inputLatDestino.value = lat.toFixed(6);
     inputLonDestino.value = lng.toFixed(6);
+    inputRadioDestino.value = radioActual.toFixed(1);
 
     const modal = bootstrap.Modal.getInstance(document.getElementById("modalUbicacion"));
     modal.hide();

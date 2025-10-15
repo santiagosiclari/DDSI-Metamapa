@@ -23,8 +23,25 @@ public class CriterioUbicacion extends Criterio {
 
   @Override
   public boolean cumple(Hecho hechoAValidar) {
-    //TODO: APROXIMAR UN RANGO
-    return inclusion == Objects.equals(hechoAValidar.getLatitud(), latitud) && Objects.equals(hechoAValidar.getLongitud(), longitud);
+    if (hechoAValidar.getLatitud() == null || hechoAValidar.getLongitud() == null)
+      return false;
+
+    double distancia = distanciaKm(latitud, longitud,
+        hechoAValidar.getLatitud(), hechoAValidar.getLongitud());
+
+    boolean dentro = distancia <= radio;
+    return inclusion ? dentro : !dentro;
+  }
+
+  private double distanciaKm(Float lat1, Float lon1, Float lat2, Float lon2) {
+    final Float R = 6371.00f;
+    Float dLat = (float) Math.toRadians(lat2 - lat1);
+    Float dLon = (float) Math.toRadians(lon2 - lon1);
+    Float a = (float) (Math.sin(dLat / 2) * Math.sin(dLat / 2)
+            + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+            * Math.sin(dLon / 2) * Math.sin(dLon / 2));
+    Float c = (float) (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    return R * c;
   }
 
   public Predicate toPredicate(Root<Hecho> root, CriteriaBuilder cb) {

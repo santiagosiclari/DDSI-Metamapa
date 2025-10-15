@@ -95,6 +95,8 @@ async function crearColeccion(e) {
 
         const lat = div.querySelector('[name="latitud"]')?.value;
         const lon = div.querySelector('[name="longitud"]')?.value;
+        const radio = div.querySelector('[name="radio"]')?.value;
+        if (radio) criterio.radio = parseFloat(radio);
         if (lat) criterio.latitud = parseFloat(lat);
         if (lon) criterio.longitud = parseFloat(lon);
 
