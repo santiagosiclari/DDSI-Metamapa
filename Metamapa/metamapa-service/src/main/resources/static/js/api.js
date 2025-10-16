@@ -15,7 +15,7 @@ async function crearHecho(e) {
     const data = {
         titulo: f.titulo.value.trim(),
         descripcion: f.descripcion.value.trim(),
-        categoria: f.categoria.value,
+        categoria: f.categoria.value.trim(),
         latitud: parseFloat(f.latitud.value),
         longitud: parseFloat(f.longitud.value),
         fechaHecho: f.fechaHecho?.value || new Date().toISOString().split("T")[0],
