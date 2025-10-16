@@ -14,24 +14,16 @@ public class ServiceFuenteMetamapa {
   }
 
   public FuenteMetamapa crearFuente(Map<String, Object> requestBody) {
-    String tipo = (String) requestBody.get("tipo");
-    if (tipo == null) throw new IllegalArgumentException("Falta el campo 'tipo'");
-    switch (tipo) {
-      case "FuenteMetamapa": {
-        String nombre = (String) requestBody.get("nombre");
-        String endpoint = (String) requestBody.get("endpoint");
-        if (nombre == null || endpoint == null) throw new IllegalArgumentException("Faltan campos para FuenteMetamapa");
-        FuenteMetamapa fuenteMetamapa = new FuenteMetamapa(nombre, endpoint);
-        repositorioFuentes.agregarFuente(fuenteMetamapa);
-        return fuenteMetamapa;
-      }
-      default:
-        throw new IllegalArgumentException("Tipo de fuente inválido: " + tipo);
-    }
+    String nombre = (String) requestBody.get("nombre");
+    String endpoint = (String) requestBody.get("endpoint");
+    if (nombre == null || endpoint == null) throw new IllegalArgumentException("Faltan campos para FuenteMetamapa");
+    FuenteMetamapa fuenteMetamapa = new FuenteMetamapa(nombre, endpoint);
+    repositorioFuentes.agregarFuente(fuenteMetamapa);
+    return fuenteMetamapa;
   }
 
   public List<FuenteMetamapa> getFuentes() {
-    return new ArrayList<>(repositorioFuentes.getFuentesDeDatos());
+    return repositorioFuentes.getFuentesDeDatos();
   }
 
   public FuenteMetamapa obtenerFuente(Integer id) {

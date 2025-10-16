@@ -1,5 +1,4 @@
 package FuenteEstatica.persistencia;
-
 import FuenteEstatica.business.Hechos.*;
 import java.util.*;
 import org.springframework.stereotype.Repository;

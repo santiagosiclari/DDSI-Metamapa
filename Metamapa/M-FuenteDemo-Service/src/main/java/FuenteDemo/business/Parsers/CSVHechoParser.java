@@ -1,9 +1,6 @@
 package FuenteDemo.business.Parsers;
-//import infrastructure.dto.HechoDTO;
-
 import FuenteDemo.business.Hechos.Hecho;
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
+import com.opencsv.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -45,7 +42,6 @@ public class CSVHechoParser implements HechoParser {
                 LocalDate fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
                 Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,fuenteID);
-                // TODO: revisar Deberiamos inicializar en NULL el resto de los campos del contructor del hecho???
                 listaHecho.add(hecho);
             }
         } catch (Exception e) {
@@ -76,7 +72,6 @@ public class CSVHechoParser implements HechoParser {
                 LocalDate fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
                 Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho,fuenteID);
-                // TODO: revisar Deberiamos inicializar en NULL el resto de los campos del contructor del hecho???
                 listaHecho.add(hecho);
             }
         } catch (IOException e) {

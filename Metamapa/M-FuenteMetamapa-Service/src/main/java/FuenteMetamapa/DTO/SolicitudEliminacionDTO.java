@@ -9,8 +9,7 @@ public class SolicitudEliminacionDTO {
     private String motivo;
     private String hechoAfectado;
 
-    public SolicitudEliminacionDTO() {
-    }
+    public SolicitudEliminacionDTO() {}
 
     public SolicitudEliminacionDTO(String motivo, String hechoAfectado) {
         this.motivo = motivo;

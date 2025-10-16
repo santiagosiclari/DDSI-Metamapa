@@ -4,7 +4,6 @@ import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 import java.util.Map;
 

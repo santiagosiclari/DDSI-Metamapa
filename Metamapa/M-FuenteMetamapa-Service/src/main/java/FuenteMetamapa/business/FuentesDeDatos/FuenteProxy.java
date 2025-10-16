@@ -3,15 +3,12 @@ import FuenteMetamapa.business.Parsers.HechoParser;
 import FuenteMetamapa.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
-import lombok.Getter;
-import lombok.Setter;
-//import infrastructure.dto.client.MetaMapaRestClient;
 import lombok.*;
+//import infrastructure.dto.client.MetaMapaRestClient;
 //import jakarta.persistence.*;
 
 @JsonTypeName("FUENTEPROXY")
-@Getter@Setter
-
+@Getter @Setter
 public abstract class FuenteProxy {
     //@Id
     //@GeneratedValue(strategy = GenerationType.IDENTITY)

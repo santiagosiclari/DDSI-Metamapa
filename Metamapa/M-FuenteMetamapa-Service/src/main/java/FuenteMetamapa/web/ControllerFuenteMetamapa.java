@@ -7,7 +7,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api-fuentesDeDatos/")
 public class ControllerFuenteMetamapa{
   private final ServiceFuenteMetamapa fuenteMetamapaService;
 
@@ -22,8 +22,8 @@ public class ControllerFuenteMetamapa{
   }
 
   @GetMapping("/{idFuenteDeDatos}")
-  public FuenteMetamapa getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
-    return fuenteMetamapaService.obtenerFuente(idfuenteDeDatos);
+  public ResponseEntity<FuenteMetamapa> getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+    return ResponseEntity.ok(fuenteMetamapaService.obtenerFuente(idfuenteDeDatos));
   }
 
   // Crear una fuente
@@ -45,4 +45,13 @@ public class ControllerFuenteMetamapa{
     return ResponseEntity.ok(fuenteMetamapaService.obtenerHechos(idFuenteDeDatos));
   }
 
+  //obtener todos los hechos
+  @GetMapping("/hechos")
+  public ResponseEntity<List<Hecho>> obtenerTodosLosHechos() {
+    List<Hecho> todosLosHechos = new ArrayList<>();
+    for (FuenteMetamapa fuente : fuenteMetamapaService.getFuentes()) {
+      todosLosHechos.addAll(fuente.getHechos());
+    }
+    return ResponseEntity.ok(todosLosHechos);
+  }
 }

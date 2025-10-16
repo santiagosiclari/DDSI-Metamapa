@@ -1,5 +1,4 @@
 package FuenteDemo.business.FuentesDeDatos;
-
 import FuenteDemo.business.Conexiones.Conexion;
 import FuenteDemo.business.Hechos.Hecho;
 import com.fasterxml.jackson.annotation.*;
@@ -8,10 +7,9 @@ import java.util.*;
 import lombok.Getter;
 
 @JsonTypeName("FUENTEDEMO")
+@Getter
 public class FuenteDemo extends FuenteProxy {
-  @Getter
   private LocalDateTime fechaUltimaConsulta;
-  @Getter
   @JsonIgnore
   final private Conexion conexion;
   static private Integer contadorID = 5000000;

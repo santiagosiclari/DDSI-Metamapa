@@ -1,5 +1,4 @@
 package FuenteDemo.business.Parsers;
-
 import FuenteDemo.business.Hechos.Hecho;
 import java.io.InputStream;
 import java.util.ArrayList;

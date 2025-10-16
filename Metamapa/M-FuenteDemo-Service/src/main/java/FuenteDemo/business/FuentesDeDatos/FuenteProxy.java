@@ -1,12 +1,9 @@
 package FuenteDemo.business.FuentesDeDatos;
-
 import FuenteDemo.business.Hechos.Hecho;
 import FuenteDemo.business.Parsers.HechoParser;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
-import lombok.Getter;
-import lombok.Setter;
-//import infrastructure.dto.client.MetaMapaRestClient;
+import lombok.*;
 
 @JsonTypeName("FUENTEPROXY")
 @Getter

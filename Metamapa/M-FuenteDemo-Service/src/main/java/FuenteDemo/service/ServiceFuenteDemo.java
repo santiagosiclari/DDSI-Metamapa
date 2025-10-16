@@ -14,24 +14,16 @@ public class ServiceFuenteDemo {
   }
 
   public FuenteDemo crearFuente(Map<String, Object> requestBody) {
-    String tipo = (String) requestBody.get("tipo");
-    if (tipo == null) throw new IllegalArgumentException("Falta el campo 'tipo'");
-    switch (tipo) {
-      case "FuenteDemo": {
-        String nombre = (String) requestBody.get("nombre");
-        String url = (String) requestBody.get("url");
-        if (nombre == null || url == null) throw new IllegalArgumentException("Faltan campos para FuenteDemo");
-        FuenteDemo fuenteDemo = new FuenteDemo(nombre, url);
-        repositorioFuentes.agregarFuente(fuenteDemo);
-        return fuenteDemo;
-      }
-      default:
-        throw new IllegalArgumentException("Tipo de fuente inválido: " + tipo);
-    }
+    String nombre = (String) requestBody.get("nombre");
+    String url = (String) requestBody.get("url");
+    if (nombre == null || url == null) throw new IllegalArgumentException("Faltan campos para FuenteDemo");
+    FuenteDemo fuenteDemo = new FuenteDemo(nombre, url);
+    repositorioFuentes.agregarFuente(fuenteDemo);
+    return fuenteDemo;
   }
 
   public List<FuenteDemo> getFuentes() {
-    return new ArrayList<>(repositorioFuentes.getFuentesDeDatos());
+    return repositorioFuentes.getFuentesDeDatos();
   }
 
   public FuenteDemo obtenerFuente(Integer id) {

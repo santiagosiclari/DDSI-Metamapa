@@ -22,8 +22,8 @@ public class ControllerFuenteDemo {
   }
 
   @GetMapping("/{idFuenteDeDatos}")
-  public FuenteDemo getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
-    return fuenteDemoService.obtenerFuente(idfuenteDeDatos);
+  public ResponseEntity<FuenteDemo> getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+    return ResponseEntity.ok(fuenteDemoService.obtenerFuente(idfuenteDeDatos));
   }
 
   // Crear una fuente
@@ -45,7 +45,13 @@ public class ControllerFuenteDemo {
     return ResponseEntity.ok(fuenteDemoService.obtenerHechos(idFuenteDeDatos));
   }
 
-
-
-
+  //obtener todos los hechos
+  @GetMapping("/hechos")
+  public ResponseEntity<List<Hecho>> obtenerTodosLosHechos() {
+    List<Hecho> todosLosHechos = new ArrayList<>();
+    for (FuenteDemo fuente : fuenteDemoService.getFuentes()) {
+      todosLosHechos.addAll(fuente.getHechos());
+    }
+    return ResponseEntity.ok(todosLosHechos);
+  }
 }

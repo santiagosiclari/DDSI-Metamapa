@@ -1,14 +1,11 @@
 package FuenteEstatica.persistencia;
-
 import FuenteEstatica.business.FuentesDeDatos.*;
-import FuenteEstatica.business.Parsers.*;
 import java.util.*;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RepositorioFuentes {
   public ArrayList<FuenteEstatica> fuentesDeDatos = new ArrayList<>();
-  public CSVHechoParser parserCSV = new CSVHechoParser();
 
   public void agregarFuente(FuenteEstatica fuente) {
     this.fuentesDeDatos.add(fuente);
@@ -23,28 +20,4 @@ public class RepositorioFuentes {
   public List<FuenteEstatica> getFuentesDeDatos() {
     return fuentesDeDatos;
   }
-  /*
-  public FuenteDeDatosDTO getFuenteDeDatosDTO(FuenteDeDatos fuente) {
-    switch (fuente.getTipoFuente()) {
-      case FUENTEDEMO:
-        FuenteDemo fuenteDemo = (FuenteDemo) fuente;
-        return FuenteDemoDTO.fromEntity(fuenteDemo);
-      case FUENTEDINAMICA:
-
-      case FUENTEESTATICA:
-
-      case FUENTEMETAMAPA:
-
-      case FUENTEPROXY:
-
-
-      default:
-        // Caso por defecto (opcional)
-        throw new IllegalArgumentException(
-            "Tipo de fuente desconocido: " + fuente.getTipoFuente()
-        );
-    }
-
-  }
-   */
 }
