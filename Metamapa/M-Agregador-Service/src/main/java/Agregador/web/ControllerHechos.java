@@ -1,14 +1,14 @@
 package Agregador.web;
 import Agregador.Service.ServiceAgregador;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api-hechos")
 public class ControllerHechos {
   private final ServiceAgregador service;
-
-  public ControllerHechos(ServiceAgregador service) { this.service = service; }
 
   // Endpoint específico para la estadística solicitada
   @GetMapping("/categoria-mas-reportada")

@@ -7,18 +7,16 @@ import Agregador.business.Hechos.Hecho;
 import Agregador.persistencia.RepositorioColecciones;
 import java.util.*;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api-colecciones")
 public class ControllerColecciones {
   private final ServiceColecciones serviceColecciones;
   private final RepositorioColecciones repositorioColecciones;
-  public ControllerColecciones(ServiceColecciones serviceColecciones, RepositorioColecciones repositorioColecciones) {
-    this.serviceColecciones = serviceColecciones;
-    this.repositorioColecciones = repositorioColecciones;
-  }
 
   @GetMapping("/{id}/hechos")
   public ResponseEntity<?> getHechosColeccion(

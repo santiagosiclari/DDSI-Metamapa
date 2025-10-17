@@ -34,10 +34,31 @@ async function crearHecho(e) {
     }
 
     // === Enviar al backend exactamente como Postman ===
-    const resp = await fetch(`${window.METAMAPA.API_FUENTE_DINAMICA}/${data.fuenteId}/hechos`, {
+    const formData = new FormData();
+
+    // Datos del hecho
+    const hechoJSON = {
+        titulo: f.titulo.value.trim(),
+        descripcion: f.descripcion.value.trim(),
+        categoria: f.categoria.value.trim(),
+        latitud: parseFloat(f.latitud.value),
+        longitud: parseFloat(f.longitud.value),
+        fechaHecho: f.fechaHecho?.value || new Date().toISOString().split("T")[0],
+        idUsuario: parseInt(f.idUsuario.value),
+        anonimo: f.anonimo.checked
+    };
+    formData.append("hecho", JSON.stringify(hechoJSON));
+
+    // ✅ Agregar todos los archivos seleccionados
+    const input = document.getElementById("inputMultimedia");
+    for (let i = 0; i < input.files.length; i++) {
+        formData.append("archivos", input.files[i]);
+    }
+
+    // Enviar al backend
+    const resp = await fetch(`${window.METAMAPA.API_FUENTE_DINAMICA}/${f.idFuente.value}/hechos`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        body: formData // NO JSON.stringify, NO headers
     });
 
     const res = document.getElementById("resultadoHecho");
@@ -123,7 +144,7 @@ async function crearColeccion(e) {
 
     const resp = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     });
 
@@ -145,7 +166,6 @@ async function crearColeccion(e) {
 }
 
 
-
 // Obtener todas las colecciones
 async function obtenerColecciones() {
     const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}`);
@@ -162,20 +182,20 @@ async function obtenerFuentes() {
 async function registrarFuente(url) {
     const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/fuenteDeDatos`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url })
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({url})
     });
     return resp.ok;
 }
 
 // Pedir al agregador que actualice los hechos desde las fuentes
 async function actualizarHechos() {
-    const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/actualizarHechos`, { method: "POST" });
+    const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/actualizarHechos`, {method: "POST"});
     alert(resp.ok ? "Hechos actualizados desde las fuentes." : "⚠️ Error al actualizar hechos.");
 }
 
 // Ejecutar curado/consenso de hechos en el agregador
 async function curarHechos() {
-    const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/consensuarHechos`, { method: "POST" });
+    const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/consensuarHechos`, {method: "POST"});
     alert(resp.ok ? "Curado completado correctamente." : "⚠️ Error al curar hechos.");
 }

@@ -1,16 +1,16 @@
 package Agregador.web;
 import Agregador.DTO.*;
 import Agregador.Service.ServiceSolicitudes;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api-solicitudes")
 public class ControllerSolicitudes {
     private final ServiceSolicitudes service;
-
-    public ControllerSolicitudes(ServiceSolicitudes service) { this.service = service; }
 
     // Obtiene todas las solicitudes de eliminación, opcional que sean spam, para reutilizar si hace falta
     @GetMapping(value = "/solicitudesEliminacion", produces = "application/json")

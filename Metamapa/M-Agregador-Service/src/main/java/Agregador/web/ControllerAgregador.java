@@ -10,23 +10,19 @@ import java.util.*;
 import Agregador.Service.ServiceFuenteDeDatos;
 import Agregador.persistencia.*;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import Agregador.Service.ServiceConsenso;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api-agregador")
 public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioHechos repositorioHechos;
   private final ServiceConsenso serviceConsenso;
   private final Set<String> URLsFuentes = new HashSet<>();
-
-  public ControllerAgregador(ServiceFuenteDeDatos servicefuenteDeDatos, ServiceConsenso serviceConsenso, RepositorioHechos repositorioHechos) {
-    this.servicefuenteDeDatos = servicefuenteDeDatos;
-    this.repositorioHechos = repositorioHechos;
-    this.serviceConsenso = serviceConsenso;
-  }
 
   /* public void guardarHechos(int idFuente){
       ArrayList<Map<String,Object>> hechos = servicefuenteDeDatos.getHechosDeFuente(idFuente);

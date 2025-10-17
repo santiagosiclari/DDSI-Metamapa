@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class RepositorioHechos {
-  private ArrayList<Hecho> hechos = new ArrayList<>();
+  private final ArrayList<Hecho> hechos = new ArrayList<>();
 
   public void agregarHecho(Hecho h) {
     hechos.add(h);

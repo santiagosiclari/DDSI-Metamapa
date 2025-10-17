@@ -61,4 +61,9 @@ public class Hecho {
     this.eliminado = false;
     this.multimedia = multimedia;
   }
+
+  public void agregarMultimedia(Multimedia mm) {
+    mm.setHecho(this);
+    this.multimedia.add(mm);
+  }
 }

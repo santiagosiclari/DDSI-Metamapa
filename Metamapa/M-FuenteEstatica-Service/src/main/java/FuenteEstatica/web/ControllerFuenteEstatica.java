@@ -20,11 +20,9 @@ public class ControllerFuenteEstatica {
   @Value("${rutas.procesados}")
   private String rutaProcessed;
   private final RepositorioFuentes repositorioFuentes;
-  private final RepositorioHechos repositorioHechos;
 
-  public ControllerFuenteEstatica(RepositorioFuentes repositorioFuentes, RepositorioHechos repositorioHechos) {
+  public ControllerFuenteEstatica(RepositorioFuentes repositorioFuentes) {
     this.repositorioFuentes = repositorioFuentes;
-    this.repositorioHechos = repositorioHechos;
   }
 
   // Obtener todas las fuentes

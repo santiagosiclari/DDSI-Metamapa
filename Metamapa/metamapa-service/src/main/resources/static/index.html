@@ -121,8 +121,11 @@
 
                 <hr>
                 <h6>Multimedia</h6>
-                <div id="multimediaContainer"></div>
-                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="agregarMultimedia()">+ Agregar otro</button>
+                <div id="multimediaContainer">
+                    <div class="row mb-2">
+                        <input type="file" id="inputMultimedia" name="archivos" multiple>
+                    </div>
+                </div>
 
                 <div id="resultadoHecho" class="mt-3 text-center"></div>
                 <div class="modal-footer">
