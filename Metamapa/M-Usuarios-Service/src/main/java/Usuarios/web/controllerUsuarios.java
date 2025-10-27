@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class controllerUsuarios {
-  private final RepositorioUsuarios usersRepository = new RepositorioUsuarios();
+  private final RepositorioUsuarios usersRepository;
+
+  public controllerUsuarios(RepositorioUsuarios usersRepository) {
+    this.usersRepository = usersRepository;
+  }
 
   @PostMapping(value = "/usuarios", consumes = "application/json", produces = "application/json")
   public ResponseEntity<UsuarioDTO> subirUsuario(@RequestBody Map<String, Object> requestBody) {
@@ -19,7 +23,6 @@ public class controllerUsuarios {
       String nombre = (String) requestBody.get("nombre");
       String apellido = (String) requestBody.get("apellido");
       Integer edad = (Integer) requestBody.get("edad");
-      //Perfil perfil = new Perfil(nombre,apellido,edad);
       List<String> rolesInput = (List<String>) requestBody.get("roles");  // Recibe roles como lista de strings
       Set<Rol> roles = rolesInput.stream()
           .map(Rol::valueOf)  // Convierte el string a un Rol
@@ -32,7 +35,7 @@ public class controllerUsuarios {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
+/*
   @GetMapping(value = "/usuarios/{id}", produces = "application/json")
   public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Integer id){
     try{
@@ -46,4 +49,5 @@ public class controllerUsuarios {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
+  */
 }

@@ -1,8 +1,11 @@
 package FuenteMetamapa.business.Hechos;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
+import FuenteMetamapa.business.FuentesDeDatos.FuenteMetamapa;
 
-@Getter
+@Getter @Setter
+@Entity
 public class Hecho {
   private String titulo;
   private String descripcion;
@@ -12,18 +15,11 @@ public class Hecho {
   private LocalDate fechaHecho;
   private LocalDate fechaCarga;
   private LocalDate fechaModificacion;
-  //@Getter @Setter
-  //private Perfil perfil;
-  @Setter
-  private int fuenteId;
-  //@Getter @Setter
-  //private Boolean anonimo;
-  //@Getter @Setter
-  //private Boolean eliminado;
-  //@Getter @Setter
-  //private List<Multimedia> multimedia;
-  //@Getter @Setter
-  //private HashMap<String,String> metadata;
+
+  @ManyToOne
+  private FuenteMetamapa fuente;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Integer id;
   static public Integer contadorID = 1;
 
@@ -35,7 +31,7 @@ public class Hecho {
           Float latitud,
           Float longitud,
           LocalDate fechaHecho,
-          Integer fuenteId) {
+          FuenteMetamapa fuenteId) {
     this.titulo = titulo;
     this.descripcion = descripcion;
     this.categoria = categoria;
@@ -44,11 +40,7 @@ public class Hecho {
     this.fechaHecho = fechaHecho;
     this.fechaCarga = LocalDate.now();
     this.fechaModificacion = LocalDate.now();
-    this.fuenteId = fuenteId; //AGREGO ESTE CAMPO
-    //ArrayList<Pair<TipoMultimedia, String>> tuplaMultimedia
-    //this.multimedia = tuplaMultimedia.stream().map(p -> new Multimedia(p.getValue0(),p.getValue1())).collect(Collectors.toCollection(ArrayList::new));
-    //this.metadata = new HashMap<>();
-    this.id = contadorID++;
+    this.fuente = fuenteId;
   }
 
   /*public Boolean tieneEtiqueta(String key,String value) {

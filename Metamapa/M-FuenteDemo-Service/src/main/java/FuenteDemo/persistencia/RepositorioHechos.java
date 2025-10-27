@@ -1,9 +1,9 @@
 package FuenteDemo.persistencia;
-import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
+import FuenteDemo.business.Hechos.Hecho;
 import java.util.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
-public interface RepositorioFuentes extends JpaRepository<FuenteDemo,Integer> {
+public interface RepositorioHechos extends JpaRepository<Hecho,Integer>{
 }

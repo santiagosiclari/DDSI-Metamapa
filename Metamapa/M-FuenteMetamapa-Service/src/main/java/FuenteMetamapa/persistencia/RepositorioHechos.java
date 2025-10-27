@@ -1,10 +1,9 @@
 package FuenteMetamapa.persistencia;
-import FuenteMetamapa.business.FuentesDeDatos.*;
+import FuenteMetamapa.business.Hechos.Hecho;
 import java.util.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
-public interface RepositorioFuentes extends JpaRepository<FuenteMetamapa,Integer>{
-
+public interface RepositorioHechos extends JpaRepository<Hecho,Integer>{
 }

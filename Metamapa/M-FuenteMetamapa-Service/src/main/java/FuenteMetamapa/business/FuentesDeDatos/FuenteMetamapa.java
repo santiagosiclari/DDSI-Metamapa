@@ -1,29 +1,44 @@
 package FuenteMetamapa.business.FuentesDeDatos;
 import FuenteMetamapa.DTO.SolicitudEliminacionDTO;
 import FuenteMetamapa.business.Hechos.Hecho;
+import FuenteMetamapa.business.Parsers.JSONHechoParser;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import jakarta.persistence.*;
 import java.net.URLEncoder;
+import java.net.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.*;
 import org.springframework.web.client.RestTemplate;
 
 @JsonTypeName("FUENTEMETAMAPA")
-public class FuenteMetamapa extends FuenteProxy {
+@Getter @Setter
+@Entity
+public class FuenteMetamapa {
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fuentesContador")
+  @SequenceGenerator(name = "fuentesContador", sequenceName = "fuentesContador", initialValue = 4000000, allocationSize = 1)
+  protected Integer id;
+  public String endpointBase;
+  public String nombre;
+  public ArrayList<Hecho> hechos;
+  private LocalDateTime fechaUltimaConsulta;
+  @Transient
   final private RestTemplate restTemplate;
-  static private Integer contadorID = 4000000;
+  //static private Integer contadorID = 4000000;
+
+  public FuenteMetamapa() {
+    this.restTemplate = new RestTemplate();
+  }
 
   public FuenteMetamapa(String nombre, String endpointBase) {
-    super(nombre, endpointBase);
-    if (contadorID > 4999999) {
-      throw new RuntimeException("No hay mas espacio para nuevas Fuentes Metamapa :(");
-    } else {
-      this.id = contadorID++;
-      this.nombre = nombre;
-      this.hechos = new ArrayList<>();
-      this.restTemplate = new RestTemplate();
-      this.tipoFuente = TipoFuente.FUENTEMETAMAPA;
-    }
+    this.nombre = nombre;
+    this.endpointBase = endpointBase;
+    this.nombre = nombre;
+    this.hechos = new ArrayList<>();
+    this.restTemplate = new RestTemplate();
   }
 
   public void actualizarHechos(Map<String, String> filtros) {
@@ -56,20 +71,49 @@ public class FuenteMetamapa extends FuenteProxy {
   private List<Hecho> obtenerHechosDesdeURL(String url) {
     try {
       String json = restTemplate.getForObject(url, String.class);
-      return parser.parsearHechos(json, this.getId());
+      JSONHechoParser parser = new JSONHechoParser();
+      return parser.parsearHechos(json, this);
     } catch (Exception e) {
       System.err.println("Error obteniendo hechos desde URL: " + e.getMessage());
       return Collections.emptyList();
     }
   }
 
+  private Map<String, Object> siguienteHecho(String UrlBase,LocalDateTime fechaUltimaConsulta) {
+    RestTemplate rest = new RestTemplate();
+
+    return rest.getForObject(UrlBase + "?fechaReporteDesdeP=" + fechaUltimaConsulta,Map.class);
+  }
+
+
   private void actualizarLista(List<Hecho> nuevosHechos) {
-    for (Hecho h : nuevosHechos) {
-      boolean yaExiste = this.hechos.stream()
-              .anyMatch(e -> e.getTitulo().equalsIgnoreCase(h.getTitulo()));
-      if (!yaExiste) {
-        this.hechos.add(h);
+    Map<String, Object> datos = siguienteHecho(this.endpointBase,this.getFechaUltimaConsulta());
+    while (datos != null) {
+      Hecho nuevoHecho = new Hecho(
+          (String) datos.get("titulo"),
+          (String) datos.get("descripcion"),
+          (String) datos.get("categoria"),
+          (Float) datos.get("latitud"),
+          (Float) datos.get("longitud"),
+          (LocalDate) datos.get("fechaHecho"),
+          this
+      );
+
+      boolean yaExiste = hechos.stream()
+          .anyMatch(e -> e.getTitulo().equalsIgnoreCase(nuevoHecho.getTitulo()));
+
+      if (!yaExiste)
+        hechos.add(nuevoHecho);
+
+      if (nuevoHecho.getFechaHecho() != null) {
+        LocalDateTime fechaHecho = nuevoHecho.getFechaHecho().atStartOfDay();
+        if (fechaHecho.isAfter(fechaUltimaConsulta)) {
+          fechaUltimaConsulta = fechaHecho;
+        }
+      } else {
+        fechaUltimaConsulta = LocalDateTime.now(ZoneId.of("UTC"));
       }
+      datos = siguienteHecho(this.endpointBase,fechaUltimaConsulta);
     }
   }
 

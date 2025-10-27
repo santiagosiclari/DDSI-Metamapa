@@ -1,23 +1,26 @@
 package FuenteDemo.business.Conexiones;
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.springframework.web.client.RestTemplate;
+import FuenteDemo.business.Hechos.Hecho;
 
-public abstract class Conexion {
+public class Conexion {
     /**
      * Devuelve un mapa con los atributos de un hecho, indexados por nombre de
      * atributo. Si el metodo retorna null, significa que no hay nuevos hechos
      * por ahora. La fecha es opcional
      */
-    public abstract Map<String, Object> siguienteHecho(String url, LocalDateTime fechaUltimaConsulta);
-/*            if (Math.random() > 0.5) { // Randomiza si devuelve hecho o no
-        Map<String, Object> hecho = new HashMap<>();
-        hecho.put("id", "demo1");
-        hecho.put("descripcion", "Hecho demo");
-        hecho.put("categoria", "Test");
-        hecho.put("latitud", 10.0f);
-        hecho.put("longitud", 20.0f);
-        hecho.put("fecha", LocalDate.now());
-        return hecho;
+
+
+    public Conexion() {
     }
-        return null;*/
+
+    public Map<String, Object> siguienteHecho(String UrlBase,LocalDateTime fechaUltimaConsulta)
+    {
+        RestTemplate rest = new RestTemplate();
+
+        return rest.getForObject(UrlBase + "?fechaDesde=" + fechaUltimaConsulta,Map.class);
+    }
+
+
 }

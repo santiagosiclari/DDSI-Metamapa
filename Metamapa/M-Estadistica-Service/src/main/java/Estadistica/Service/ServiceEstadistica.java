@@ -1,14 +1,11 @@
 package Estadistica.Service;
 
 import Estadistica.DTO.EstadisticaDTO;
-import java.util.UUID;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class ServiceEstadistica {
@@ -22,16 +19,17 @@ public class ServiceEstadistica {
     }
 
     public void actualizar(){
-
+        //cronjob
     }
 
     public void actualizarDashboards(){
 
     }
 
+    //TODO: cambiar para que el procesamiento de datos se haga en estadistica, no en agregador
     public Integer horaMasReportada(String categoria) {
         String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .path("/hechos/hora")
+                .path("/hechos")
                 .queryParam("categoria", categoria)
                 .toUriString();
         return restTemplate.getForObject(url, Integer.class);
@@ -60,8 +58,8 @@ public class ServiceEstadistica {
         return restTemplate.getForObject(url, String.class);
     }
 
-    public void exportarCsv(){
-
+    public String exportarCsv(){
+        return "";
     }
 
     public EstadisticaDTO obtenerResumen() {
@@ -86,5 +84,4 @@ public class ServiceEstadistica {
 
         return dto;
     }
-
 }

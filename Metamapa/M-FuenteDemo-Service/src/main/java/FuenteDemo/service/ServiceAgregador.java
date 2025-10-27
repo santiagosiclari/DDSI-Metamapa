@@ -55,4 +55,6 @@ public class ServiceAgregador {
     }
     System.err.println("⚠️ Could not register after " + MAX_RETRIES + " attempts.");
   }
+
+
 }

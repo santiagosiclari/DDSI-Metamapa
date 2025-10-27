@@ -2,17 +2,14 @@ package Estadistica.web;
 
 import Estadistica.Service.ServiceEstadistica;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 
 @Controller
 @Tag(name = "Servicio de Estadísticas", description = "Consultas y exportación de estadísticas")
@@ -151,8 +148,14 @@ public class ControllerEstadistica {
   @ApiResponse(responseCode = "200", description = "CSV",
           content = @Content(mediaType = "text/csv"))
   @GetMapping(value = "/export", produces = "text/csv")
-  public void exportarDatos(@RequestParam String tipo){
-
+  public ResponseEntity<byte[]> exportarDatos(){
+    String csv = estadisticaService.exportarCsv();
+    byte[] bytes = csv.getBytes(StandardCharsets.UTF_8);
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + ".csv\"")
+        .contentType(MediaType.valueOf("text/csv"))
+        .contentLength(bytes.length)
+        .body(bytes);
   }
 
 }

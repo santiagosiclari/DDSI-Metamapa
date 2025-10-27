@@ -1,10 +1,5 @@
 package Usuarios.business.Usuarios;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import java.util.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,8 +38,6 @@ public class Usuario {
   @Builder.Default
   private Set<Rol> roles = new HashSet<>();
 
-  static public Integer contadorID = 1;
-
   @Column(name = "nombre", length = 255)
   private String nombre;
 
@@ -52,7 +45,10 @@ public class Usuario {
   private String apellido;
   private Integer edad;
 
+  @ElementCollection
   private List<Integer> solicitudesDeEliminacion;
+
+  @ElementCollection
   private List<Integer> solicitudesDeEdicion;
 
   public Usuario(String email, String contraseniaHasheada, String nombre, String apellido, Integer edad, Set<Rol> roles) {
@@ -70,3 +66,5 @@ public class Usuario {
     return this.getRoles().contains(rol);
   }
 }
+
+

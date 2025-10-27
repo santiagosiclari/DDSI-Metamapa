@@ -1,18 +1,22 @@
 package FuenteDemo.web;
 import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
 import FuenteDemo.business.Hechos.Hecho;
+import FuenteDemo.persistencia.RepositorioHechos;
 import FuenteDemo.service.ServiceFuenteDemo;
 import java.util.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import FuenteDemo.DTO.HechoDTO;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
 public class ControllerFuenteDemo {
   private final ServiceFuenteDemo fuenteDemoService;
+  private final RepositorioHechos repositorioHechos;
 
-  public ControllerFuenteDemo(ServiceFuenteDemo fuenteDemoService) {
+  public ControllerFuenteDemo(ServiceFuenteDemo fuenteDemoService, RepositorioHechos repositorioHechos) {
     this.fuenteDemoService = fuenteDemoService;
+    this.repositorioHechos = repositorioHechos;
   }
 
   // Obtener todas las fuentes
@@ -41,17 +45,19 @@ public class ControllerFuenteDemo {
 
   // Obtener hechos de una fuente
   @GetMapping("/{idFuenteDeDatos}/hechos")
-  public ResponseEntity<List<Hecho>> obtenerHechos(@PathVariable Integer idFuenteDeDatos) {
-    return ResponseEntity.ok(fuenteDemoService.obtenerHechos(idFuenteDeDatos));
+  public ResponseEntity<List<HechoDTO>> obtenerHechos(@PathVariable Integer idFuenteDeDatos) {
+    return ResponseEntity.ok(fuenteDemoService.obtenerHechos(idFuenteDeDatos).stream()
+        .map(h -> new HechoDTO(h))
+        .toList());
   }
 
   //obtener todos los hechos
   @GetMapping("/hechos")
-  public ResponseEntity<List<Hecho>> obtenerTodosLosHechos() {
-    List<Hecho> todosLosHechos = new ArrayList<>();
-    for (FuenteDemo fuente : fuenteDemoService.getFuentes()) {
-      todosLosHechos.addAll(fuente.getHechos());
-    }
-    return ResponseEntity.ok(todosLosHechos);
+  public ResponseEntity<List<HechoDTO>> obtenerTodosLosHechos() {
+    List<Hecho> todosLosHechos = repositorioHechos.findAll();
+
+    return ResponseEntity.ok(todosLosHechos.stream()
+        .map(h -> new HechoDTO(h))
+        .toList());
   }
 }

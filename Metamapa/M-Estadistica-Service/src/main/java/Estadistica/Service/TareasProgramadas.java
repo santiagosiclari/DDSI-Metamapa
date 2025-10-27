@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
    public class TareasProgramadas {
-
      private final ControllerEstadistica controllerEstadistica;
      private final MeterRegistry registry;
 

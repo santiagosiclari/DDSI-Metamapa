@@ -49,7 +49,7 @@ public class ControllerAgregador {
 
   @PostMapping("/actualizarHechos")
   public ResponseEntity<?> actualizarHechos() {
-    System.out.println("Actualizando hechos de las fuentes de datos!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
     URLsFuentes.forEach(servicefuenteDeDatos::actualizarHechos);
     return ResponseEntity.ok("Se actualizaron los hechos");
   }

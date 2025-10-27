@@ -1,9 +1,7 @@
 package Estadistica.DTO;
-
 import java.util.Map;
 
 public class EstadisticaDTO {
-
   // Categoría más reportada
   private String categoriaMasReportada;
   private long cantidadCategoriaMasReportada;

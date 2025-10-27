@@ -130,7 +130,7 @@ public class ControllerFuenteDinamica {
     if (contentType.startsWith("audio")) return TipoMultimedia.AUDIO;
     return null;
   }
-  // 🔹 Método privado para guardar el archivo físicamente
+  // 🔹 Metodo privado para guardar el archivo físicamente
   private String guardarArchivoEnDisco(MultipartFile archivo) throws IOException {
     Path uploadDir = Paths.get("uploads");
     if (!Files.exists(uploadDir)) {

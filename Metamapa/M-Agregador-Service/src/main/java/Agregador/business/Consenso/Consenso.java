@@ -2,8 +2,7 @@ package Agregador.business.Consenso;
 import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.*;
 import java.util.ArrayList;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

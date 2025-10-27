@@ -5,6 +5,7 @@ import java.util.*;
 import FuenteMetamapa.service.ServiceFuenteMetamapa;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import FuenteMetamapa.DTO.HechoDTO;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos/")
@@ -22,8 +23,15 @@ public class ControllerFuenteMetamapa{
   }
 
   @GetMapping("/{idFuenteDeDatos}")
-  public ResponseEntity<FuenteMetamapa> getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
-    return ResponseEntity.ok(fuenteMetamapaService.obtenerFuente(idfuenteDeDatos));
+  public ResponseEntity<?> getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+    try{
+      FuenteMetamapa fuente = fuenteMetamapaService.obtenerFuente(idfuenteDeDatos);
+      return ResponseEntity.ok(fuenteMetamapaService.obtenerFuente(idfuenteDeDatos));
+    }
+    catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+ 
   }
 
   // Crear una fuente
@@ -41,17 +49,27 @@ public class ControllerFuenteMetamapa{
 
   // Obtener hechos de una fuente
   @GetMapping("/{idFuenteDeDatos}/hechos")
-  public ResponseEntity<List<Hecho>> obtenerHechos(@PathVariable Integer idFuenteDeDatos) {
-    return ResponseEntity.ok(fuenteMetamapaService.obtenerHechos(idFuenteDeDatos));
+  public ResponseEntity<?> obtenerHechos(@PathVariable Integer idFuenteDeDatos) {
+    try {
+      return ResponseEntity.ok(fuenteMetamapaService.obtenerHechos(idFuenteDeDatos).stream()
+          .map(h -> new HechoDTO(h))
+          .toList());
+    }
+    catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
   }
 
   //obtener todos los hechos
   @GetMapping("/hechos")
-  public ResponseEntity<List<Hecho>> obtenerTodosLosHechos() {
-    List<Hecho> todosLosHechos = new ArrayList<>();
-    for (FuenteMetamapa fuente : fuenteMetamapaService.getFuentes()) {
-      todosLosHechos.addAll(fuente.getHechos());
+  public ResponseEntity<?> obtenerTodosLosHechos() {
+    try {
+      List<Hecho> todosLosHechos = fuenteMetamapaService.obtenerHechos();
+      return ResponseEntity.ok(todosLosHechos.stream()
+          .map(h -> new HechoDTO(h))
+          .toList());
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
-    return ResponseEntity.ok(todosLosHechos);
   }
 }

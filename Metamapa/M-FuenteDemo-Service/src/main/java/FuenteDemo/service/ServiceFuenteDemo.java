@@ -3,14 +3,23 @@ import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
 import FuenteDemo.business.Hechos.Hecho;
 import FuenteDemo.persistencia.RepositorioFuentes;
 import java.util.*;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-//TODO Pasar esto al repositorio, creo que no va aca
+import FuenteDemo.persistencia.RepositorioHechos;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 @Service
 public class ServiceFuenteDemo {
   private final RepositorioFuentes repositorioFuentes;
+  private final RepositorioHechos repositorioHechos;
 
-  public ServiceFuenteDemo(RepositorioFuentes repositorioFuentes) {
+  public ServiceFuenteDemo(RepositorioFuentes repositorioFuentes, RepositorioHechos repositorioHechos) {
     this.repositorioFuentes = repositorioFuentes;
+    this.repositorioHechos = repositorioHechos;
   }
 
   public FuenteDemo crearFuente(Map<String, Object> requestBody) {
@@ -18,28 +27,41 @@ public class ServiceFuenteDemo {
     String url = (String) requestBody.get("url");
     if (nombre == null || url == null) throw new IllegalArgumentException("Faltan campos para FuenteDemo");
     FuenteDemo fuenteDemo = new FuenteDemo(nombre, url);
-    repositorioFuentes.agregarFuente(fuenteDemo);
+    repositorioFuentes.save(fuenteDemo);
     return fuenteDemo;
   }
 
   public List<FuenteDemo> getFuentes() {
-    return repositorioFuentes.getFuentesDeDatos();
+    return repositorioFuentes.findAll();
   }
 
   public FuenteDemo obtenerFuente(Integer id) {
-    return repositorioFuentes.buscarFuente(id);
+    return repositorioFuentes.findById(id).orElseThrow(() -> new NoSuchElementException("No existe la fuente"));
   }
 
   public List<Hecho> obtenerHechos(Integer id) {
     return obtenerFuente(id).getHechos();
   }
 
-  /*public void actualizarHechos(Integer id) {
-    FuenteProxy fuente = obtenerFuente(id);
-    if (fuente instanceof FuenteMetamapa fm) {
-      fm.actualizarHechos(Collections.emptyMap());
-    } else if (fuente instanceof FuenteDemo fd) {
-      fd.actualizarHechos();
+
+  @Scheduled(fixedRate = 30 * 60 * 1000)
+  public void actualizarTodosLosHechos(WebServerInitializedEvent event) {
+    try {
+      List<FuenteDemo> fuentes = repositorioFuentes.findAll();
+      fuentes.forEach(fuente -> fuente.actualizarHechos());
+      repositorioFuentes.saveAll(fuentes);
     }
-  }*/
+    catch (Exception e) {
+      throw new ExceptionInInitializerError( "Error: No se pudieron actualizar los echos de las fuentes por el siquiente error:" + e);
+    }
+  }
+
+
+
+  public void actualizarHechos(Integer id) {
+    FuenteDemo fuente = obtenerFuente(id);
+    fuente.actualizarHechos();
+  }
+
+
 }

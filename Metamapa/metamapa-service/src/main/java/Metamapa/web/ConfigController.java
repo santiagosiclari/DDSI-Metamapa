@@ -1,4 +1,4 @@
-package metamapa.web;
+package Metamapa.web;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +22,10 @@ public class ConfigController {
 
   @Value("${M.Colecciones.Service.url:${M.Agregador.Service.url}}")
   private String coleccionesUrl;
+
+  //TODO: cuando funcione estadistica, agregarlo al return de abajo
+  /*  @Value("${M.Estadistica.Service.url}")
+  private String estadisticaUrl;*/
 
   @GetMapping(value = "/config.js", produces = "application/javascript")
   public String configJs() {

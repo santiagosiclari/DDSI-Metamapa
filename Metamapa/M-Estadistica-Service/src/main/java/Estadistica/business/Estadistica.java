@@ -1,12 +1,12 @@
 package Estadistica.business;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
-public abstract class Estadistica {
+public class Estadistica {
 
   public void actualizarEstadisticas() {}
   public void generarEstadisticas() {}
   public void exportarDatos() {}
 }
+
