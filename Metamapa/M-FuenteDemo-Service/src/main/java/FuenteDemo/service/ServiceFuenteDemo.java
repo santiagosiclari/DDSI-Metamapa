@@ -4,13 +4,9 @@ import FuenteDemo.business.Hechos.Hecho;
 import FuenteDemo.persistencia.RepositorioFuentes;
 import java.util.*;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import FuenteDemo.persistencia.RepositorioHechos;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class ServiceFuenteDemo {
@@ -43,12 +39,11 @@ public class ServiceFuenteDemo {
     return obtenerFuente(id).getHechos();
   }
 
-
   @Scheduled(fixedRate = 30 * 60 * 1000)
   public void actualizarTodosLosHechos(WebServerInitializedEvent event) {
     try {
       List<FuenteDemo> fuentes = repositorioFuentes.findAll();
-      fuentes.forEach(fuente -> fuente.actualizarHechos());
+      fuentes.forEach(FuenteDemo::actualizarHechos);
       repositorioFuentes.saveAll(fuentes);
     }
     catch (Exception e) {
@@ -56,12 +51,8 @@ public class ServiceFuenteDemo {
     }
   }
 
-
-
   public void actualizarHechos(Integer id) {
     FuenteDemo fuente = obtenerFuente(id);
     fuente.actualizarHechos();
   }
-
-
 }

@@ -1,55 +1,39 @@
 console.log("mapa.js cargado correctamente");
-let mapa;
-let markersLayer;
-let legendDiv;
 
+let mapa, markersLayer, legendDiv;
 // Paleta de colores por categoría
 const categoriaColores = {
-    "Delito": "red",
-    "Accidente": "orange",
-    "Emergencia": "blue",
-    "Clima": "purple",
-    "Otro": "green"
+    Delito: "red",
+    Accidente: "orange",
+    Emergencia: "blue",
+    Clima: "purple",
+    Otro: "green"
 };
 
-function colorPorCategoria(cat) {
-    if (!cat) return categoriaColores["Otro"];
-    return categoriaColores[cat] || categoriaColores["Otro"];
-}
+const colorPorCategoria = cat => categoriaColores[cat] || categoriaColores.Otro;
 
+// ==============================
+// MAPA PRINCIPAL
+// ==============================
 function inicializarMapa(divId = "mapa") {
     const cont = document.getElementById(divId);
-    if (!cont) {
-        console.warn(`No se encontró el contenedor #${divId}, reintentando...`);
-        setTimeout(() => inicializarMapa(divId), 200);
-        return;
-    }
+    if (!cont) return setTimeout(() => inicializarMapa(divId), 200);
 
-    // Si ya hay un mapa previo, eliminarlo para evitar conflictos
-    if (mapa) {
-        mapa.remove();
-        mapa = null;
-    }
-
-    // Crear un nuevo mapa
+    mapa?.remove(); // si ya existe, eliminar
     mapa = L.map(divId).setView([-34.61, -58.38], 11);
-
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: "&copy; OpenStreetMap contributors"
     }).addTo(mapa);
 
     markersLayer = L.layerGroup().addTo(mapa);
     console.log("🗺️ Mapa inicializado nuevamente.");
 }
 
-
-
-function limpiarMarcadores() {
-    if (markersLayer) markersLayer.clearLayers();
-}
+const limpiarMarcadores = () => markersLayer?.clearLayers();
 
 function agregarMarcador(hecho) {
-    if (!hecho.latitud || !hecho.longitud) return;
+    const { latitud, longitud, categoria, titulo, descripcion, fechaHecho } = hecho;
+    if (!latitud || !longitud) return;
 
     const color = colorPorCategoria(hecho.categoria);
     const icono = L.divIcon({
@@ -58,11 +42,10 @@ function agregarMarcador(hecho) {
     });
 
     const popup = `
-    <b>${hecho.titulo}</b><br>
-    ${hecho.descripcion}<br>
-    <small>${hecho.categoria || "Sin categoría"} | ${hecho.fechaHecho}</small>
+    <b>${titulo}</b><br>${descripcion}<br>
+    <small>${categoria || "Sin categoría"} | ${fechaHecho}</small>
   `;
-    const marker = L.marker([hecho.latitud, hecho.longitud], { icon: icono })
+    const marker = L.marker([latitud, longitud], { icon: icono })
         .bindPopup(popup)
         .on("click", () => mostrarDetalleHecho(hecho));
     marker.addTo(markersLayer);
@@ -73,9 +56,9 @@ function mostrarHechosEnMapa(hechos) {
     hechos.forEach(agregarMarcador);
     actualizarLeyenda(hechos);
 
-    if (hechos.length > 0 && hechos[0].latitud) {
-        mapa.setView([hechos[0].latitud, hechos[0].longitud], 11);
-    }
+    const { latitud, longitud } = hechos[0] || {};
+    if (latitud)
+        mapa.setView([latitud, longitud], 11);
 }
 
 // === Leyenda dinámica ===
@@ -90,72 +73,53 @@ function agregarLeyenda() {
 }
 
 function actualizarLeyenda(hechos) {
-    if (!legendDiv || !legendDiv._div) return;
+    if (!legendDiv?._div) return;
     const cats = [...new Set(hechos.map(h => h.categoria || "Otro"))];
-    if (!cats.length) {
-        legendDiv._div.innerHTML = "<strong>Leyenda</strong><br><small>Sin hechos</small>";
-        return;
-    }
-
-    legendDiv._div.innerHTML = `
-    <strong>Leyenda</strong><br>
-    ${cats.map(c => {
-        const color = colorPorCategoria(c);
-        return `<div style="display:flex;align-items:center;margin-bottom:2px">
-                <div style="background:${color};width:12px;height:12px;border-radius:50%;margin-right:6px"></div>
-                ${c}
-              </div>`;
-    }).join("")}
-  `;
+    legendDiv._div.innerHTML = cats.length
+        ? `<strong>Leyenda</strong><br>${cats
+            .map(c => `
+          <div style="display:flex;align-items:center;margin-bottom:2px">
+            <div style="background:${colorPorCategoria(c)};width:12px;height:12px;border-radius:50%;margin-right:6px"></div>${c}
+          </div>`)
+            .join("")}`
+        : "<strong>Leyenda</strong><br><small>Sin hechos</small>";
 }
+
 // ==========================
 // Mapa selector para crear hecho
 // ==========================
-let mapaSeleccion;
-let marcadorSeleccion;
+let mapaSeleccion, marcadorSeleccion;
 
 function inicializarMapaSeleccion() {
     // Evitar reinicialización múltiple
-    if (mapaSeleccion) {
-        setTimeout(() => mapaSeleccion.invalidateSize(), 200);
-        return;
-    }
+    if (mapaSeleccion)
+       return setTimeout(() => mapaSeleccion.invalidateSize(), 200);
 
     // Crear mapa base
     mapaSeleccion = L.map("mapaSeleccion").setView([-34.61, -58.38], 11);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: "&copy; OpenStreetMap contributors"
     }).addTo(mapaSeleccion);
 
     // Intentar centrar en ubicación del usuario
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            const { latitude, longitude } = pos.coords;
-            mapaSeleccion.setView([latitude, longitude], 13);
-        });
-    }
+    navigator.geolocation?.getCurrentPosition(({ coords }) =>
+        mapaSeleccion.setView([coords.latitude, coords.longitude], 13)
+    );
 
     // Al hacer clic, agregar o mover marcador
-    mapaSeleccion.on("click", function (e) {
-        const { lat, lng } = e.latlng;
-        colocarMarcadorSeleccion(lat, lng);
-    });
+    mapaSeleccion.on("click", e => colocarMarcadorSeleccion(e.latlng.lat, e.latlng.lng));
 }
 
 // Crear o mover marcador y actualizar inputs
 function colocarMarcadorSeleccion(lat, lng) {
     // Si no existe el marcador, crearlo
     if (!marcadorSeleccion) {
-        marcadorSeleccion = L.marker([lat, lng], { draggable: true }).addTo(mapaSeleccion);
-        marcadorSeleccion.on("drag", function (ev) {
-            const { lat, lng } = ev.latlng;
-            actualizarInputsLatLng(lat, lng);
-        });
-        marcadorSeleccion.on("dragend", function (ev) {
-            const { lat, lng } = ev.target.getLatLng();
-            actualizarInputsLatLng(lat, lng);
-        });
+        marcadorSeleccion = L.marker([lat, lng], { draggable: true }).addTo(mapaSeleccion)
+            .on("drag dragend", ev => {
+                const { lat, lng } = ev.target.getLatLng();
+                actualizarInputsLatLng(lat, lng);
+            });
     } else {
         marcadorSeleccion.setLatLng([lat, lng]);
     }
@@ -164,26 +128,26 @@ function colocarMarcadorSeleccion(lat, lng) {
 }
 
 // Actualiza los campos del formulario con la posición actual
-function actualizarInputsLatLng(lat, lng) {
+const actualizarInputsLatLng = (lat, lng) => {
     document.getElementById("latitud").value = lat.toFixed(6);
     document.getElementById("longitud").value = lng.toFixed(6);
-}
+};
 
 // Limpia el marcador actual (si existe)
-function limpiarMapaSeleccion() {
+const limpiarMapaSeleccion = () => {
     if (mapaSeleccion && marcadorSeleccion) {
         mapaSeleccion.removeLayer(marcadorSeleccion);
         marcadorSeleccion = null;
     }
-}
+};
 // =============================
 // MAPA DE UBICACIÓN (criterios con radio)
 // =============================
-let mapaUbicacion;
-let marcadorUbicacion;
-let circuloUbicacion;
+let mapaUbicacion, marcadorUbicacion, circuloUbicacion;
 let radioActual = 5; // km
-let inputLatDestino, inputLonDestino, inputRadioDestino;
+
+// Contexto temporal para guardar los inputs de destino
+let _mapaUbicacionContext = null;
 
 // ==================================================
 // Seleccionar ubicación en mapa (genérica)
@@ -209,39 +173,16 @@ function abrirMapaUbicacion(boton) {
             parent.querySelector(".radio");
 
         // Guardar referencias globales para usarlas al confirmar
-        window._mapaUbicacionContext = { latInput, lonInput, radioInput };
+        _mapaUbicacionContext = { latInput, lonInput, radioInput };
 
-        // Abrir modal
+        // Mostrar modal
         const modal = new bootstrap.Modal(document.getElementById("modalUbicacion"));
         modal.show();
 
-        // Inicializar mapa solo si no existe
+        // Inicializar mapa con pequeño retardo
         setTimeout(() => {
-            const mapaCont = document.getElementById("mapaUbicacion");
-            if (!mapaCont._leaflet_id) {
-                const map = L.map(mapaCont).setView([-34.6, -58.4], 12);
-                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 18,
-                }).addTo(map);
-
-                let marker = null;
-                let circle = null;
-
-                map.on("click", (e) => {
-                    const { lat, lng } = e.latlng;
-                    if (marker) map.removeLayer(marker);
-                    marker = L.marker([lat, lng]).addTo(map);
-
-                    const radioKm = parseFloat(
-                        document.getElementById("radioSlider").value
-                    );
-                    if (circle) map.removeLayer(circle);
-                    circle = L.circle([lat, lng], { radius: radioKm * 1000 }).addTo(map);
-
-                    mapaCont.dataset.lat = lat;
-                    mapaCont.dataset.lng = lng;
-                });
-            }
+            if (!mapaUbicacion) inicializarMapaUbicacion();
+            else mapaUbicacion.invalidateSize();
         }, 200);
     } catch (err) {
         console.error("Error al abrir mapa de ubicación:", err);
@@ -260,8 +201,8 @@ function confirmarUbicacion() {
     }
 
     // Asignar a los campos detectados
-    if (window._mapaUbicacionContext) {
-        const { latInput, lonInput, radioInput } = window._mapaUbicacionContext;
+    if (_mapaUbicacionContext) {
+        const { latInput, lonInput, radioInput } = _mapaUbicacionContext;
         if (latInput) latInput.value = lat.toFixed(6);
         if (lonInput) lonInput.value = lng.toFixed(6);
         if (radioInput) radioInput.value = radio.toFixed(1);
@@ -270,21 +211,24 @@ function confirmarUbicacion() {
     bootstrap.Modal.getInstance(document.getElementById("modalUbicacion")).hide();
 }
 
-
 // Confirmar selección de ubicación
 function inicializarMapaUbicacion() {
+    // Crear mapa solo una vez
     if (!mapaUbicacion) {
         mapaUbicacion = L.map("mapaUbicacion").setView([-34.61, -58.38], 11);
 
+        // Capa base
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: "&copy; OpenStreetMap contributors"
         }).addTo(mapaUbicacion);
 
+        // Clic en mapa → colocar marcador
         mapaUbicacion.on("click", e => {
             const { lat, lng } = e.latlng;
             colocarMarcadorUbicacion(lat, lng);
         });
 
+        // Control del slider de radio
         const slider = document.getElementById("radioSlider");
         slider.addEventListener("input", e => {
             radioActual = parseFloat(e.target.value);
@@ -293,32 +237,37 @@ function inicializarMapaUbicacion() {
         });
     }
 
+    // Esperar a que el modal termine de mostrarse antes de redibujar
     setTimeout(() => mapaUbicacion.invalidateSize(), 300);
 }
 
 function colocarMarcadorUbicacion(lat, lng) {
-    if (marcadorUbicacion) {
-        marcadorUbicacion.setLatLng([lat, lng]);
-    } else {
+    if (!marcadorUbicacion) {
         marcadorUbicacion = L.marker([lat, lng], { draggable: true }).addTo(mapaUbicacion);
         marcadorUbicacion.on("drag", e => {
-            const pos = e.target.getLatLng();
-            actualizarCirculoUbicacion(pos.lat, pos.lng);
+            const { lat, lng } = e.target.getLatLng();
+            actualizarCirculoUbicacion(lat, lng);
+            // Actualizar dataset al arrastrar
+            const cont = document.getElementById("mapaUbicacion");
+            cont.dataset.lat = lat;
+            cont.dataset.lng = lng;
         });
+    } else {
+        marcadorUbicacion.setLatLng([lat, lng]);
     }
     actualizarCirculoUbicacion(lat, lng);
+    // Guardar coordenadas para confirmarUbicacion()
+    const cont = document.getElementById("mapaUbicacion");
+    cont.dataset.lat = lat;
+    cont.dataset.lng = lng;
 }
 
 function actualizarCirculoUbicacion(lat, lng) {
-    if (!lat && marcadorUbicacion) {
-        const pos = marcadorUbicacion.getLatLng();
-        lat = pos.lat; lng = pos.lng;
-    }
+    if (!lat && marcadorUbicacion) ({ lat, lng } = marcadorUbicacion.getLatLng());
     if (!lat) return;
 
     const radiusMeters = radioActual * 1000;
-    if (circuloUbicacion) mapaUbicacion.removeLayer(circuloUbicacion);
-
+    circuloUbicacion?.remove();
     circuloUbicacion = L.circle([lat, lng], {
         radius: radiusMeters,
         color: "green",

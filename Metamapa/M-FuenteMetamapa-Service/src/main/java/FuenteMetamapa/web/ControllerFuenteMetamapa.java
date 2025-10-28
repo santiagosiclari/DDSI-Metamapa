@@ -9,7 +9,7 @@ import FuenteMetamapa.DTO.HechoDTO;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos/")
-public class ControllerFuenteMetamapa{
+public class ControllerFuenteMetamapa {
   private final ServiceFuenteMetamapa fuenteMetamapaService;
 
   public ControllerFuenteMetamapa(ServiceFuenteMetamapa fuenteMetamapaService) {
@@ -23,15 +23,14 @@ public class ControllerFuenteMetamapa{
   }
 
   @GetMapping("/{idFuenteDeDatos}")
-  public ResponseEntity<?> getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+  public ResponseEntity<?> getFuenteDeDatos(@PathVariable Integer idFuenteDeDatos) {
     try{
-      FuenteMetamapa fuente = fuenteMetamapaService.obtenerFuente(idfuenteDeDatos);
-      return ResponseEntity.ok(fuenteMetamapaService.obtenerFuente(idfuenteDeDatos));
+      FuenteMetamapa fuente = fuenteMetamapaService.obtenerFuente(idFuenteDeDatos);
+      return ResponseEntity.ok(fuenteMetamapaService.obtenerFuente(idFuenteDeDatos));
     }
     catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
- 
   }
 
   // Crear una fuente

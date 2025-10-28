@@ -1,10 +1,20 @@
 // === Visualización de estadísticas MetaMapa ===
 console.log("✅ stats js cargado correctamente");
-// Consulta al backend
-async function getEstadisticas() {
-    const r = await fetch(`${API_BASE}/estadisticas`);
-    return r.json();
-}
+// --- Funciones auxiliares ---
+const getEstadisticas = async () => (await fetch(`${API_BASE}/estadisticas`)).json();
+
+const crearChart = (id, type, label, data, extraOptions = {}) => {
+    const ctx = document.getElementById(id);
+    if (!ctx || !data) return;
+    new Chart(ctx, {
+        type,
+        data: {
+            labels: Object.keys(data),
+            datasets: [{ label, data: Object.values(data) }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, ...extraOptions }
+    });
+};
 
 // Muestra gráficos dentro del contenedor principal
 async function renderEstadisticas() {
@@ -20,39 +30,15 @@ async function renderEstadisticas() {
         const data = await getEstadisticas();
 
         // 1. Hechos por categoría
-        if (data.hechosPorCategoria) {
-            new Chart(document.getElementById("chartCategorias"), {
-                type: "bar",
-                data: {
-                    labels: Object.keys(data.hechosPorCategoria),
-                    datasets: [{
-                        label: "Hechos por categoría",
-                        data: Object.values(data.hechosPorCategoria)
-                    }]
-                },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-        }
-
+        crearChart("chartCategorias", "bar", "Hechos por categoría", data.hechosPorCategoria);
         // 2. Hechos por provincia
-        if (data.hechosPorProvincia) {
-            new Chart(document.getElementById("chartProvincias"), {
-                type: "pie",
-                data: {
-                    labels: Object.keys(data.hechosPorProvincia),
-                    datasets: [{
-                        label: "Hechos por provincia",
-                        data: Object.values(data.hechosPorProvincia)
-                    }]
-                },
-                options: { responsive: true }
-            });
-        }
+        crearChart("chartProvincias", "pie", "Hechos por provincia", data.hechosPorProvincia, {
+            plugins: { legend: { display: true } }
+        });
 
         // 3. Solicitudes de eliminación (spam / válidas)
         if (data.solicitudes) {
-            const spam = data.solicitudes.spam ?? 0;
-            const validas = data.solicitudes.validas ?? 0;
+            const { spam = 0, validas = 0 } = data.solicitudes;
             new Chart(document.getElementById("chartSolicitudes"), {
                 type: "doughnut",
                 data: {
@@ -65,7 +51,6 @@ async function renderEstadisticas() {
                 options: { responsive: true }
             });
         }
-
     } catch (err) {
         cont.innerHTML = `<div class="error">Error cargando estadísticas: ${err}</div>`;
     }

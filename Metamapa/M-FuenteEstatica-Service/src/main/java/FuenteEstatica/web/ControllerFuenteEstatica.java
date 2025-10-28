@@ -33,8 +33,8 @@ public class ControllerFuenteEstatica {
 
   // Obtener una fuente por id
   @GetMapping("/{idFuenteDeDatos}")
-  public FuenteEstatica getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
-    return repositorioFuentes.buscarFuente(idfuenteDeDatos);
+  public FuenteEstatica getFuenteDeDatos(@PathVariable Integer idFuenteDeDatos) {
+    return repositorioFuentes.buscarFuente(idFuenteDeDatos);
   }
 
   // Crear una fuente
@@ -77,10 +77,10 @@ public class ControllerFuenteEstatica {
 
   // este me parece que no se usa, ya que el agregador se actualiza solo por ahi esta para otra cosa
   @GetMapping("/{idFuenteDeDatos}/hechos")
-  public ResponseEntity<ArrayList<Hecho>> getHechosFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
+  public ResponseEntity<ArrayList<Hecho>> getHechosFuenteDeDatos(@PathVariable Integer idFuenteDeDatos) {
     ArrayList<Hecho> hechos;
     try {
-      hechos = procesarCSVs(idfuenteDeDatos);
+      hechos = procesarCSVs(idFuenteDeDatos);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(null);
     }
@@ -101,7 +101,7 @@ public class ControllerFuenteEstatica {
 
   // Subir un csv al file server... (ACA NO SE PROCESARIA LOS HECHOS, SOLO SE SUBE)
   @PostMapping(value = "/{idFuenteDeDatos}/cargarCSV", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-  public ResponseEntity<?> cargarCSV(@PathVariable(value = "idFuenteDeDatos") Integer idFuenteDeDatos, @RequestParam("file") MultipartFile file) {
+  public ResponseEntity<?> cargarCSV(@PathVariable Integer idFuenteDeDatos, @RequestParam("file") MultipartFile file) {
     try { // En postman probar con form-data y file
       Path carpetaPendientes = Paths.get(rutaPending, String.valueOf(idFuenteDeDatos));
       Files.createDirectories(carpetaPendientes); // asegurarse que exista la carpeta

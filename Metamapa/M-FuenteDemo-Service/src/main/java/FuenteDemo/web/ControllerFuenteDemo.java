@@ -26,8 +26,8 @@ public class ControllerFuenteDemo {
   }
 
   @GetMapping("/{idFuenteDeDatos}")
-  public ResponseEntity<FuenteDemo> getFuenteDeDatos(@PathVariable(value = "idFuenteDeDatos") Integer idfuenteDeDatos) {
-    return ResponseEntity.ok(fuenteDemoService.obtenerFuente(idfuenteDeDatos));
+  public ResponseEntity<FuenteDemo> getFuenteDeDatos(@PathVariable Integer idFuenteDeDatos) {
+    return ResponseEntity.ok(fuenteDemoService.obtenerFuente(idFuenteDeDatos));
   }
 
   // Crear una fuente
