@@ -34,6 +34,7 @@ public class ControllerAgregador {
       return ResponseEntity.noContent().build();
     }
     URLsFuentes.put(url, tipoFuente);
+    //todo eliminar prints para la entrega
     System.out.println("Agregando fuente de datos: " + url + " tipoFuente: " + tipoFuente);
     //imprimir lista de URLs
     System.out.println("Lista de URLs: " + URLsFuentes);

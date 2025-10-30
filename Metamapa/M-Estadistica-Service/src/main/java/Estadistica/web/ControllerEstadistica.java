@@ -1,14 +1,18 @@
 package Estadistica.web;
 
 import Estadistica.Service.ServiceEstadistica;
+import Estadistica.Service.TareasProgramadas;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import java.util.UUID;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
 import java.nio.charset.StandardCharsets;
 
 @Controller
@@ -16,10 +20,46 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/estadistica")
 public class ControllerEstadistica {
   private final ServiceEstadistica estadisticaService;
+  private final TareasProgramadas tareasProgramadas;
+
+  private List<Map<String,String>> agregadores = new ArrayList<Map<String,String>>();
   //TODO: tendra repositorio? no dice nada la consigna
 
-  public ControllerEstadistica(ServiceEstadistica estadisticaService) {
+
+  @PostMapping("/agregador")
+  public ResponseEntity<Object> registrarAgregador(@RequestBody Map<String, Object> body)
+  {
+    try{
+        Map<String,String> agregador = new HashMap<>();
+        agregador.put("UrlBase",(String) body.get("UrlBase"));
+        agregador.put("endpointSolicitudesEliminacion",(String) body.get("endpointSolicitudesEliminacion"));
+        agregador.put("enpointHechos",(String) body.get("enpointHechos"));
+
+        agregadores.add(agregador);
+        return ResponseEntity.ok().body(agregador);
+    }
+    catch(Exception e)
+    {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Scheduled(fixedRate = 30 * 60 * 1000)
+  public void actualizarHechosySolicitudes()
+  {
+    try
+    {
+      agregadores.forEach(agregador -> tareasProgramadas.actualizarEstadisticas(agregador.get("UrlBase") + agregador.get("endpointHechos"),agregador.get("UrlBase") + agregador.get("endpointSolicitudesEliminacion")));
+    }
+    catch(Exception e)
+    {
+      //no se que hacer aca
+    }
+  }
+
+  public ControllerEstadistica(ServiceEstadistica estadisticaService, TareasProgramadas tareasProgramadas, ServiceEstadistica serviceEstadistica) {
     this.estadisticaService = estadisticaService;
+    this.tareasProgramadas = tareasProgramadas;
   }
 
   @PostMapping("/actualizar")
