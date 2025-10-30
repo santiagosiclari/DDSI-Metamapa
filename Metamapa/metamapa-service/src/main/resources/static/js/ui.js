@@ -32,11 +32,11 @@ function renderTablaSolicitudes(titulo, solicitudes, columnas, onApprove, onReje
             </thead>
             <tbody>
               ${solicitudes.map(s => `
-                <tr>
+                <tr data-id="${s.id}" data-estado="${s.estado}">
                   ${columnas.map(c => `<td>${s[c.key] ?? "-"}</td>`).join("")}
                   <td>
-                    <button class="btn btn-sm btn-success me-1 aprobar" data-id="${s.id}" data-estado="${s.estado}">Aprobar</button>
-                    <button class="btn btn-sm btn-danger rechazar" data-id="${s.id}" data-estado="${s.estado}">Rechazar</button>
+                    <button class="btn btn-sm btn-success me-1 aprobar">Aprobar</button>
+                    <button class="btn btn-sm btn-danger rechazar">Rechazar</button>
                   </td>
                 </tr>`).join("")}
             </tbody>
@@ -44,71 +44,60 @@ function renderTablaSolicitudes(titulo, solicitudes, columnas, onApprove, onReje
         </div>
     `;
 
-    tableWrapper.querySelectorAll(".aprobar").forEach(b =>
-        b.addEventListener("click", () => {
-            if (b.dataset.estado !== "PENDIENTE") {
-                mostrarModal("Esta solicitud ya fue procesada y no se puede modificar.");
-                return;
-            }
-            onApprove(b.dataset.id);
-        })
-    );
-    tableWrapper.querySelectorAll(".rechazar").forEach(b =>
-        b.addEventListener("click", () => {
-            if (b.dataset.estado !== "PENDIENTE") {
-                mostrarModal("Esta solicitud ya fue procesada y no se puede modificar.");
-                return;
-            }
-            onReject(b.dataset.id);
-        })
-    );
-
+    // Delegación de eventos: un listener para todo el wrapper
+    tableWrapper.addEventListener("click", (ev) => {
+        const btn = ev.target.closest(".aprobar, .rechazar");
+        if (!btn) return;
+        const tr = btn.closest("tr");
+        const id = tr?.dataset.id;
+        const estado = tr?.dataset.estado;
+        if (estado !== "PENDIENTE") {
+            mostrarModal("Esta solicitud ya fue procesada y no se puede modificar.");
+            return;
+        }
+        if (btn.classList.contains("aprobar")) onApprove(id);
+        else if (btn.classList.contains("rechazar")) onReject(id);
+    });
     return tableWrapper;
 }
 
 async function mostrarSolicitudesView() {
     cont.innerHTML = "<p>Cargando solicitudes...</p>";
-
     const [elim, edic] = await Promise.all([
         obtenerSolicitudesEliminacion(),
         obtenerSolicitudesEdicion()
     ]);
-
-    cont.innerHTML = ""; // limpiamos
-    cont.appendChild(
-        renderTablaSolicitudes(
-            "Eliminación",
-            elim,
-            [
-                {key: "id", label: "ID"},
-                {key: "hechoAfectado", label: "Hecho afectado"},
-                {key: "motivo", label: "Motivo"},
-                {key: "estado", label: "Estado"}
-            ],
-            procesarSolicitudEliminacion.bind(null, true),
-            procesarSolicitudEliminacion.bind(null, false)
-        )
-    );
-    cont.appendChild(
-        renderTablaSolicitudes(
-            "Edición",
-            edic,
-            [
-                {key: "id", label: "ID"},
-                {key: "hechoAfectado", label: "Hecho afectado"},
-                {key: "tituloMod", label: "Título"},
-                {key: "descMod", label: "Descripción"},
-                {key: "categoriaMod", label: "Categoría"},
-                {key: "latitudMod", label: "Latitud"},
-                {key: "longitudMod", label: "Longitud"},
-                {key: "fechaHechoMod", label: "Fecha"},
-                {key: "sugerencia", label: "Sugerencia"},
-                {key: "estado", label: "Estado"}
-            ],
-            procesarSolicitudEdicion.bind(null, true),
-            procesarSolicitudEdicion.bind(null, false)
-        )
-    );
+    cont.innerHTML = "";
+    cont.appendChild(renderTablaSolicitudes(
+        "Eliminación",
+        elim,
+        [
+            {key: "id", label: "ID"},
+            {key: "hechoAfectado", label: "Hecho afectado"},
+            {key: "motivo", label: "Motivo"},
+            {key: "estado", label: "Estado"}
+        ],
+        procesarSolicitudEliminacion.bind(null, true),
+        procesarSolicitudEliminacion.bind(null, false)
+    ));
+    cont.appendChild(renderTablaSolicitudes(
+        "Edición",
+        edic,
+        [
+            {key: "id", label: "ID"},
+            {key: "hechoAfectado", label: "Hecho afectado"},
+            {key: "tituloMod", label: "Título"},
+            {key: "descMod", label: "Descripción"},
+            {key: "categoriaMod", label: "Categoría"},
+            {key: "latitudMod", label: "Latitud"},
+            {key: "longitudMod", label: "Longitud"},
+            {key: "fechaHechoMod", label: "Fecha"},
+            {key: "sugerencia", label: "Sugerencia"},
+            {key: "estado", label: "Estado"}
+        ],
+        procesarSolicitudEdicion.bind(null, true),
+        procesarSolicitudEdicion.bind(null, false)
+    ));
 }
 
 async function mostrarHechosView() {
@@ -125,9 +114,9 @@ async function mostrarHechosView() {
       <div id="mapa" class="mapa"></div>
       <div id="tablaHechos" class="mt-3"></div>
     `;
-    setTimeout(() => inicializarMapa(), 100);
     const hechos = await obtenerHechos();
-    setTimeout(() => mostrarHechosEnMapa(hechos), 200);
+    await ensureMapaInit("mapa");
+    mostrarHechosEnMapa(hechos);
     document.getElementById("tablaHechos").innerHTML = renderTablaHechos("Hechos curados", hechos);
 }
 
@@ -138,7 +127,6 @@ async function mostrarColeccionesView() {
           <h4>Colecciones</h4>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalColeccion">+ Nueva Colección</button>
         </div>
-
         <div class="mb-3">
           <label for="modoNav" class="form-label">Modo de navegación:</label>
           <select id="modoNav" class="form-select form-select-sm" style="width:auto; display:inline-block;">
@@ -146,7 +134,6 @@ async function mostrarColeccionesView() {
             <option value="CURADA">Curada</option>
           </select>
         </div>
-
         <div id="panelFiltrosColeccion" class="border p-3 rounded bg-light mb-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="mb-0">Filtros dinámicos</h6>
@@ -155,20 +142,18 @@ async function mostrarColeccionesView() {
           <div id="filtrosContainerColeccion"></div>
           <button class="btn btn-sm btn-success mt-2" onclick="aplicarFiltrosColeccion()">Aplicar filtros</button>
         </div>
-
         <div id="listaColecciones" class="mb-3"></div>
         <div id="mapaColeccion" class="mapa"></div>
       </div>
     `;
-    setTimeout(() => inicializarMapa("mapaColeccion"), 100);
+    await ensureMapaInit("mapaColeccion");
     await mostrarColecciones();
 }
 
 async function mostrarFuentesView() {
     cont.innerHTML = "<p>Cargando fuentes...</p>";
     const fuentes = await obtenerFuentes();
-    // Convertir el objeto { url: tipoFuente } en pares [url, tipo]
-    const lista = Object.entries(fuentes)
+    const lista = Object.entries(fuentes || {})
         .map(([url, tipo]) => `
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div>
@@ -184,7 +169,7 @@ async function mostrarFuentesView() {
         `)
         .join("");
     cont.innerHTML = `
-        <h3>Fuentes registradas (${Object.keys(fuentes).length})</h3>
+        <h3>Fuentes registradas (${Object.keys(fuentes || {}).length})</h3>
         <ul class="list-group">${lista}</ul>
     `;
 }
@@ -205,7 +190,6 @@ function mostrarDetalleHecho(h) {
           <p><b>Anonimo:</b> ${h.anonimo ? "Sí" : "No"}</p>
           <p><b>Eliminado:</b> ${h.eliminado ? "Sí" : "No"}</p>
         </div>
-
         <div class="col-md-6">
           <p><b>Latitud:</b> ${h.latitud ?? "-"}</p>
           <p><b>Longitud:</b> ${h.longitud ?? "-"}</p>
@@ -276,6 +260,7 @@ function agregarMultimedia() {
     </div>`;
     cont.appendChild(row);
 }
+
 function agregarCriterio(criterioExistente = null) {
     const container = document.getElementById("criteriosContainer");
     const div = document.createElement("div");
@@ -532,14 +517,14 @@ async function mostrarColecciones() {
     const cont = document.getElementById("listaColecciones");
     cont.innerHTML = "<p class='text-muted'>Cargando colecciones...</p>";
     try {
-        const resp = await obtenerColecciones()
-        const colecciones = await resp.json();
+        const colecciones = await obtenerColecciones();
         cont.innerHTML = colecciones.map(c => `
             <div class="card mb-2 p-2">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="fw-bold mb-1">${c.titulo}</h6>
                         <p class="small mb-0">${c.descripcion}</p>
+                        <p class="small mb-0"><b>Consenso:</b> ${c.consenso}</p>
                     </div>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-outline-primary" onclick="verHechosColeccion('${c.handle}')">Ver hechos</button>
@@ -821,7 +806,16 @@ function mostrarModal(mensaje, titulo = "Atención") {
     // Eliminar el modal del DOM cuando se cierre
     modal.addEventListener("hidden.bs.modal", () => modal.remove());
 }
-
+// helper que reemplaza setTimeouts dispersos para inicializar mapa
+function ensureMapaInit(mapId = "mapa", delay = 100) {
+    return new Promise((resolve) => {
+        // si `inicializarMapa` acepta un id, se le pasa; si no, la llamada sigue funcionando
+        setTimeout(() => {
+            try { inicializarMapa(mapId); } catch (e) { /* no bloquear */ }
+            resolve();
+        }, delay);
+    });
+}
 // Aplicar filtros en colecciones
 /*
 async function aplicarFiltrosColeccion() {

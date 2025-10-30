@@ -72,7 +72,7 @@ formRegistro.addEventListener('submit', async e => {
             alert('❌ Error: ' + resultado.mensaje);
             return;
         }
-        alert('✅ Usuario reistrado correctamente');
+        alert('✅ Usuario registrado correctamente');
         window.location.href = 'login.html';
     } catch (err) {
         console.error(err);

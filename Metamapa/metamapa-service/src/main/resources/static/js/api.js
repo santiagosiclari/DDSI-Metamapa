@@ -139,7 +139,7 @@ async function obtenerColecciones() {
 
 // Modificar consenso de una colección
 async function modificarConsensoColeccion(id, consenso) {
-    const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}/${id}/consenso`, {
+    const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}/${id}`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({consenso})
