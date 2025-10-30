@@ -31,7 +31,8 @@ public class ServiceAgregador {
     String scheme = env.getProperty("server.ssl.enabled", "false").equals("true") ? "https" : "http";
     String baseUrl = scheme + "://" + host + ":" + port;
     Map<String, Object> payload = Map.of(
-            "url", baseUrl
+            "url", baseUrl,
+            "tipoFuente","Fuente Estatica"
     );
 
     int retries = 0;

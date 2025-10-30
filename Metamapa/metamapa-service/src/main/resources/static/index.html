@@ -8,18 +8,19 @@
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="#">MetaMapa</a>
         <div>
-            <button class="btn btn-light me-2" onclick="mostrar('hechos')">Hechos</button>
+            <button class="btn btn-light me-2 login-required d-none" onclick="mostrar('hechos')">Hechos</button>
             <button class="btn btn-light me-2" onclick="mostrar('colecciones')">Colecciones</button>
-            <button class="btn btn-light me-2" onclick="mostrar('fuentes')">Fuentes</button>
-            <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#modalHecho">+ Hecho</button>
-            <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#modalColeccion">+ Colección</button>
-            <button class="btn btn-warning me-2" onclick="actualizarHechos()">Actualizar</button>
-            <button class="btn btn-danger" onclick="curarHechos()">Curar</button>
+            <button class="btn btn-light me-2 login-required d-none" onclick="mostrar('fuentes')">Fuentes</button>
+            <button class="btn btn-success me-2 login-required d-none" data-bs-toggle="modal" data-bs-target="#modalHecho">+ Hecho</button>
+            <button class="btn btn-success me-2 login-required d-none" data-bs-toggle="modal" data-bs-target="#modalColeccion">+ Colección</button>
+            <button class="btn btn-warning me-2 login-required d-none" onclick="actualizarHechos()">Actualizar</button>
+            <button class="btn btn-danger login-required d-none" onclick="curarHechos()">Curar</button>
+            <a id="btnLogin" class="btn btn-outline-light me-2" href="login.html">Iniciar sesión</a>
+            <button id="btnLogout" class="btn btn-outline-light me-2 d-none" onclick="cerrarSesion()">Cerrar sesión</button>
         </div>
     </div>
 </nav>
@@ -245,6 +246,6 @@
 <script src="js/api.js"></script>
 <script src="js/mapa.js"></script>
 <script src="js/ui.js"></script>
-
+<script src="js/auth.js"></script>
 </body>
 </html>

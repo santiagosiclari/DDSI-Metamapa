@@ -65,12 +65,19 @@ async function mostrarColeccionesView() {
 async function mostrarFuentesView() {
     cont.innerHTML = "<p>Cargando fuentes...</p>";
     const fuentes = await obtenerFuentes();
+    // Convertir el objeto { url: tipoFuente } en pares [url, tipo]
+    const lista = Object.entries(fuentes)
+        .map(([url, tipo]) => `
+      <li class="list-group-item">
+        <strong>${tipo}</strong><br>
+        <a href="${url}" target="_blank">${url}</a>
+      </li>
+    `)
+        .join("");
     cont.innerHTML = `
-      <h3>Fuentes registradas (${fuentes.length})</h3>
-      <ul class="list-group">
-        ${fuentes.map(u => `<li class="list-group-item">${u}</li>`).join("")}
-      </ul>
-    `;
+    <h3>Fuentes registradas (${Object.keys(fuentes).length})</h3>
+    <ul class="list-group">${lista}</ul>
+  `;
 }
 
 // Mostrar detalle
@@ -128,23 +135,22 @@ function mostrarDetalleHecho(h) {
 // Render tabla
 function renderTablaHechos(titulo, hechos) {
     if (!hechos.length) return `<div class="alert alert-info">No hay hechos disponibles.</div>`;
-    return `
-    <h4>${titulo} (${hechos.length})</h4>
-    <table class="table table-striped table-sm">
-      <thead><tr><th>Título</th><th>Categoría</th><th>Fuente</th><th>id</th><th>Fecha</th><th></th></tr></thead>
-      <tbody>
-        ${hechos.map(h => `
-          <tr>
+    const filas = hechos.map(h => `
+        <tr>
             <td>${h.titulo}</td>
             <td><span class="badge" style="background:${colorPorCategoria(h.categoria)}">${h.categoria || "-"}</span></td>
             <td>${h.idFuente ?? "-"}</td>
             <td>${h.id ?? "-"}</td>
             <td>${h.fechaHecho || "-"}</td>
             <td><button class="btn btn-sm btn-outline-secondary" onclick='mostrarDetalleHecho(${JSON.stringify(h)})'>Ver</button></td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>`;
+        </tr>
+    `).join("");
+    return `
+        <h4>${titulo} (${hechos.length})</h4>
+        <table class="table table-striped table-sm">
+            <thead><tr><th>Título</th><th>Categoría</th><th>Fuente</th><th>id</th><th>Fecha</th><th></th></tr></thead>
+            <tbody>${filas}</tbody>
+        </table>`;
 }
 
 // Formulario Hecho
@@ -216,23 +222,23 @@ function agregarCriterio(criterioExistente = null) {
       </div>
     </div>
 
-<div class="row mb-2 campos-ubicacion d-none">
-  <div class="col">
-    <label>Latitud</label>
-    <input type="number" step="any" name="latitud" class="form-control" readonly>
-  </div>
-  <div class="col">
-    <label>Longitud</label>
-    <input type="number" step="any" name="longitud" class="form-control" readonly>
-  </div>
-  <div class="col">
-    <label>Radio (km)</label>
-    <input type="number" step="0.1" name="radio" class="form-control" readonly>
-  </div>
-  <div class="col d-flex align-items-end">
-    <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar en mapa</button>
-  </div>
-</div>
+    <div class="row mb-2 campos-ubicacion d-none">
+      <div class="col">
+        <label>Latitud</label>
+        <input type="number" step="any" name="latitud" class="form-control" readonly>
+      </div>
+      <div class="col">
+        <label>Longitud</label>
+        <input type="number" step="any" name="longitud" class="form-control" readonly>
+      </div>
+      <div class="col">
+        <label>Radio (km)</label>
+        <input type="number" step="0.1" name="radio" class="form-control" readonly>
+      </div>
+      <div class="col d-flex align-items-end">
+        <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar en mapa</button>
+      </div>
+    </div>
 
     <div class="row mb-2 campos-multimedia d-none">
       <div class="col">
@@ -262,7 +268,6 @@ function agregarCriterio(criterioExistente = null) {
         if (criterioExistente.tipoMultimedia) div.querySelector('[name="tipoMultimedia"]').value = criterioExistente.tipoMultimedia;
         actualizarCamposCriterio(div, criterioExistente.tipo);
     }
-
     container.appendChild(div);
 }
 
@@ -576,7 +581,6 @@ function construirParametrosFiltros(contexto) {
             params.append(`${campo}${tipo}`, valor);
         }
     });
-
     return params;
 }
 
