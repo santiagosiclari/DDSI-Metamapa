@@ -35,7 +35,6 @@ async function renderEstadisticas() {
         crearChart("chartProvincias", "pie", "Hechos por provincia", data.hechosPorProvincia, {
             plugins: { legend: { display: true } }
         });
-
         // 3. Solicitudes de eliminación (spam / válidas)
         if (data.solicitudes) {
             const { spam = 0, validas = 0 } = data.solicitudes;

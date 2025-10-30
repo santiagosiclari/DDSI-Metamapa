@@ -68,16 +68,23 @@ async function mostrarFuentesView() {
     // Convertir el objeto { url: tipoFuente } en pares [url, tipo]
     const lista = Object.entries(fuentes)
         .map(([url, tipo]) => `
-      <li class="list-group-item">
-        <strong>${tipo}</strong><br>
-        <a href="${url}" target="_blank">${url}</a>
-      </li>
-    `)
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>${tipo}</strong><br>
+                    <a href="${url}" target="_blank">${url}</a>
+                </div>
+                ${tipo === "Fuente Estatica" ? `
+                    <button class="btn btn-sm btn-primary ms-3" onclick="cargarCSV('${url}')">
+                        Cargar CSV
+                    </button>
+                ` : ""}
+            </li>
+        `)
         .join("");
     cont.innerHTML = `
-    <h3>Fuentes registradas (${Object.keys(fuentes).length})</h3>
-    <ul class="list-group">${lista}</ul>
-  `;
+        <h3>Fuentes registradas (${Object.keys(fuentes).length})</h3>
+        <ul class="list-group">${lista}</ul>
+    `;
 }
 
 // Mostrar detalle
@@ -426,23 +433,80 @@ async function mostrarColecciones() {
     const cont = document.getElementById("listaColecciones");
     cont.innerHTML = "<p class='text-muted'>Cargando colecciones...</p>";
     try {
-        const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}`);
+        const resp = await obtenerColecciones()
         const colecciones = await resp.json();
         cont.innerHTML = colecciones.map(c => `
-      <div class="card mb-2 p-2">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="fw-bold mb-1">${c.titulo}</h6>
-            <p class="small mb-0">${c.descripcion}</p>
-          </div>
-          <button class="btn btn-sm btn-outline-primary" onclick="verHechosColeccion('${c.handle}')">Ver hechos</button>
-        </div>
-      </div>
-    `).join("");
+            <div class="card mb-2 p-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">${c.titulo}</h6>
+                        <p class="small mb-0">${c.descripcion}</p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="verHechosColeccion('${c.handle}')">Ver hechos</button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="cambiarConsenso('${c.handle}')">Cambiar consenso</button>
+                    </div>
+                </div>
+            </div>
+        `).join("");
     } catch (e) {
         cont.innerHTML = `<div class="alert alert-danger">Error al cargar colecciones</div>`;
         console.error("Error al cargar colecciones:", e);
     }
+}
+
+async function cambiarConsenso(id) {
+    // Crear un modal sencillo con un selector
+    const opciones = [
+        { label: "Mayoría simple", value: "MayoriaSimple" },
+        { label: "Absoluto", value: "Absoluto" },
+        { label: "Múltiples menciones", value: "MultiplesMenciones" }
+    ];
+    // Crear contenedor temporal del selector
+    const div = document.createElement("div");
+    div.innerHTML = `
+        <div class="p-3 bg-white rounded shadow-sm" style="max-width: 320px; margin: 40px auto;">
+            <h6 class="mb-3 text-center">Seleccioná un nuevo consenso</h6>
+            <select id="selectorConsenso" class="form-select mb-3">
+                ${opciones.map(o => `<option value="${o.value}">${o.label}</option>`).join("")}
+            </select>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-secondary btn-sm" id="cancelarCambio">Cancelar</button>
+                <button class="btn btn-primary btn-sm" id="confirmarCambio">Guardar</button>
+            </div>
+        </div>
+    `;
+    // Mostrarlo como modal flotante
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center;
+        z-index: 2000;
+    `;
+    overlay.appendChild(div);
+    document.body.appendChild(overlay);
+    document.getElementById("cancelarCambio").onclick = () => overlay.remove();
+    document.getElementById("confirmarCambio").onclick = async () => {
+        const nuevoConsenso = document.getElementById("selectorConsenso").value;
+        overlay.remove();
+        try {
+            const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ consenso: nuevoConsenso })
+            });
+            if (resp.ok) {
+                alert("✅ Consenso actualizado correctamente");
+                await mostrarColecciones();
+            } else {
+                const error = await resp.text();
+                alert("❌ Error al cambiar el consenso:\n" + error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("❌ Error de red al intentar cambiar el consenso");
+        }
+    };
 }
 
 // Ver hechos de una colección seleccionada

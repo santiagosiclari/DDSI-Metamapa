@@ -3,7 +3,6 @@ console.log("api.js cargado correctamente");
 async function crearHecho(e) {
     e.preventDefault();
     const f = e.target;
-
     // === Armar el objeto idéntico al JSON de Postman ===
     const data = {
         titulo: f.titulo.value.trim(),
@@ -27,7 +26,6 @@ async function crearHecho(e) {
 
     // === Enviar al backend exactamente como Postman ===
     const formData = new FormData();
-
     formData.append("hecho", JSON.stringify(data));
 
     // ✅ Agregar todos los archivos seleccionados
@@ -41,7 +39,6 @@ async function crearHecho(e) {
         method: "POST",
         body: formData // NO JSON.stringify, NO headers
     });
-
     const res = document.getElementById("resultadoHecho");
     if (resp.ok) {
         const json = await resp.json();
@@ -59,7 +56,6 @@ async function crearHecho(e) {
     }
 }
 
-
 // Obtener todos los hechos curados del agregador
 async function obtenerHechos() {
     const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/hechos`);
@@ -76,7 +72,6 @@ async function obtenerHechosDeColeccion(id) {
 function armarCriterio(div) {
     const get = n => div.querySelector(`[name="${n}"]`)?.value?.trim() || null;
     const num = n => parseFloat(get(n));
-
     return {
         tipo: get("tipo"),
         valor: get("valor"),
@@ -125,7 +120,6 @@ async function crearColeccion(e) {
         const json = await resp.json();
         res.innerHTML = `✅ Colección ${id ? "actualizada" : "creada"} (${json.handle || json.id})`;
         res.className = "text-success";
-
         const modal = bootstrap.Modal.getInstance(document.getElementById("modalColeccion"));
         modal.hide();
         limpiarFormularioColeccion();
@@ -136,7 +130,6 @@ async function crearColeccion(e) {
         res.className = "text-danger";
     }
 }
-
 
 // Obtener todas las colecciones
 async function obtenerColecciones() {
