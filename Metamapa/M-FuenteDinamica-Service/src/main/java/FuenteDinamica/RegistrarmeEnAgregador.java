@@ -32,7 +32,8 @@ public class RegistrarmeEnAgregador {
     String baseUrl = scheme + "://" + host + ":" + port;
 
     Map<String, Object> payload = Map.of(
-            "url", baseUrl
+            "url", baseUrl,
+              "tipoFuente","Fuente Dinamica"
     );
 
     int retries = 0;
@@ -54,6 +55,6 @@ public class RegistrarmeEnAgregador {
         }
       }
     }
-    System.err.println("⚠️ Could not register after " + MAX_RETRIES + " attempts.");
+    System.err.println("Could not register after " + MAX_RETRIES + " attempts.");
   }
 }

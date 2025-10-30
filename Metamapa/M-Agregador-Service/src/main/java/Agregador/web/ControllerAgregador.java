@@ -18,7 +18,7 @@ public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioHechos repositorioHechos;
   private final ServiceConsenso serviceConsenso;
-  private final Set<String> URLsFuentes = new HashSet<>();
+  private final Map<String,String> URLsFuentes = new HashMap<>();
 
   /* public void guardarHechos(int idFuente){
       ArrayList<Map<String,Object>> hechos = servicefuenteDeDatos.getHechosDeFuente(idFuente);
@@ -29,25 +29,28 @@ public class ControllerAgregador {
   @PostMapping("/fuenteDeDatos")
   public ResponseEntity<String> agregarFuente(@RequestBody Map<String, Object> body) {
     String url = (String) body.get("url");
+    String tipoFuente = (String) body.get("tipoFuente");
     if (url == null) {
       return ResponseEntity.noContent().build();
     }
-    URLsFuentes.add(url);
-    System.out.println("Agregando fuente de datos: " + url);
+    URLsFuentes.put(url, tipoFuente);
+    System.out.println("Agregando fuente de datos: " + url + " tipoFuente: " + tipoFuente);
     //imprimir lista de URLs
     System.out.println("Lista de URLs: " + URLsFuentes);
     return ResponseEntity.ok(url);
   }
 
   @GetMapping("/fuenteDeDatos")
-  public ResponseEntity<Set<String>> getFuentes() {
+  public ResponseEntity<Map<String,String>> getFuentes() {
     return ResponseEntity.ok(URLsFuentes);
   }
 
   @PostMapping("/actualizarHechos")
   public ResponseEntity<?> actualizarHechos() {
+    URLsFuentes.keySet().forEach(servicefuenteDeDatos::actualizarHechos);
 
-    URLsFuentes.forEach(servicefuenteDeDatos::actualizarHechos);
+
+    //URLsFuentes.forEach(servicefuenteDeDatos::actualizarHechos);
     return ResponseEntity.ok("Se actualizaron los hechos");
   }
 

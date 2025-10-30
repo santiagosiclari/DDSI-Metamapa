@@ -15,7 +15,7 @@ import lombok.*;
                 @UniqueConstraint(name = "uk_usuario_email", columnNames = "email")
         }
 )
-public class Usuario {
+public class Usuario{
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "usuario_id")

@@ -35,9 +35,9 @@ public class controllerUsuarios {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-/*
+
   @GetMapping(value = "/usuarios/{id}", produces = "application/json")
-  public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Integer id){
+  public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Long id){
     try{
       Optional<Usuario> usuarioOpt = usersRepository.findById(id);
       return usuarioOpt.map(usuario -> ResponseEntity.ok(new UsuarioDTO(usuario)))
@@ -49,5 +49,5 @@ public class controllerUsuarios {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
-  */
+
 }

@@ -19,7 +19,7 @@ public class SecurityConfig {
     http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api-agregador/fuenteDeDatos").permitAll()
             .anyRequest().authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2
             .jwt(jwt -> jwt
@@ -38,8 +38,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    // Reemplaza 9000 con el puerto de tu frontend
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:9000"));
+    configuration.setAllowedOrigins(Arrays.asList("*")); // Permite todos los encabezados
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(Arrays.asList("*")); // Permite todos los encabezados
     configuration.setAllowCredentials(true);

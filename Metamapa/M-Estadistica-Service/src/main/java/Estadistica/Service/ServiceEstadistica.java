@@ -2,20 +2,25 @@ package Estadistica.Service;
 
 import Estadistica.DTO.EstadisticaDTO;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import Estadistica.Service.GeocodingService;
+import Estadistica.DTO.HechoGeoDTO;
 
 @Service
 public class ServiceEstadistica {
     private final RestTemplate restTemplate;
     private final String baseUrl;
+    private final GeocodingService geocodingService; // Servicio de geocodificación
 
     public ServiceEstadistica(RestTemplate restTemplate,
-                            @Value("${M.Agregador.Service.url}") String baseUrl) {
+                            @Value("${M.Agregador.Service.url}") String baseUrl, GeocodingService geocodingService) {
         this.restTemplate = restTemplate;
         this.baseUrl = baseUrl;
+        this.geocodingService = geocodingService;
     }
 
     public void actualizar(){
@@ -47,7 +52,32 @@ public class ServiceEstadistica {
     }
 
     public String provinciaMasReportadaDeColeccion(UUID idColeccion){
-        return "";
+        String url = baseUrl + "/api-colecciones/" + idColeccion; //corregir eso, va a ser algo como: private static final String HECHOS_GEO_ENDPOINT = "/{id}/hechos-geo";
+        HechoGeoDTO[] hechosArray = restTemplate.getForObject(
+            url,
+            HechoGeoDTO[].class,
+            idColeccion
+        );
+
+        if (hechosArray == null || hechosArray.length == 0) {
+            return null; // 204 No Content
+        }
+
+        List<HechoGeoDTO> hechos = Arrays.asList(hechosArray);
+
+        // 2. Agrupación y Conteo por Provincia
+        Map<String, Long> conteoPorProvincia = hechos.stream()
+            // Llamamos al GeocodingService por cada hecho
+            .collect(Collectors.groupingBy(
+                h -> geocodingService.obtenerProvincia(h.getLatitud(), h.getLongitud()),
+                Collectors.counting()
+            ));
+
+        // 3. Encontrar la provincia con el mayor conteo
+        return conteoPorProvincia.entrySet().stream()
+            .max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey)
+            .orElse(null); // No debería pasar si hechos no está vacío
     }
 
     public String provinciaMasReportada(String categoria){
