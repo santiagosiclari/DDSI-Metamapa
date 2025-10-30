@@ -7,6 +7,105 @@ async function mostrar(seccion) {
     if (seccion === "hechos") await mostrarHechosView();
     else if (seccion === "colecciones") await mostrarColeccionesView();
     else if (seccion === "fuentes") await mostrarFuentesView();
+    else if (seccion === "solicitudes") await mostrarSolicitudesView();
+}
+
+async function mostrarSolicitudesView() {
+    cont.innerHTML = "<p>Cargando solicitudes...</p>";
+
+    // Obtener solicitudes de eliminación y edición en paralelo
+    const [solicitudesEliminacion, solicitudesEdicion] = await Promise.all([
+        obtenerSolicitudesEliminacion(),
+        obtenerSolicitudesEdicion()
+    ]);
+
+    let html = "";
+
+    // === Solicitudes de eliminación ===
+    if (!solicitudesEliminacion.length) {
+        html += `<div class="alert alert-info">No hay solicitudes de eliminación pendientes.</div>`;
+    } else {
+        const filasEliminacion = solicitudesEliminacion.map(s => `
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.hechoAfectado}</td>
+                <td>${s.motivo}</td>
+                <td>${s.estado}</td>
+                <td>
+                    <button class="btn btn-sm btn-success me-1" onclick="procesarSolicitudEliminacion(${s.id}, true)">Aprobar</button>
+                    <button class="btn btn-sm btn-danger" onclick="procesarSolicitudEliminacion(${s.id}, false)">Rechazar</button>
+                </td>
+            </tr>
+        `).join("");
+
+        html += `
+            <h3>Solicitudes de eliminación (${solicitudesEliminacion.length})</h3>
+            <div class="table-responsive mb-4">
+                <table class="table table-striped table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hecho afectado</th>
+                            <th>Motivo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>${filasEliminacion}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // === Solicitudes de edición ===
+    if (!solicitudesEdicion.length) {
+        html += `<div class="alert alert-info">No hay solicitudes de edición pendientes.</div>`;
+    } else {
+        const filasEdicion = solicitudesEdicion.map(s => `
+            <tr>
+                <td>${s.id}</td>
+                <td>${s.hechoAfectado}</td>
+                <td>${s.tituloMod || '-'}</td>
+                <td>${s.descMod || '-'}</td>
+                <td>${s.categoriaMod || '-'}</td>
+                <td>${s.latitudMod ?? '-'}</td>
+                <td>${s.longitudMod ?? '-'}</td>
+                <td>${s.fechaHechoMod || '-'}</td>
+                <td>${s.sugerencia || '-'}</td>
+                <td>${s.estado}</td>
+                <td>
+                    <button class="btn btn-sm btn-success me-1" onclick="procesarSolicitudEdicion(${s.id}, true)">Aprobar</button>
+                    <button class="btn btn-sm btn-danger" onclick="procesarSolicitudEdicion(${s.id}, false)">Rechazar</button>
+                </td>
+            </tr>
+        `).join("");
+
+        html += `
+            <h3>Solicitudes de edición (${solicitudesEdicion.length})</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hecho afectado</th>
+                            <th>Título</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Latitud</th>
+                            <th>Longitud</th>
+                            <th>Fecha</th>
+                            <th>Sugerencia</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>${filasEdicion}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    cont.innerHTML = html;
 }
 
 async function mostrarHechosView() {

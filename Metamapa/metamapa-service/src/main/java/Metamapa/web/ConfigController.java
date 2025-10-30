@@ -23,6 +23,9 @@ public class ConfigController {
   @Value("${M.Colecciones.Service.url:${M.Agregador.Service.url}}")
   private String coleccionesUrl;
 
+  @Value("${M.Agregador.Service.url}")
+  private String solicitudesUrl;
+
   //TODO: cuando funcione estadistica, agregarlo al return de abajo
   /*  @Value("${M.Estadistica.Service.url}")
   private String estadisticaUrl;*/
@@ -33,9 +36,10 @@ public class ConfigController {
             window.METAMAPA = {
                 API_FUENTE_DINAMICA: '%s/api-fuentesDeDatos',
                 API_AGREGADOR: '%s/api-agregador',
-                API_COLECCIONES: '%s/api-colecciones'
+                API_COLECCIONES: '%s/api-colecciones',
+                API_SOLICITUDES: '%s/api-solicitudes'
             };
             console.log("🌐 Configuración MetaMapa cargada:", window.METAMAPA);
-        """.formatted(fuenteDinamicaUrl, agregadorUrl, coleccionesUrl);
+        """.formatted(fuenteDinamicaUrl, agregadorUrl, coleccionesUrl, solicitudesUrl);
   }
 }

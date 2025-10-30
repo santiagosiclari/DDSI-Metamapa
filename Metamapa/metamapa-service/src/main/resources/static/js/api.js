@@ -164,3 +164,35 @@ async function curarHechos() {
     const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/consensuarHechos`, {method: "POST"});
     alert(resp.ok ? "Curado completado correctamente." : "⚠️ Error al curar hechos.");
 }
+
+//Obtener solicitudes de eliminación
+async function obtenerSolicitudesEliminacion() {
+    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion`);
+    return resp.ok ? resp.json() : [];
+}
+
+//Enviar solicitud de eliminación
+async function enviarSolicitudEliminacion(solicitud) {
+    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(solicitud)
+    });
+    return resp.ok;
+}
+
+//Procesar solicitud de eliminación (aprobar/rechazar)
+async function procesarSolicitudEliminacion(id, aprobar) {
+    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion/${id}`, {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({aprobar})
+    });
+    return resp.ok;
+}
+
+// Obtener solicitudes de edición
+async function obtenerSolicitudesEdicion() {
+    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEdicion`);
+    return resp.ok ? resp.json() : [];
+}
