@@ -1,6 +1,4 @@
 package Agregador;
-
-
 import Agregador.Service.ServiceSolicitudes;
 import Agregador.Service.ServiceSolicitudes.Result;
 import Agregador.business.Hechos.*;
@@ -35,7 +33,7 @@ class ServiceSolicitudesTests {
   private Hecho mockHecho(long id, LocalDate fechaCarga) {
     Hecho hecho = mock(Hecho.class);
     when(hecho.getId()).thenReturn(BigInteger.valueOf(id));
-    when(hecho.getFechaCarga()).thenReturn(fechaCarga);
+    when(hecho.getFechaCarga()).thenReturn(fechaCarga.atStartOfDay());
     return hecho;
   }
 

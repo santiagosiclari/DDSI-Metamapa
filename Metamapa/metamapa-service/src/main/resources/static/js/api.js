@@ -10,7 +10,7 @@ async function crearHecho(e) {
         categoria: f.categoria.value.trim(),
         latitud: parseFloat(f.latitud.value),
         longitud: parseFloat(f.longitud.value),
-        fechaHecho: f.fechaHecho?.value || new Date().toISOString().split("T")[0],
+        fechaHecho: f.fechaHecho?.value ||  new Date().toISOString().slice(0, 16),
         idUsuario: parseInt(f.idUsuario.value), //TODO: obtener del login
         fuenteId: parseInt(f.idFuente.value),
         anonimo: f.anonimo.checked

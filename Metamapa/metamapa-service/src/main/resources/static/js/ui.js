@@ -142,16 +142,17 @@ async function mostrarEstadisticasView() {
     document.getElementById("btnExportarCSV").addEventListener("click", () => {
         // Recolectar datos visibles
         const datos = [
-            ["Estadística", "Valor"],
-            ["Provincia con más hechos por Colección", document.getElementById("provinciaColeccion").textContent.trim()],
-            ["Categoría más reportada", document.getElementById("categoriaMasReportada").textContent.trim()],
-            ["Provincia con más hechos de una categoría", document.getElementById("provinciaCategoria").textContent.trim()],
-            ["Hora del día con más hechos (por categoría)", document.getElementById("horaCategoria").textContent.trim()],
-            ["Solicitudes de eliminación marcadas como spam", document.getElementById("cantidadSpam").textContent.trim()]
+            ["Estadistica", "Valor"],
+            ["Provincia con mas hechos por Coleccion", document.getElementById("provinciaColeccion").textContent.trim()],
+            ["Categoria más reportada", document.getElementById("categoriaMasReportada").textContent.trim()],
+            ["Provincia con mas hechos de una categoria", document.getElementById("provinciaCategoria").textContent.trim()],
+            ["Hora del dia con más hechos (por categoria)", document.getElementById("horaCategoria").textContent.trim()],
+            ["Solicitudes de eliminacion marcadas como spam", document.getElementById("cantidadSpam").textContent.trim()]
         ];
 
         // Convertir a CSV
-        const csv = datos.map(fila => fila.map(v => `"${v.replace(/"/g, '""')}"`).join(",")).join("\n");
+// Usar punto y coma para compatibilidad regional con Excel
+        const csv = datos.map(fila => fila.map(v => `"${v.replace(/"/g, '""')}"`).join(";")).join("\r\n");
         // Crear blob y disparar descarga
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
