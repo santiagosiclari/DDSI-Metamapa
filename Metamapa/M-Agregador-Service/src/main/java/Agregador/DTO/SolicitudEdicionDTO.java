@@ -4,7 +4,7 @@ import Agregador.business.Solicitudes.SolicitudEdicion;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import java.math.BigInteger;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Getter @Setter
@@ -17,7 +17,7 @@ public class SolicitudEdicionDTO {
   private String categoriaMod;
   private Float latitudMod;
   private Float longitudMod;
-  private LocalDate fechaHechoMod;
+  private LocalDateTime fechaHechoMod;
   private ArrayList<Multimedia> multimediaMod;
   private Boolean anonimidadMod;
   private String sugerencia;

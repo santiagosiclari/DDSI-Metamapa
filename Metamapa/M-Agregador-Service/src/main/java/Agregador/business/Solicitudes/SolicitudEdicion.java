@@ -1,5 +1,6 @@
 package Agregador.business.Solicitudes;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import java.util.*;
 import Agregador.business.Hechos.Hecho;
 import jakarta.persistence.Entity;
@@ -14,7 +15,7 @@ public class SolicitudEdicion extends Solicitud {
   private String categoriaMod;
   private Float latitudMod;
   private Float longitudMod;
-  private LocalDate fechaHechoMod;
+  private LocalDateTime fechaHechoMod;
   private ArrayList<Multimedia> multimediaMod;
   private Boolean anonimidadMod;
   private String sugerencia;
@@ -24,7 +25,7 @@ public class SolicitudEdicion extends Solicitud {
                           String categoriaMod,
                           Float latitudMod,
                           Float longitudMod,
-                          LocalDate fechaHechoMod,
+                          LocalDateTime fechaHechoMod,
                           ArrayList<Multimedia> multimediaMod,
                           Boolean anonimidadMod,
                           String sugerencia,

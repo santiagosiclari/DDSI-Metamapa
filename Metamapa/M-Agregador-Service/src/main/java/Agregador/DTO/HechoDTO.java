@@ -5,7 +5,7 @@ import Agregador.business.Hechos.Multimedia;
 import Agregador.business.Consenso.Consenso;
 import lombok.*;
 import java.math.BigInteger;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,9 +21,9 @@ public class HechoDTO {
   private String categoria;
   private Float latitud;
   private Float longitud;
-  private LocalDate fechaHecho;
-  private LocalDate fechaCarga;
-  private LocalDate fechaModificacion;
+  private LocalDateTime fechaHecho;
+  private LocalDateTime fechaCarga;
+  private LocalDateTime fechaModificacion;
   private String perfil; // solo nombre del usuario o null
   private Boolean anonimo;
   private Boolean eliminado;

@@ -1,4 +1,7 @@
 package Estadistica.Service;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
@@ -163,8 +166,8 @@ public class ServiceEstadistica {
     public Map<String,String> estadisticaHoraCategoria(String categoria){
         Map<String,String> estadisticaHoraCategoria = new HashMap<>();
         String hora = repositorioHechos.findByCategoria(categoria)
-                .stream().filter(h -> h.getHora() != null)
-                .collect(Collectors.groupingBy(h->h.getHora(), Collectors.counting()))
+                .stream().filter(h -> getHora(h.getFechaHecho()) != null)
+                .collect(Collectors.groupingBy(h->getHora(h.getFechaHecho()), Collectors.counting()))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(e -> e.getKey().toString())
@@ -172,6 +175,9 @@ public class ServiceEstadistica {
         estadisticaHoraCategoria.put("categoria", categoria);
         estadisticaHoraCategoria.put("hora", hora);
         return estadisticaHoraCategoria;
+    }
+    public String getHora(LocalDateTime fechayhora){
+        return fechayhora.format(DateTimeFormatter.ofPattern("HH"));
     }
 
     //¿En qué provincia se presenta la mayor cantidad de hechos de una cierta categoría?
@@ -193,7 +199,7 @@ public class ServiceEstadistica {
     public Map<String,String> estadisticaColeccionProvincia(UUID idColeccion) {
         Map<String, String> estadisticaProvinciaCategoria = new HashMap<>();
         Coleccion coleccion = repositorioColecciones.findById(idColeccion).orElse(null);
-        String provincia = repositorioHechos.filtrarPorCriterios(coleccion.getCriterios(), null)
+        String provincia = repositorioHechos.filtrarPorCriterios(coleccion.getCriterios())
                 .stream().filter(h -> (getProvincia(h.getLatitud(),h.getLongitud()) != null))
                 .collect(Collectors.groupingBy(h -> getProvincia(h.getLatitud(),h.getLongitud()), Collectors.counting()))
                 .entrySet().stream()
@@ -210,14 +216,18 @@ public class ServiceEstadistica {
 
     //¿Cuál es la categoría con mayor cantidad de hechos reportados?
     public Map<String, String> estadisticaCategoriaMasReportada() {
+        Map<String, Long> conteos = repositorioHechos.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        h -> Optional.ofNullable(h.getCategoria()).orElse("Sin categoría"),
+                        Collectors.counting()
+                ));
+
+        var top = conteos.entrySet().stream()
+                .max(Map.Entry.comparingByValue());
+
         Map<String, String> estadisticaCategoriaMasReportada = new HashMap<>();
-        String categoriaMasReportada = repositorioHechos.findAll().stream()
-                .collect(Collectors.groupingBy(Hecho::getCategoria, Collectors.counting()))
-                .entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(e -> e.getKey().getDescripcion()) // obtiene el nombre/desc de la categoría
-                .orElse("N/A");
-        estadisticaCategoriaMasReportada.put("categoria", categoriaMasReportada);
+        estadisticaCategoriaMasReportada.put("categoria", top.map(Map.Entry::getKey).orElse("N/A"));
+        estadisticaCategoriaMasReportada.put("cantidad", top.map(e -> e.getValue().toString()).orElse("0"));
         return estadisticaCategoriaMasReportada;
     }
 }

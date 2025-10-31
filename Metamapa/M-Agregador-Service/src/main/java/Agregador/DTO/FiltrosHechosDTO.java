@@ -1,7 +1,7 @@
 package Agregador.DTO;
 
 import lombok.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter @Setter @Data
 public class FiltrosHechosDTO {
@@ -9,10 +9,10 @@ public class FiltrosHechosDTO {
   private String tituloP;
   private String descripcionP;
   private String categoriaP;
-  private LocalDate fechaReporteDesdeP;
-  private LocalDate fechaReporteHastaP;
-  private LocalDate fechaAcontecimientoDesdeP;
-  private LocalDate fechaAcontecimientoHastaP;
+  private LocalDateTime fechaReporteDesdeP;
+  private LocalDateTime fechaReporteHastaP;
+  private LocalDateTime fechaAcontecimientoDesdeP;
+  private LocalDateTime fechaAcontecimientoHastaP;
   private Float latitudP;
   private Float longitudP;
   private Float radioP;
@@ -21,10 +21,10 @@ public class FiltrosHechosDTO {
   private String tituloNP;
   private String descripcionNP;
   private String categoriaNP;
-  private LocalDate fechaReporteDesdeNP;
-  private LocalDate fechaReporteHastaNP;
-  private LocalDate fechaAcontecimientoDesdeNP;
-  private LocalDate fechaAcontecimientoHastaNP;
+  private LocalDateTime fechaReporteDesdeNP;
+  private LocalDateTime fechaReporteHastaNP;
+  private LocalDateTime fechaAcontecimientoDesdeNP;
+  private LocalDateTime fechaAcontecimientoHastaNP;
   private Float latitudNP;
   private Float longitudNP;
   private Float radioNP;

@@ -1,6 +1,6 @@
 package FuenteMetamapa.business.Hechos;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.*;
 import FuenteMetamapa.business.FuentesDeDatos.FuenteMetamapa;
 
@@ -12,9 +12,9 @@ public class Hecho {
   private String categoria;
   private Float latitud;
   private Float longitud;
-  private LocalDate fechaHecho;
-  private LocalDate fechaCarga;
-  private LocalDate fechaModificacion;
+  private LocalDateTime fechaHecho;
+  private LocalDateTime fechaCarga;
+  private LocalDateTime fechaModificacion;
 
   @ManyToOne
   private FuenteMetamapa fuente;
@@ -30,7 +30,7 @@ public class Hecho {
           String categoria,
           Float latitud,
           Float longitud,
-          LocalDate fechaHecho,
+          LocalDateTime fechaHecho,
           FuenteMetamapa fuenteId) {
     this.titulo = titulo;
     this.descripcion = descripcion;
@@ -38,8 +38,8 @@ public class Hecho {
     this.latitud = latitud;
     this.longitud = longitud;
     this.fechaHecho = fechaHecho;
-    this.fechaCarga = LocalDate.now();
-    this.fechaModificacion = LocalDate.now();
+    this.fechaCarga = LocalDateTime.now();
+    this.fechaModificacion = LocalDateTime.now();
     this.fuente = fuenteId;
   }
 
@@ -47,7 +47,7 @@ public class Hecho {
     return getMetadata().get(key).equals(value);
   }*/
 
-  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho) {
+  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDateTime fechaHecho) {
     if (titulo != null) {
       this.titulo = titulo;
     }
@@ -64,7 +64,7 @@ public class Hecho {
     if (fechaHecho != null) {
       this.fechaHecho = fechaHecho;
     }
-    this.fechaModificacion = LocalDate.now();
+    this.fechaModificacion = LocalDateTime.now();
   }
 
   /*public void aniadirEtiqueta(String key, String value) {

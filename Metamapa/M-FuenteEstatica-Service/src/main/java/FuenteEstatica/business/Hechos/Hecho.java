@@ -1,6 +1,6 @@
 package FuenteEstatica.business.Hechos;
 import FuenteEstatica.business.FuentesDeDatos.FuenteEstatica;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -18,8 +18,8 @@ public class Hecho {
   private String categoria;
   private Float latitud;
   private Float longitud;
-  private LocalDate fechaHecho;
-  private LocalDate fechaCarga;
+  private LocalDateTime fechaHecho;
+  private LocalDateTime fechaCarga;
   //@ManyToOne
   //@JoinColumn(name = "fuente_id")
   private Integer fuenteId;
@@ -31,7 +31,7 @@ public class Hecho {
           String categoria,
           Float latitud,
           Float longitud,
-          LocalDate fechaHecho,
+          LocalDateTime fechaHecho,
           Integer fuenteId) {  // <--- aquí pasás la referencia, no el ID
     this.titulo = titulo;
     this.descripcion = descripcion;
@@ -39,7 +39,7 @@ public class Hecho {
     this.latitud = latitud;
     this.longitud = longitud;
     this.fechaHecho = fechaHecho;
-    this.fechaCarga = LocalDate.now();
+    this.fechaCarga = LocalDateTime.now();
     this.id = contadorID++;
     this.fuenteId = fuenteId;
   }

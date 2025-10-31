@@ -1,5 +1,5 @@
 package FuenteDinamica.business.Hechos;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import FuenteDinamica.business.FuentesDeDatos.FuenteDinamica;
 import lombok.*;
@@ -17,9 +17,9 @@ public class Hecho {
   private String categoria;
   private Float latitud;
   private Float longitud;
-  private LocalDate fechaHecho;
-  private LocalDate fechaCarga;
-  private LocalDate fechaModificacion;
+  private LocalDateTime fechaHecho;
+  private LocalDateTime fechaCarga;
+  private LocalDateTime fechaModificacion;
   private Integer idUsuario;
   private Boolean anonimo;
   private Boolean eliminado = false;
@@ -42,7 +42,7 @@ public class Hecho {
           String categoria,
           Float latitud,
           Float longitud,
-          LocalDate fechaHecho,
+          LocalDateTime fechaHecho,
           Integer idUsuario,
           FuenteDinamica fuente, // <--- aquí pasás la referencia, no el ID
           Boolean anonimo,
@@ -53,8 +53,8 @@ public class Hecho {
     this.latitud = latitud;
     this.longitud = longitud;
     this.fechaHecho = fechaHecho;
-    this.fechaCarga = LocalDate.now();
-    this.fechaModificacion = LocalDate.now();
+    this.fechaCarga = LocalDateTime.now();
+    this.fechaModificacion = LocalDateTime.now();
     this.idUsuario = idUsuario;
     this.fuente = fuente; // <--- Hibernate maneja la FK
     this.anonimo = anonimo;

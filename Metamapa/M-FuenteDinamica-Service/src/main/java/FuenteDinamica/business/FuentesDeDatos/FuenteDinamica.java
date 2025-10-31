@@ -2,6 +2,7 @@ package FuenteDinamica.business.FuentesDeDatos;
 import FuenteDinamica.business.Hechos.*;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 import jakarta.persistence.*;
@@ -29,7 +30,7 @@ public class FuenteDinamica {
           String categoria,
           Float latitud,
           Float longitud,
-          LocalDate fechaHecho,
+          LocalDateTime fechaHecho,
           Integer idAutor,
           Boolean anonimidad,
           List<Multimedia> multimedia) {

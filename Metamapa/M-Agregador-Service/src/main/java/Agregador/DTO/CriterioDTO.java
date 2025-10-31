@@ -4,7 +4,7 @@ import Agregador.business.Hechos.TipoMultimedia;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -32,8 +32,8 @@ public class CriterioDTO {
       case "fecha" -> {
         try {
           yield new CriterioFecha(
-                  LocalDate.parse(fechaDesde),
-                  LocalDate.parse(fechaHasta),
+                  LocalDateTime.parse(fechaDesde),
+                  LocalDateTime.parse(fechaHasta),
                   this.inclusion
           );
         } catch (DateTimeParseException e) {
@@ -42,7 +42,7 @@ public class CriterioDTO {
       }
       case "fechareportaje" -> {
         try {
-          yield new CriterioFechaReportaje(LocalDate.parse(fechaDesde), LocalDate.parse(fechaHasta), inclusion);
+          yield new CriterioFechaReportaje(LocalDateTime.parse(fechaDesde), LocalDateTime.parse(fechaHasta), inclusion);
         } catch (DateTimeParseException e) {
           throw new IllegalArgumentException("Formato de fecha inválido. Se esperaba yyyy-MM-dd");
         }

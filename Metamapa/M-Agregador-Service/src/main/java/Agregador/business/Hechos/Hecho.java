@@ -1,7 +1,7 @@
 package Agregador.business.Hechos;
 import Agregador.business.Usuarios.Usuario;
 import java.math.BigInteger;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,9 +17,9 @@ public class Hecho {
   private String categoria;
   private Float latitud;
   private Float longitud;
-  private LocalDate fechaHecho;
-  private LocalDate fechaCarga;
-  private LocalDate fechaModificacion;
+  private LocalDateTime fechaHecho;
+  private LocalDateTime fechaCarga;
+  private LocalDateTime fechaModificacion;
   @ManyToOne
   private Usuario perfil;
   private Boolean anonimo;
@@ -46,7 +46,7 @@ public class Hecho {
           String categoria,
           Float latitud,
           Float longitud,
-          LocalDate fechaHecho,
+          LocalDateTime fechaHecho,
           Usuario perfil,
           Integer fuenteId,
           Integer hechoId,
@@ -58,8 +58,8 @@ public class Hecho {
     this.latitud = latitud;
     this.longitud = longitud;
     this.fechaHecho = fechaHecho;
-    this.fechaCarga = LocalDate.now();
-    this.fechaModificacion = LocalDate.now();
+    this.fechaCarga = LocalDateTime.now();
+    this.fechaModificacion = LocalDateTime.now();
     this.perfil = perfil;
     this.anonimo = anonimo;
     this.eliminado = false;
@@ -90,7 +90,7 @@ public class Hecho {
     return consensos.stream().anyMatch(c -> c.getClass() == consenso.getClass());
   }
 
-  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDate fechaHecho, Boolean anonimidad, ArrayList<Multimedia> multimedia) {
+  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDateTime fechaHecho, Boolean anonimidad, ArrayList<Multimedia> multimedia) {
     if (titulo != null) {
       this.titulo = titulo;
     }
@@ -113,7 +113,7 @@ public class Hecho {
     if (multimedia != null) {
       this.multimedia = multimedia;
     }
-    this.fechaModificacion = LocalDate.now();
+    this.fechaModificacion = LocalDateTime.now();
   }
 
   public void aniadirEtiqueta(String key, String value) {

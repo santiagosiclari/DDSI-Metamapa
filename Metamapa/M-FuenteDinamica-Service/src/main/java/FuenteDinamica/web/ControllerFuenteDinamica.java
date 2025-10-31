@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import FuenteDinamica.DTO.*;
 import FuenteDinamica.persistencia.*;
@@ -92,8 +93,8 @@ public class ControllerFuenteDinamica {
       HechoDTO hechoDTO = mapper.readValue(hechoJson, HechoDTO.class);
       // 3️⃣ Convertir a entidad y completar fechas
       Hecho hecho = hechoDTO.toDomain(fuente);
-      hecho.setFechaCarga(LocalDate.now());
-      hecho.setFechaModificacion(LocalDate.now());
+      hecho.setFechaCarga(LocalDateTime.now());
+      hecho.setFechaModificacion(LocalDateTime.now());
       // 2️⃣ Guardar archivos en resources/archivos
       String uploadDir = "Metamapa/M-FuenteDinamica-Service/src/main/resources/archivos/";
       File directorio = new File(uploadDir);

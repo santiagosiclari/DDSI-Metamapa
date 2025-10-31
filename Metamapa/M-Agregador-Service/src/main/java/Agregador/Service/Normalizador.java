@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,8 +53,8 @@ public class Normalizador {
     if (h.getLatitud() != null)  h.setLatitud(redondear(h.getLatitud(), decimalesCoordenadas));
     if (h.getLongitud() != null) h.setLongitud(redondear(h.getLongitud(), decimalesCoordenadas));
     // Fechas: asegurar consistencia básica (si viene nula, no forzar)
-    if (h.getFechaCarga() == null)        h.setFechaCarga(LocalDate.now());
-    if (h.getFechaModificacion() == null) h.setFechaModificacion(LocalDate.now());
+    if (h.getFechaCarga() == null)        h.setFechaCarga(LocalDateTime.now());
+    if (h.getFechaModificacion() == null) h.setFechaModificacion(LocalDateTime.now());
     // Metadata: normalizar claves a lower (opcional)
     if (h.getMetadata() != null && !h.getMetadata().isEmpty()) {
       HashMap<String, String> nueva = new HashMap<>();
@@ -75,7 +76,7 @@ public class Normalizador {
   /** === Dedupe key === */
   private String clave(Hecho h) {
     String tituloCmp = toComparable(Optional.ofNullable(h.getTitulo()).orElse(""));
-    String fecha     = Optional.ofNullable(h.getFechaHecho()).map(LocalDate::toString).orElse("0000-00-00");
+    String fecha     = Optional.ofNullable(h.getFechaHecho()).map(LocalDateTime::toString).orElse("0000-00-00");
     // Construimos el formato correctamente y de forma segura
     String formatCoords = String.format("%%.%df", decimalesCoordenadas);
     String lat = h.getLatitud()  == null ? "null" : String.format(Locale.ROOT, formatCoords, h.getLatitud());

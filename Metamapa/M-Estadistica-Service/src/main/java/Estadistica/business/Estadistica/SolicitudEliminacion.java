@@ -1,5 +1,5 @@
 package Estadistica.business.Estadistica;
-import Estadistica.business.Estadistica.Hecho
+import Estadistica.business.Estadistica.Hecho;
 import jakarta.persistence.*;
 import lombok.Getter;
 

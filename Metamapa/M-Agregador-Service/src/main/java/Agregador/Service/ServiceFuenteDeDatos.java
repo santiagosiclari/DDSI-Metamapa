@@ -1,6 +1,7 @@
 package Agregador.Service;
 import Agregador.business.Hechos.Hecho;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import Agregador.business.Consenso.Consenso;
 import Agregador.persistencia.RepositorioHechos;
@@ -94,14 +95,14 @@ public class ServiceFuenteDeDatos {
     String categoria    = str(json.get("categoria"));
     Float latitud       = f(json.get("latitud"));
     Float longitud      = f(json.get("longitud"));
-    LocalDate fechaHecho= date(json.get("fechaHecho"));
+    LocalDateTime fechaHecho = date(json.get("fechaHecho"));
     // id del hecho dentro de la fuente (aceptamos "id" o "hechoId")
     Integer hechoId     = i(json.containsKey("id") ? json.get("id") : json.get("hechoId"));
     Boolean anonimo     = bool(json.get("anonimo"));
     // Si tu remoto lo manda:
     Boolean eliminado   = bool(json.get("eliminado"));
-    LocalDate fechaCarga= date(json.get("fechaCarga"));
-    LocalDate fechaMod  = date(json.get("fechaModificacion"));
+    LocalDateTime fechaCarga = date(json.get("fechaCarga"));
+    LocalDateTime fechaMod  = date(json.get("fechaModificacion"));
     // Construcción del dominio (perfil/multimedia opcionales -> null / vacío)
     Hecho h = new Hecho(
             titulo, descripcion, categoria, latitud, longitud, fechaHecho,
@@ -129,7 +130,7 @@ public class ServiceFuenteDeDatos {
   private static Integer i(Object o)         { try { return o == null ? null : Integer.valueOf(String.valueOf(o)); } catch(Exception e){ return null; } }
   private static Float f(Object o)           { try { return o == null ? null : Float.valueOf(String.valueOf(o)); } catch(Exception e){ return null; } }
   private static Boolean bool(Object o)      { return o == null ? null : Boolean.valueOf(String.valueOf(o)); }
-  private static LocalDate date(Object o)    { try { return o == null ? null : LocalDate.parse(String.valueOf(o)); } catch(Exception e){ return null; } }
+  private static LocalDateTime date(Object o)    { try { return o == null ? null : LocalDateTime.parse(String.valueOf(o)); } catch(Exception e){ return null; } }
 
   // ================== DTOs simples ==================
   @Data

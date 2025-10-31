@@ -4,6 +4,7 @@ import FuenteEstatica.business.FuentesDeDatos.FuenteEstatica;
 import com.opencsv.*;
 import java.io.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -40,7 +41,7 @@ public class CSVHechoParser implements HechoParser {
                 String categoria = campos[2].trim();
                 Float latitud = Float.parseFloat(campos[3].trim());
                 Float longitud = Float.parseFloat(campos[4].trim());
-                LocalDate fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                LocalDateTime fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy")).atStartOfDay();
 
                 Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho, fuente.getFuenteId());
                 listaHecho.add(hecho);
@@ -70,7 +71,7 @@ public class CSVHechoParser implements HechoParser {
                 String categoria = campos[2].trim();
                 Float latitud = Float.parseFloat(campos[3].trim());
                 Float longitud = Float.parseFloat(campos[4].trim());
-                LocalDate fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                LocalDateTime fechaHecho = LocalDate.parse(campos[5].trim(), DateTimeFormatter.ofPattern("dd/MM/yyyy")).atStartOfDay();
 
                 Hecho hecho = new Hecho(titulo,descripcion, categoria, latitud, longitud, fechaHecho, fuente.getFuenteId());
                 listaHecho.add(hecho);
@@ -87,7 +88,7 @@ public class CSVHechoParser implements HechoParser {
         String categoria = campos[2];
         float latitud = Float.parseFloat(campos[3]);
         float longitud = Float.parseFloat(campos[4]);
-        LocalDate fecha = LocalDate.parse(campos[5]);
+        LocalDateTime fecha = LocalDate.parse(campos[5]).atStartOfDay();
         return new Hecho(titulo, descripcion, categoria, latitud, longitud, fecha, fuente.getFuenteId());
     }
 }

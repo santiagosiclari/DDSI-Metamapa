@@ -6,7 +6,7 @@ import Agregador.persistencia.*;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -84,7 +84,7 @@ public class ServiceSolicitudes {
     public SolicitudEdicionDTO crearSolicitudEdicion(SolicitudEdicionDTO dto) {
         Hecho hecho = repoHechos.findById(dto.getHechoAfectado())
                 .orElseThrow(() -> new NoSuchElementException("Hecho no encontrado"));
-        if (hecho.getFechaCarga().plusDays(7).isBefore(LocalDate.now()))
+        if (hecho.getFechaCarga().plusDays(7).isBefore(LocalDateTime.now()))
             throw new IllegalArgumentException("Paso mas de una semana de la carga del Hecho");
         SolicitudEdicion solicitud = new SolicitudEdicion(
                 dto.getTituloMod(),
