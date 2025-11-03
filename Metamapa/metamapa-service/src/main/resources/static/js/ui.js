@@ -67,38 +67,32 @@ async function mostrarEstadisticasView() {
     cont.innerHTML = `
         <h2>📊 Estadísticas del sistema</h2>
         <div id="estadisticas-container" class="estadisticas">
-            
             <div class="stat">
                 <h3>📁 Provincia con más hechos por Colección</h3>
                 <input type="text" id="coleccionInput" placeholder="Ingrese UUID de colección..." />
                 <button id="btnBuscarProvinciaColeccion">Buscar</button>
                 <p id="provinciaColeccion">—</p>
             </div>
-
             <div class="stat">
                 <h3>🏷️ Categoría más reportada</h3>
                 <p id="categoriaMasReportada">Cargando...</p>
             </div>
-
             <div class="stat">
                 <h3>🌎 Provincia con más hechos de una categoría</h3>
                 <input type="text" id="categoriaInput" placeholder="Ingrese una categoría..." />
                 <button id="btnBuscarProvinciaCat">Buscar</button>
                 <p id="provinciaCategoria">—</p>
             </div>
-
             <div class="stat">
                 <h3>🕓 Hora del día con más hechos (por categoría)</h3>
                 <input type="text" id="categoriaHoraInput" placeholder="Ingrese una categoría..." />
                 <button id="btnBuscarHoraCat">Buscar</button>
                 <p id="horaCategoria">—</p>
             </div>
-
             <div class="stat">
                 <h3>🚫 Solicitudes de eliminación marcadas como spam</h3>
                 <p id="cantidadSpam">Cargando...</p>
             </div>
-
             <hr>
             <div class="text-end mt-4">
                 <button id="btnExportarCSV" class="btn btn-success">⬇️ Exportar CSV</button>
@@ -108,11 +102,9 @@ async function mostrarEstadisticasView() {
 
     // 🔹 Llamados iniciales (estadísticas generales)
     const categoriaMasReportada = await obtenerCategoriaMasReportada();
-    document.getElementById("categoriaMasReportada").textContent =
-        categoriaMasReportada || "No hay datos";
+    document.getElementById("categoriaMasReportada").textContent = categoriaMasReportada || "No hay datos";
 
-    const cantidadSpam = await obtenerCantidadSolicitudesSpam();
-    document.getElementById("cantidadSpam").textContent = cantidadSpam;
+    document.getElementById("cantidadSpam").textContent = await obtenerCantidadSolicitudesSpam();
 
     // 🔹 Eventos dinámicos
     document.getElementById("btnBuscarProvinciaColeccion").addEventListener("click", async () => {
@@ -500,7 +492,6 @@ function agregarCriterio(criterioExistente = null) {
         <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.criterio-box').remove()">✕</button>
       </div>
     </div>
-
     <!-- Campos específicos por tipo -->
     <div class="row mb-2 campos-fecha d-none">
       <div class="col">
@@ -512,14 +503,12 @@ function agregarCriterio(criterioExistente = null) {
         <input type="date" name="fechaHasta" class="form-control">
       </div>
     </div>
-
     <div class="row mb-2 campos-fuente d-none">
       <div class="col">
         <label>ID Fuente</label>
         <input type="number" name="idFuenteDeDatos" class="form-control" placeholder="1">
       </div>
     </div>
-
     <div class="row mb-2 campos-ubicacion d-none">
       <div class="col">
         <label>Latitud</label>
@@ -537,7 +526,6 @@ function agregarCriterio(criterioExistente = null) {
         <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar en mapa</button>
       </div>
     </div>
-
     <div class="row mb-2 campos-multimedia d-none">
       <div class="col">
         <label>Tipo de Multimedia</label>
@@ -783,7 +771,7 @@ async function cambiarConsenso(id) {
         try {
             const ok = await modificarConsensoColeccion(id, nuevoConsenso);
             if (ok) {
-                alert("✅ Consenso actualizado correctamente");
+                mostrarModal("✅ Consenso actualizado con éxito");
                 await mostrarColecciones();
             } else {
                 alert("❌ Error al cambiar el consenso en el servidor");
@@ -863,12 +851,10 @@ function agregarFiltro(contexto) {
           <option value="tipoMultimedia">Multimedia</option>
         </select>
       </div>
-
       <div class="col-md-4 valorFiltroCol">
         <label class="form-label">Valor</label>
         <input type="text" class="form-control valorFiltro" placeholder="Texto o número">
       </div>
-
       <div class="col-md-3">
         <label class="form-label">Tipo</label>
         <select class="form-select tipoFiltro">
@@ -876,12 +862,10 @@ function agregarFiltro(contexto) {
           <option value="NP">Excluir</option>
         </select>
       </div>
-
       <div class="col-md-2">
         <button class="btn btn-outline-danger btn-sm" onclick="this.closest('div.p-2').remove()">✕</button>
       </div>
     </div>
-
     <!-- Campos extra para ubicación -->
     <div class="row mt-2 g-2 d-none camposUbicacion">
       <div class="col-md-3"><input type="number" step="any" class="form-control latitud" placeholder="Latitud" readonly></div>
@@ -979,8 +963,7 @@ function mostrarAlerta(mensaje, tipo = "warning", duracion = 3000) {
     }, duracion);
 }
 
-function mostrarModal(mensaje, titulo = "Atención") {
-    // Crear el modal
+function mostrarModal(mensaje, titulo = "Atención", recargar = false) {
     const modal = document.createElement("div");
     modal.className = "modal fade";
     modal.tabIndex = -1;
@@ -1006,8 +989,11 @@ function mostrarModal(mensaje, titulo = "Atención") {
     const bootstrapModal = new bootstrap.Modal(modal);
     bootstrapModal.show();
 
-    // Eliminar el modal del DOM cuando se cierre
-    modal.addEventListener("hidden.bs.modal", () => modal.remove());
+    // Cuando se cierre, limpiar y (si aplica) recargar
+    modal.addEventListener("hidden.bs.modal", () => {
+        modal.remove();
+        if (recargar) location.reload();
+    });
 }
 
 // helper que reemplaza setTimeouts dispersos para inicializar mapa
