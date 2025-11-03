@@ -13,6 +13,7 @@ async function mostrar(seccion) {
     cont.innerHTML = "";
     const fn = vistas[seccion];
     if (fn) await fn();
+    sessionStorage.setItem("vistaActual", seccion);
 }
 
 function renderTablaSolicitudes(titulo, solicitudes, columnas, onApprove, onReject) {
@@ -144,9 +145,9 @@ async function mostrarEstadisticasView() {
         const datos = [
             ["Estadistica", "Valor"],
             ["Provincia con mas hechos por Coleccion", document.getElementById("provinciaColeccion").textContent.trim()],
-            ["Categoria más reportada", document.getElementById("categoriaMasReportada").textContent.trim()],
+            ["Categoria mas reportada", document.getElementById("categoriaMasReportada").textContent.trim()],
             ["Provincia con mas hechos de una categoria", document.getElementById("provinciaCategoria").textContent.trim()],
-            ["Hora del dia con más hechos (por categoria)", document.getElementById("horaCategoria").textContent.trim()],
+            ["Hora del dia con mas hechos (por categoria)", document.getElementById("horaCategoria").textContent.trim()],
             ["Solicitudes de eliminacion marcadas como spam", document.getElementById("cantidadSpam").textContent.trim()]
         ];
 
@@ -614,14 +615,15 @@ function limpiarFormularioHecho() {
     document.getElementById("latitud").value = "";
     document.getElementById("longitud").value = "";
 
-    // limpiar contenedor de multimedia
-    const cont = document.getElementById("multimediaContainer");
-    if (cont) cont.innerHTML = "";
+    // limpiar input de archivos, sin borrar el contenedor
+    const input = document.getElementById("inputMultimedia");
+    if (input) input.value = "";
 
     // limpiar resultado de estado
     const res = document.getElementById("resultadoHecho");
     if (res) res.innerHTML = "";
 }
+
 document.addEventListener("DOMContentLoaded", () => {
     const modalColeccion = document.getElementById("modalColeccion");
     if (modalColeccion) {
@@ -644,7 +646,8 @@ function limpiarFormularioColeccion() {
 // ==========================
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Iniciando MetaMapa...");
-    await mostrar("hechos");
+    const vista = sessionStorage.getItem("vistaActual") || "hechos"; // fallback
+    await mostrar(vista);
 });
 
 // ==================================================
@@ -1006,6 +1009,7 @@ function mostrarModal(mensaje, titulo = "Atención") {
     // Eliminar el modal del DOM cuando se cierre
     modal.addEventListener("hidden.bs.modal", () => modal.remove());
 }
+
 // helper que reemplaza setTimeouts dispersos para inicializar mapa
 function ensureMapaInit(mapId = "mapa", delay = 100) {
     return new Promise((resolve) => {
