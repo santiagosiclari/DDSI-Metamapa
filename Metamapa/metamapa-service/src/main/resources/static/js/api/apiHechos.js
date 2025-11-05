@@ -2,6 +2,12 @@
 async function crearHecho(e) {
     e.preventDefault();
     const f = e.target;
+    const categoria = f.categoria.value.trim();
+    // Validar categoría
+    if (!CATEGORIAS.includes(categoria)) {
+        mostrarModal(`La categoría "${categoria}" no es válida.`);
+        return; // Sale de la función, no envía
+    }
     const btn = document.getElementById("btnGuardar");
     const texto = document.getElementById("btnGuardarTexto");
     const loader = document.getElementById("btnGuardarLoader");
@@ -10,13 +16,12 @@ async function crearHecho(e) {
     btn.disabled = true;
     loader.classList.remove("d-none");
     texto.textContent = "Guardando...";
-    res.textContent = ""; // limpiar mensaje anterior
+    res.textContent = "";
     try {
-        // === Armar objeto JSON idéntico al usado en Postman ===
         const data = {
             titulo: f.titulo.value.trim(),
             descripcion: f.descripcion.value.trim(),
-            categoria: f.categoria.value.trim(),
+            categoria: categoria,
             latitud: parseFloat(f.latitud.value),
             longitud: parseFloat(f.longitud.value),
             fechaHecho: f.fechaHecho?.value || new Date().toISOString().slice(0, 16),

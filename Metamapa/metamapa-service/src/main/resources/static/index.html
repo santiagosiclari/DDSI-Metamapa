@@ -76,7 +76,8 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Categoría</label>
                         <div class="input-group">
-                            <select name="categoria" id="categoriaSelect" class="form-select"></select>
+                            <input list="categoriasList" name="categoria" id="categoriaSelect" class="form-control" placeholder="Escribí o seleccioná...">
+                            <datalist id="categoriasList"></datalist>
                             <button class="btn btn-outline-secondary" type="button" onclick="agregarNuevaCategoria()">+ Nueva</button>
                         </div>
                     </div>

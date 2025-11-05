@@ -581,19 +581,81 @@ function actualizarCamposCriterio(div, tipo) {
     if (selectorAMostrar) div.querySelector(selectorAMostrar).classList.remove('d-none');
 }
 
+// === LISTA GLOBAL DE CATEGORÍAS ===
+const CATEGORIAS = [
+    "Incendio",
+    "Incendio forestal",
+    "Explosión",
+    "Accidente industrial",
+    "Fuga o emanación de gas",
+    "Accidente químico",
+    "Derrame / Fuga de sustancias",
+    "Accidente ferroviario",
+    "Accidente aéreo",
+    "Accidente de transporte",
+    "Siniestro vial",
+    "Viento fuerte",
+    "Viento huracanado",
+    "Tormenta",
+    "Granizo",
+    "Lluvia",
+    "Tormenta / Granizo",
+    "Tormenta de nieve",
+    "Inundación",
+    "Emergencia sanitaria",
+    "Intoxicacion masiva",
+    "Contaminacion",
+    "Sequia",
+    "Escasez de agua",
+    "Material volcanico",
+    "Temperatura extrema",
+    "Protesta",
+    "Delito"
+];
+
+// === FUNCIONES AUXILIARES ===
+function cargarCategorias() {
+    const dataList = document.getElementById("categoriasList");
+    if (!dataList) return;
+    dataList.innerHTML = "";
+    CATEGORIAS.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        dataList.appendChild(opt);
+    });
+}
+
+window.agregarNuevaCategoria = function () {
+    const nueva = prompt("Ingresá el nombre de la nueva categoría:");
+    if (nueva && !CATEGORIAS.includes(nueva)) {
+        CATEGORIAS.push(nueva);
+        cargarCategorias();
+        document.getElementById("categoriaSelect").value = nueva;
+    }
+};
+
+// === INICIALIZACIÓN PRINCIPAL ===
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("Iniciando MetaMapa...");
-    // Obtener todos los elementos
     const formHecho = document.getElementById("formHecho");
     const formColeccion = document.getElementById("formColeccion");
     const modalHecho = document.getElementById("modalHecho");
     const modalColeccion = document.getElementById("modalColeccion");
-    // Enlazar formularios (con chequeos de existencia)
+    const categoriaInput = document.getElementById("categoriaSelect");
+    categoriaInput.addEventListener("input", () => {
+        const valor = categoriaInput.value.trim();
+        if (valor === "" || CATEGORIAS.includes(valor)) {
+            categoriaInput.classList.remove("is-invalid");
+            categoriaInput.classList.add("is-valid");
+        } else {
+            categoriaInput.classList.remove("is-valid");
+            categoriaInput.classList.add("is-invalid");
+        }
+    });
     if (formHecho)
         formHecho.addEventListener("submit", crearHecho);
     if (formColeccion)
         formColeccion.addEventListener("submit", crearColeccion);
-    // Enlazar eventos de Modales
     if (modalHecho) {
         modalHecho.addEventListener("shown.bs.modal", () => {
             setTimeout(inicializarMapaSeleccion, 300);
@@ -602,10 +664,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             limpiarMapaSeleccion();
             limpiarFormularioHecho();
         });
+        modalHecho.addEventListener("shown.bs.modal", cargarCategorias);
     }
     if (modalColeccion)
         modalColeccion.addEventListener("hidden.bs.modal", limpiarFormularioColeccion);
-    // Lógica de arranque
     const vista = sessionStorage.getItem("vistaActual") || "hechos";
     await mostrar(vista);
 });
