@@ -2,8 +2,7 @@ package Agregador.Service;
 import Agregador.DTO.FiltrosHechosDTO;
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
-import Agregador.persistencia.RepositorioHechos;
-import Agregador.persistencia.RepositorioHechosCustom;
+import Agregador.persistencia.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest; // Necesitas este import
 import org.springframework.data.domain.Pageable;   // Necesitas este import

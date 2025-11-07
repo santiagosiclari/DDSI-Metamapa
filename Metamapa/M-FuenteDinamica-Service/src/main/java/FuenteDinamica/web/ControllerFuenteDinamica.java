@@ -79,16 +79,9 @@ public class ControllerFuenteDinamica {
   public ResponseEntity<?> cargarHecho(@PathVariable Integer idFuenteDeDatos, @RequestPart("hecho") String hechoJson,
                                        @RequestPart(value = "archivos", required = false) List<MultipartFile> archivos) {
     try {
-      // 1️⃣ Buscar fuente
-      FuenteDinamica fuente = repositorioFuentes.findById(idFuenteDeDatos).orElse(null);
-      if (fuente == null) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "Fuente no encontrada: " + idFuenteDeDatos));
-      }
-      // 2️⃣ Parsear JSON recibido
-      ObjectMapper mapper = new ObjectMapper();
-      HechoDTO hechoDTO = mapper.readValue(hechoJson, HechoDTO.class);
-      // 3️⃣ Convertir a entidad y completar fechas
+      FuenteDinamica fuente = repositorioFuentes.findById(idFuenteDeDatos)
+              .orElseThrow(() -> new IllegalArgumentException("Fuente no encontrada: " + idFuenteDeDatos));
+      HechoDTO hechoDTO = new ObjectMapper().readValue(hechoJson, HechoDTO.class);
       Hecho hecho = hechoDTO.toDomain(fuente);
       hecho.setFechaCarga(LocalDateTime.now());
       hecho.setFechaModificacion(LocalDateTime.now());
@@ -112,15 +105,28 @@ public class ControllerFuenteDinamica {
           }
         }
       }
-      // 5️⃣ Guardar hecho en BD
       repositorioHechos.save(hecho);
       return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", hecho.getId()));
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body(Map.of("error", "Error interno: " + e.getMessage()));
     }
+  }
+
+  // 🔹 Método privado para guardar el archivo físicamente en la ruta original
+  private String guardarArchivoEnDisco(MultipartFile archivo) throws IOException {
+    String baseDir = "Metamapa/M-FuenteDinamica-Service/src/main/resources/archivos/";
+    File directorio = new File(baseDir);
+    if (!directorio.exists()) {
+      directorio.mkdirs();
+    }
+    String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename();
+    Path destino = Paths.get(baseDir + nombreArchivo);
+    Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+    // Retorna el nombre relativo para guardar en BD
+    return nombreArchivo;
   }
 
   @GetMapping("/archivos/{nombreArchivo:.+}")
@@ -150,18 +156,6 @@ public class ControllerFuenteDinamica {
     if (contentType.startsWith("video")) return TipoMultimedia.VIDEO;
     if (contentType.startsWith("audio")) return TipoMultimedia.AUDIO;
     return null;
-  }
-  // 🔹 Metodo privado para guardar el archivo físicamente
-  private String guardarArchivoEnDisco(MultipartFile archivo) throws IOException {
-    Path uploadDir = Paths.get("uploads");
-    if (!Files.exists(uploadDir)) {
-      Files.createDirectories(uploadDir);
-    }
-    String nombreArchivo = UUID.randomUUID() + "_" + archivo.getOriginalFilename();
-    Path destino = uploadDir.resolve(nombreArchivo);
-    Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
-    // Retorna la ruta relativa o absoluta para guardarla en BD
-    return "/uploads/" + nombreArchivo;
   }
 
   /*

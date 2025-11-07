@@ -25,12 +25,6 @@ public class ControllerAgregador {
 
   private final Map<String,String> URLsFuentes = new HashMap<>();
 
-  /* public void guardarHechos(int idFuente){
-      ArrayList<Map<String,Object>> hechos = servicefuenteDeDatos.getHechosDeFuente(idFuente);
-
-      hechos.forEach(h -> repositorioAgregador.persistirHechos(h));
-  }*/
-
   @PostMapping("/fuenteDeDatos")
   public ResponseEntity<String> agregarFuente(@RequestBody Map<String, Object> body) {
     String url = (String) body.get("url");
