@@ -106,28 +106,25 @@ async function mostrarEstadisticasView() {
         const uuid = document.getElementById("coleccionInput").value.trim();
         if (!uuid) return alert("Ingrese un UUID de colección");
         const provincia = await obtenerProvinciaMasReportadaColeccion(uuid);
-        document.getElementById("provinciaColeccion").textContent =
-            provincia || "No hay datos disponibles";
+        document.getElementById("provinciaColeccion").textContent = provincia || "No hay datos disponibles";
     });
     document.getElementById("btnBuscarProvinciaCat").addEventListener("click", async () => {
         const cat = document.getElementById("categoriaInput").value.trim();
         if (!cat) return alert("Ingrese una categoría");
         const prov = await obtenerProvinciaMasReportadaPorCategoria(cat);
-        document.getElementById("provinciaCategoria").textContent =
-            prov || "No hay datos disponibles";
+        document.getElementById("provinciaCategoria").textContent = prov || "No hay datos disponibles";
     });
     document.getElementById("btnBuscarHoraCat").addEventListener("click", async () => {
         const cat = document.getElementById("categoriaHoraInput").value.trim();
         if (!cat) return alert("Ingrese una categoría");
         const hora = await obtenerHoraMasReportadaPorCategoria(cat);
-        document.getElementById("horaCategoria").textContent =
-            hora !== null ? `${hora}:00 hs` : "No hay datos disponibles";
+        document.getElementById("horaCategoria").textContent = hora !== null ? `${hora}:00 hs` : "No hay datos disponibles";
     });
     // 🔹 Botón Exportar CSV
     document.getElementById("btnExportarCSV").addEventListener("click", () => {
         // Recolectar datos visibles
         const datos = [
-            ["Estadistica", "Valor"],
+            ["ESTADISTICA", "VALOR"],
             ["Provincia con mas hechos por Coleccion", document.getElementById("provinciaColeccion").textContent.trim()],
             ["Categoria mas reportada", document.getElementById("categoriaMasReportada").textContent.trim()],
             ["Provincia con mas hechos de una categoria", document.getElementById("provinciaCategoria").textContent.trim()],
@@ -205,7 +202,7 @@ async function mostrarHechosView() {
     <div id="tablaHechos" class="mt-3">
       ${crearSkeletonTablaHechos(8)} <!-- 8 filas de skeleton -->
     </div>
-  `;
+    `;
     // Forzar repintado para que el skeleton se anime antes de cargar
     await new Promise(r => setTimeout(r, 0));
     // Cargar hechos
@@ -243,7 +240,7 @@ function crearSkeletonTablaHechos(filas = 6) {
         ${'<tr>' + '<td><div class="skeleton-cell"></div></td>'.repeat(6) + '</tr>'.repeat(filas)}
       </tbody>
     </table>
-  `;
+    `;
 }
 
 async function mostrarColeccionesView() {
@@ -255,7 +252,7 @@ async function mostrarColeccionesView() {
         </div>
         <div class="mb-3">
           <label for="modoNav" class="form-label">Modo de navegación:</label>
-          <select id="modoNav" class="form-select form-select-sm" style="width:auto; display:inline-block;">
+          <select id="modoNav" class="form-select form-select-sm">
             <option value="IRRESTRICTA">Irrestricta</option>
             <option value="CURADA">Curada</option>
           </select>
@@ -316,168 +313,166 @@ async function mostrarFuentesView() {
 // Mostrar detalle
 function mostrarDetalleHecho(h) {
     const modalEl = document.getElementById("modalDetalle");
-    const modal = new bootstrap.Modal(modalEl);
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     const contenedor = document.getElementById("detalleHecho");
-    // Función para renderizar el contenido principal del hecho
-    function renderDetalle() {
-        const media = h.multimedia?.[0];
-        let mediaHTML = "";
-        if (media) {
-            const fileUrl = `http://localhost:9001/api-fuentesDeDatos/archivos/${encodeURIComponent(media.path)}`;
-            if (media.tipoMultimedia === "FOTO") {
-                mediaHTML = `
-      <img src="${fileUrl}" alt="Imagen principal"
-           class="img-fluid mb-3 rounded">`;
-            } else if (media.tipoMultimedia === "VIDEO") {
-                mediaHTML = `
-      <video controls class="img-fluid mb-3 rounded">
-        <source src="${fileUrl}" type="video/mp4">
-        Tu navegador no soporta la reproducción de video.
-      </video>`;
-            } else {
-                mediaHTML = `
-      <a href="${fileUrl}" target="_blank">Ver archivo</a>`;
-            }
-        }
-        contenedor.innerHTML = `
-        <div class="container-fluid">
-          <h4 class="mb-3">${h.titulo}</h4>
-          <div class="row">
-            <div class="col-md-6">
-                ${mediaHTML}
-              <p><b>Descripción:</b> ${h.descripcion || "-"}</p>
-              <p><b>Categoría:</b> ${h.categoria || "-"}</p>
-              <p><b>Anonimo:</b> ${h.anonimo ? "Sí" : "No"}</p>
-              <p><b>Eliminado:</b> ${h.eliminado ? "Sí" : "No"}</p>
-            </div>
-            <div class="col-md-6">
-              <p><b>Latitud:</b> ${h.latitud ?? "-"}</p>
-              <p><b>Longitud:</b> ${h.longitud ?? "-"}</p>
-              <p><b>ID Fuente:</b> ${h.idFuente ?? "-"}</p>
-              <p><b>ID:</b> ${h.id}</p>
-            </div>
-          </div>
-          <hr>
-          <h6>Fechas</h6>
-          <p><b>Fecha del hecho:</b> ${h.fechaHecho || "-"}</p>
-          <p><b>Fecha de carga:</b> ${h.fechaCarga || "-"}</p>
-          <p><b>Fecha de modificación:</b> ${h.fechaModificacion || "-"}</p>
-          <hr>
-          <h6>Datos internos</h6>
-          <p><b>Perfil:</b> ${h.perfil || "<i>Sin perfil</i>"}</p>
-          <p><b>Consensos:</b> ${h.consensos && h.consensos.length ? h.consensos.join(", ") : "<i>Ninguno</i>"}</p>
-          <pre class="bg-light p-2 rounded"><b>Metadata:</b>\n${JSON.stringify(h.metadata || {}, null, 2)}</pre>
-          <hr>
-          <h6>Multimedia</h6>
-          ${!h.multimedia?.length
-            ? "<p><i>Sin archivos multimedia</i></p>"
-            : h.multimedia.map(m =>
-                `<div class="mb-2">
-                  <b>${m.tipoMultimedia || "Archivo"}</b>: 
-                  <a href="${m.path}" target="_blank">${m.path}</a>
-                </div>`
-            ).join("")}
-          <hr>
-          <div class="d-flex justify-content-end gap-2 mt-3">
-            <button id="btnSolicitarEdicion" class="btn btn-warning">Solicitar edición</button>
-            <button id="btnSolicitarEliminacion" class="btn btn-danger">Solicitar eliminación</button>
-          </div>
-        </div>
-        `;
-        // Eventos de los botones
-        document.getElementById("btnSolicitarEliminacion").addEventListener("click", mostrarFormularioEliminacion);
-        document.getElementById("btnSolicitarEdicion").addEventListener("click", mostrarFormularioEdicion);
-    }
-    // --- FORMULARIO ELIMINACIÓN ---
-    function mostrarFormularioEliminacion() {
-        contenedor.innerHTML = `
-        <div class="container-fluid">
-          <h5 class="text-danger mb-3">Solicitud de eliminación del hecho #${h.id}</h5>
-          <div class="mb-3">
-            <label class="form-label"><b>Motivo de la solicitud</b></label>
-            <textarea id="motivoEliminacion" class="form-control" rows="3" placeholder="Explique brevemente el motivo..."></textarea>
-          </div>
-          <div class="d-flex justify-content-end gap-2">
-            <button id="btnCancelar" class="btn btn-secondary">Cancelar</button>
-            <button id="btnEnviarEliminacion" class="btn btn-danger">Enviar solicitud</button>
-          </div>
-        </div>
-        `;
-        document.getElementById("btnCancelar").addEventListener("click", renderDetalle);
-        document.getElementById("btnEnviarEliminacion").addEventListener("click", async () => {
-            const motivo = document.getElementById("motivoEliminacion").value.trim();
-            if (!motivo) return alert("Debe ingresar un motivo.");
-            const solicitud = {
-                motivo,
-                hechoAfectado: h.id
-            };
-            const ok = await enviarSolicitudEliminacion(solicitud);
-            alert(ok ? "✅ Solicitud de eliminación enviada con éxito." : "❌ Error al enviar la solicitud.");
-            renderDetalle();
-        });
-    }
-    // --- FORMULARIO EDICIÓN ---
-    function mostrarFormularioEdicion() {
-        contenedor.innerHTML = `
-        <div class="container-fluid">
-          <h5 class="text-warning mb-3">Solicitud de edición del hecho #${h.id}</h5>
-          <div class="mb-2">
-            <label class="form-label"><b>Título</b></label>
-            <input id="tituloMod" class="form-control" value="${h.titulo || ''}">
-          </div>
-          <div class="mb-2">
-            <label class="form-label"><b>Descripción</b></label>
-            <textarea id="descMod" class="form-control" rows="3">${h.descripcion || ''}</textarea>
-          </div>
-          <div class="mb-2">
-            <label class="form-label"><b>Categoría</b></label>
-            <input id="categoriaMod" class="form-control" value="${h.categoria || ''}">
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-2">
-              <label class="form-label"><b>Latitud</b></label>
-              <input id="latitudMod" type="number" step="any" class="form-control" value="${h.latitud ?? ''}">
-            </div>
-            <div class="col-md-6 mb-2">
-              <label class="form-label"><b>Longitud</b></label>
-              <input id="longitudMod" type="number" step="any" class="form-control" value="${h.longitud ?? ''}">
-            </div>
-          </div>
-          <div class="mb-2">
-            <label class="form-label"><b>Fecha del hecho</b></label>
-            <input id="fechaHechoMod" type="datetime-local" class="form-control" value="${h.fechaHecho ? h.fechaHecho.substring(0,16) : ''}">
-          </div>
-          <div class="mb-2">
-            <label class="form-label"><b>Sugerencia adicional</b></label>
-            <textarea id="sugerencia" class="form-control" rows="2" placeholder="Opcional"></textarea>
-          </div>
-          <div class="d-flex justify-content-end gap-2">
-            <button id="btnCancelar" class="btn btn-secondary">Cancelar</button>
-            <button id="btnEnviarEdicion" class="btn btn-warning">Enviar solicitud</button>
-          </div>
-        </div>
-        `;
-        document.getElementById("btnCancelar").addEventListener("click", renderDetalle);
-        document.getElementById("btnEnviarEdicion").addEventListener("click", async () => {
-            const solicitud = {
-                tituloMod: document.getElementById("tituloMod").value.trim(),
-                descMod: document.getElementById("descMod").value.trim(),
-                categoriaMod: document.getElementById("categoriaMod").value.trim(),
-                latitudMod: parseFloat(document.getElementById("latitudMod").value) || null,
-                longitudMod: parseFloat(document.getElementById("longitudMod").value) || null,
-                fechaHechoMod: document.getElementById("fechaHechoMod").value || null,
-                multimediaMod: h.multimedia || [],
-                sugerencia: document.getElementById("sugerencia").value.trim(),
-                hechoAfectado: h.id
-            };
-            const ok = await enviarSolicitudEdicion(solicitud);
-            alert(ok ? "✅ Solicitud de edición enviada con éxito." : "❌ Error al enviar la solicitud.");
-            renderDetalle();
-        });
-    }
-    // Render inicial
-    renderDetalle();
+    renderDetalleHechoView(h, contenedor);
     modal.show();
+}
+
+function renderDetalleHechoView(h, contenedor) {
+    const media = h.multimedia?.[0];
+    let mediaHTML = "";
+    if (media) {
+        const fileUrl = `${window.METAMAPA.API_FUENTE_DINAMICA}/archivos/${encodeURIComponent(media.path)}`;
+        if (media.tipoMultimedia === "FOTO") {
+            mediaHTML = `<img src="${fileUrl}" alt="Imagen principal" class="img-fluid mb-3 rounded">`;
+        } else if (media.tipoMultimedia === "VIDEO") {
+            mediaHTML = `
+                <video controls class="img-fluid mb-3 rounded">
+                  <source src="${fileUrl}" type="video/mp4">
+                  Tu navegador no soporta la reproducción de video.
+                </video>`;
+        } else
+            mediaHTML = `<a href="${fileUrl}" target="_blank">Ver archivo</a>`;
+    }
+    contenedor.innerHTML = `
+    <div class="container-fluid">
+      <h4 class="mb-3">${h.titulo}</h4>
+      <div class="row">
+        <div class="col-md-6">
+          ${mediaHTML}
+          <p><b>Descripción:</b> ${h.descripcion || "-"}</p>
+          <p><b>Categoría:</b> ${h.categoria || "-"}</p>
+          <p><b>Anonimo:</b> ${h.anonimo ? "Sí" : "No"}</p>
+          <p><b>Eliminado:</b> ${h.eliminado ? "Sí" : "No"}</p>
+        </div>
+        <div class="col-md-6">
+          <p><b>Latitud:</b> ${h.latitud ?? "-"}</p>
+          <p><b>Longitud:</b> ${h.longitud ?? "-"}</p>
+          <p><b>ID Fuente:</b> ${h.idFuente ?? "-"}</p>
+          <p><b>ID:</b> ${h.id}</p>
+        </div>
+      </div>
+      <hr>
+      <h6>Fechas</h6>
+      <p><b>Fecha del hecho:</b> ${h.fechaHecho || "-"}</p>
+      <p><b>Fecha de carga:</b> ${h.fechaCarga || "-"}</p>
+      <p><b>Fecha de modificación:</b> ${h.fechaModificacion || "-"}</p>
+      <hr>
+      <h6>Datos internos</h6>
+      <p><b>Perfil:</b> ${h.perfil || "<i>Sin perfil</i>"}</p>
+      <p><b>Consensos:</b> ${h.consensos?.length ? h.consensos.join(", ") : "<i>Ninguno</i>"}</p>
+      <pre class="bg-light p-2 rounded"><b>Metadata:</b>\n${JSON.stringify(h.metadata || {}, null, 2)}</pre>
+      <hr>
+      <h6>Multimedia</h6>
+      ${!h.multimedia?.length
+        ? "<p><i>Sin archivos multimedia</i></p>"
+        : h.multimedia.map(m =>
+            `<div class="mb-2">
+              <b>${m.tipoMultimedia || "Archivo"}</b>: 
+              <a href="${window.METAMAPA.API_FUENTE_DINAMICA}/archivos/${encodeURIComponent(m.path)}" target="_blank">${m.path}</a>
+            </div>`).join("")}
+      <hr>
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button id="btnSolicitarEdicion" class="btn btn-warning">Solicitar edición</button>
+        <button id="btnSolicitarEliminacion" class="btn btn-danger">Solicitar eliminación</button>
+      </div>
+    </div>
+    `;
+    contenedor.querySelector("#btnSolicitarEliminacion").addEventListener("click", () => {
+        mostrarFormularioEliminacion(h, contenedor);
+    });
+    contenedor.querySelector("#btnSolicitarEdicion").addEventListener("click", () => {
+        mostrarFormularioEdicion(h, contenedor);
+    });
+}
+
+function mostrarFormularioEliminacion(h, contenedor) {
+    contenedor.innerHTML = `
+    <div class="container-fluid">
+      <h5 class="text-danger mb-3">Solicitud de eliminación del hecho #${h.id}</h5>
+      <div class="mb-3">
+        <label class="form-label"><b>Motivo de la solicitud</b></label>
+        <textarea id="motivoEliminacion" class="form-control" rows="3" placeholder="Explique brevemente el motivo..."></textarea>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button id="btnCancelar" class="btn btn-secondary">Cancelar</button>
+        <button id="btnEnviarEliminacion" class="btn btn-danger">Enviar solicitud</button>
+      </div>
+    </div>
+    `;
+    contenedor.querySelector("#btnCancelar").addEventListener("click", () => {
+        renderDetalleHechoView(h, contenedor);
+    });
+    contenedor.querySelector("#btnEnviarEliminacion").addEventListener("click", async () => {
+        const motivo = contenedor.querySelector("#motivoEliminacion").value.trim();
+        if (!motivo) return alert("Debe ingresar un motivo.");
+        const solicitud = { motivo, hechoAfectado: h.id };
+        const ok = await enviarSolicitudEliminacion(solicitud);
+        alert(ok ? "✅ Solicitud de eliminación enviada con éxito." : "❌ Error al enviar la solicitud.");
+        renderDetalleHechoView(h, contenedor);
+    });
+}
+
+function mostrarFormularioEdicion(h, contenedor) {
+    contenedor.innerHTML = `
+    <div class="container-fluid">
+      <h5 class="text-warning mb-3">Solicitud de edición del hecho #${h.id}</h5>
+      <div class="mb-2">
+        <label class="form-label"><b>Título</b></label>
+        <input id="tituloMod" class="form-control" value="${h.titulo || ''}">
+      </div>
+      <div class="mb-2">
+        <label class="form-label"><b>Descripción</b></label>
+        <textarea id="descMod" class="form-control" rows="3">${h.descripcion || ''}</textarea>
+      </div>
+      <div class="mb-2">
+        <label class="form-label"><b>Categoría</b></label>
+        <input id="categoriaMod" class="form-control" value="${h.categoria || ''}">
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <label class="form-label"><b>Latitud</b></label>
+          <input id="latitudMod" type="number" step="any" class="form-control" value="${h.latitud ?? ''}">
+        </div>
+        <div class="col-md-6 mb-2">
+          <label class="form-label"><b>Longitud</b></label>
+          <input id="longitudMod" type="number" step="any" class="form-control" value="${h.longitud ?? ''}">
+        </div>
+      </div>
+      <div class="mb-2">
+        <label class="form-label"><b>Fecha del hecho</b></label>
+        <input id="fechaHechoMod" type="datetime-local" class="form-control" value="${h.fechaHecho ? h.fechaHecho.substring(0,16) : ''}">
+      </div>
+      <div class="mb-2">
+        <label class="form-label"><b>Sugerencia adicional</b></label>
+        <textarea id="sugerencia" class="form-control" rows="2" placeholder="Opcional"></textarea>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button id="btnCancelar" class="btn btn-secondary">Cancelar</button>
+        <button id="btnEnviarEdicion" class="btn btn-warning">Enviar solicitud</button>
+      </div>
+    </div>
+    `;
+    contenedor.querySelector("#btnCancelar").addEventListener("click", () => {
+        renderDetalleHechoView(h, contenedor);
+    });
+    contenedor.querySelector("#btnEnviarEdicion").addEventListener("click", async () => {
+        const solicitud = {
+            tituloMod: contenedor.querySelector("#tituloMod").value.trim(),
+            descMod: contenedor.querySelector("#descMod").value.trim(),
+            categoriaMod: contenedor.querySelector("#categoriaMod").value.trim(),
+            latitudMod: parseFloat(contenedor.querySelector("#latitudMod").value) || null,
+            longitudMod: parseFloat(contenedor.querySelector("#longitudMod").value) || null,
+            fechaHechoMod: contenedor.querySelector("#fechaHechoMod").value || null,
+            multimediaMod: h.multimedia || [],
+            sugerencia: contenedor.querySelector("#sugerencia").value.trim(),
+            hechoAfectado: h.id
+        };
+        const ok = await enviarSolicitudEdicion(solicitud);
+        alert(ok ? "✅ Solicitud de edición enviada con éxito." : "❌ Error al enviar la solicitud.");
+        renderDetalleHechoView(h, contenedor);
+    });
 }
 
 // Render tabla
@@ -499,21 +494,6 @@ function renderTablaHechos(titulo, hechos) {
             <thead><tr><th>Título</th><th>Categoría</th><th>Fuente</th><th>id</th><th>Fecha</th><th></th></tr></thead>
             <tbody>${filas}</tbody>
         </table>`;
-}
-
-// Formulario Hecho
-function agregarMultimedia() {
-    const cont = document.getElementById("multimediaContainer");
-    const row = document.createElement("div");
-    row.className = "row mb-2";
-    row.innerHTML = `
-    <div class="col">
-      <input type="text" name="tipoMultimedia" placeholder="FOTO o VIDEO" class="form-control">
-    </div>
-    <div class="col">
-      <input type="url" name="path" placeholder="https://..." class="form-control">
-    </div>`;
-    cont.appendChild(row);
 }
 
 function agregarCriterio(criterioExistente = null) {
@@ -594,7 +574,7 @@ function agregarCriterio(criterioExistente = null) {
         </select>
       </div>
     </div>
-  `;
+    `;
     const tipoSelect = div.querySelector(".tipo-criterio");
     tipoSelect.addEventListener("change", () => actualizarCamposCriterio(div, tipoSelect.value));
     // Si es un criterio cargado desde una colección existente
@@ -750,7 +730,7 @@ function limpiarFormularioColeccion() {
 let categoriasDisponibles = new Set();
 
 // Obtener categorías únicas desde los hechos actuales
-async function cargarCategoriasExistentes() {
+/*async function cargarCategoriasExistentes() {
     try {
         const guardadas = JSON.parse(localStorage.getItem("categoriasMetaMapa") || "[]");
         guardadas.forEach(c => categoriasDisponibles.add(c));
@@ -779,7 +759,7 @@ async function cargarCategoriasExistentes() {
     } catch (e) {
         console.error("Error al cargar categorías:", e);
     }
-}
+}*/
 
 // Abrir modal para agregar nueva
 function agregarNuevaCategoria() {
@@ -958,7 +938,7 @@ function agregarFiltro(contexto) {
       <div class="col-md-3"><input type="number" step="0.1" class="form-control radio" placeholder="Radio (km)" readonly></div>
       <div class="col-md-3"><button class="btn btn-sm btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar</button></div>
     </div>
-  `;
+    `;
     const campo = div.querySelector(".campoFiltro");
     campo.addEventListener("change", () => {
         const camposUbicacion = div.querySelector(".camposUbicacion");
