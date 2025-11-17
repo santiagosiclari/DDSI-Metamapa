@@ -11,8 +11,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.springframework.web.cors.CorsConfiguration; // 💡 Importar esta clase
+import org.springframework.web.cors.CorsConfigurationSource; // 💡 Importar esta clase
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // 💡 Importar esta clase
 
 
 @Configuration
@@ -42,10 +48,10 @@ public class SecurityConfig {
   // -------------------------------------------------------------------
 
   @Bean
-  @Order(2) // PRIORIDAD 2
-  // 🚨 2. INYECTAR CustomOAuth2UserService DIRECTAMENTE EN LA FIRMA DEL MÉTODO
+  @Order(2)
   public SecurityFilterChain appSecurityFilterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
     http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                     // Permite el acceso a endpoints públicos y el flujo de autenticación
                     .requestMatchers("/api-auth/**", "/login", "/.well-known/**", "/oauth2/**", "/error").permitAll()
@@ -53,9 +59,14 @@ public class SecurityConfig {
 
             .formLogin(form -> form
                     .usernameParameter("email")
-                    .defaultSuccessUrl("/api-auth/me", true)
+                    .defaultSuccessUrl("http://localhost:9000/index.html", true)
             )
-
+            .logout(logout -> logout
+                    .logoutUrl("/usuarios/logout")
+                    .logoutSuccessUrl("http://localhost:9000/index.html")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+            )
             // Configuración de Social Login (Auth0/Google)
             .oauth2Login(oauth2 -> oauth2
                     // Después del Social Login exitoso, inicia el flujo de obtención de token de TU SAS
@@ -79,4 +90,28 @@ public class SecurityConfig {
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
     return config.getAuthenticationManager();
   }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    // 🚨 PERMITIR ACCESO DESDE EL CLIENTE LIVIANO (PUERTO 9000)
+    configuration.setAllowedOrigins(Arrays.asList("http://localhost:9000"));
+
+    // Permitir credenciales (cookies, tokens)
+    configuration.setAllowCredentials(true);
+
+    // Métodos permitidos para las peticiones
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+    // Headers que se permiten en la petición
+    configuration.setAllowedHeaders(List.of("*"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // Aplicar esta configuración a TODOS los endpoints (/**)
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
+  }
+
 }
