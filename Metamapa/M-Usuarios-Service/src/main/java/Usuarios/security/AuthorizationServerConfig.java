@@ -99,6 +99,7 @@ public class AuthorizationServerConfig {
             .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
             .scope("internal") // Un scope para servicios internos
             .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(2)).build())
+            .redirectUri("http://localhost:9000/callback")
             .build();
 
     return new InMemoryRegisteredClientRepository(metamapaClient, agregadorClient);

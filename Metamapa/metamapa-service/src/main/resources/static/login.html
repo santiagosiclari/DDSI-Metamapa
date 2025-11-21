@@ -8,16 +8,13 @@
 <body class="bg-light">
 <div class="container mt-5" style="max-width: 400px;">
     <h3 class="mb-3 text-center">Iniciar sesión</h3>
-    <form id="formLogin">
-        <div class="mb-3">
-            <label for="usuario" class="form-label">Usuario</label>
-            <input type="text" class="form-control" id="usuario" required>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Contraseña</label>
-            <input type="password" class="form-control" id="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+    <form method="POST" action="http://localhost:9005/login">
+
+        <input name="username" type="email" placeholder="Email (admin@test.com)" required>
+
+        <input name="password" type="password" placeholder="Contraseña (pass123)" required>
+
+        <button type="submit">Iniciar Sesión</button>
     </form>
     <p class="mt-2 text-center">
         ¿No tenés cuenta? <a href="registro.html">Registrate</a>

@@ -29,6 +29,9 @@ public class ConfigController {
   @Value("${M.Estadistica.Service.url}")
   private String estadisticaUrl;
 
+  @Value("${M.Usuarios.Service.url}")
+  private String usuariosUrl;
+
   @GetMapping(value = "/config.js", produces = "application/javascript")
   public String configJs() {
     return """
@@ -37,9 +40,10 @@ public class ConfigController {
                 API_AGREGADOR: '%s/api-agregador',
                 API_COLECCIONES: '%s/api-colecciones',
                 API_SOLICITUDES: '%s/api-solicitudes',
-                API_ESTADISTICA: '%s/estadistica'
+                API_ESTADISTICA: '%s/estadistica',
+                API_USUARIOS: '%s/usuarios'
             };
             console.log("🌐 Configuración MetaMapa cargada:", window.METAMAPA);
-        """.formatted(fuenteDinamicaUrl, agregadorUrl, coleccionesUrl, solicitudesUrl, estadisticaUrl);
+        """.formatted(fuenteDinamicaUrl, agregadorUrl, coleccionesUrl, solicitudesUrl, estadisticaUrl, usuariosUrl);
   }
 }

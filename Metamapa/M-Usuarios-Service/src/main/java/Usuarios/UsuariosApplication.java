@@ -17,8 +17,5 @@ public class UsuariosApplication {
     // para cerrar la app, comentar cuando se prueben cosas
     //context.close();
   }
-  @Bean // 👈 PEGA EL BEAN AQUÍ
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+
 }
