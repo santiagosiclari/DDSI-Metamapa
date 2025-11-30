@@ -1,0 +1,22 @@
+type Hecho {
+    id: ID!
+    titulo: String
+    descripcion: String
+    categoria: String
+    latitud: Float
+    longitud: Float
+    fechaHecho: String
+    fechaCarga: String
+    anonimo: Boolean
+    eliminado: Boolean
+}
+
+type Query {
+    hechos(
+        titulo: String
+        descripcion: String
+        categoria: String
+        fechaDesde: String
+        fechaHasta: String
+    ): [Hecho!]!
+}

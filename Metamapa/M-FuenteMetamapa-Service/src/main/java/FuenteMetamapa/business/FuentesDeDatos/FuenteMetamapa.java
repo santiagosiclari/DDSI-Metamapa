@@ -5,7 +5,6 @@ import FuenteMetamapa.business.Parsers.JSONHechoParser;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.persistence.*;
 import java.net.URLEncoder;
-import java.net.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.util.*;

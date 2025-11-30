@@ -28,7 +28,9 @@ public class SecurityConfig {
             .addFilterBefore(ipFilter, SecurityContextPersistenceFilter.class)
             .addFilterBefore(rateLimitingFilter, SecurityContextPersistenceFilter.class)
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api-agregador/fuenteDeDatos").permitAll()
+                    .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/api-agregador/fuenteDeDatos",
+                            "/graphql",
+                            "/graphiql").permitAll()
                     .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2
                     .jwt(jwt -> jwt
