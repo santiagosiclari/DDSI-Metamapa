@@ -4,8 +4,8 @@ import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
 import Agregador.persistencia.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest; // Necesitas este import
-import org.springframework.data.domain.Pageable;   // Necesitas este import
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Function;
@@ -17,7 +17,6 @@ public class ServiceAgregador {
   private final RepositorioHechos repo;
   private final RepositorioHechosCustom repositorioHechos;
   private final Normalizador normalizador;
-
   private static final int LIMITE_POR_DEFECTO = 500;
 
   /**
@@ -27,17 +26,14 @@ public class ServiceAgregador {
    * @return Lista de hechos filtrados/buscados.
    */
   public List<Hecho> obtenerHechos(String textoBusqueda, FiltrosHechosDTO filtros) {
-
     // 1. PRIORIDAD: BÚSQUEDA POR TEXTO LIBRE
     if (textoBusqueda != null && !textoBusqueda.isBlank()) {
       // Llama al método que usa el LIKE o Full-Text Search
       return repositorioHechos.buscarPorTextoLibre(textoBusqueda);
     }
-
     // 2. APLICAR FILTROS DINÁMICOS (si no hay texto libre)
     // Se asume que FiltrosHechosDTO tiene un método para verificar si hay contenido relevante
     if (filtros != null) {
-
       // Construir los criterios de INCLUSIÓN (P) y EXCLUSIÓN (NP)
       List<Criterio> criteriosInclusion = repositorioHechos.construirCriterios(filtros, true);
       List<Criterio> criteriosExclusion = repositorioHechos.construirCriterios(filtros, false);
@@ -45,17 +41,14 @@ public class ServiceAgregador {
       List<Criterio> todosLosCriterios = new ArrayList<>();
       todosLosCriterios.addAll(criteriosInclusion);
       todosLosCriterios.addAll(criteriosExclusion);
-
       if (!todosLosCriterios.isEmpty()) {
         // Llamamos a la función de filtrado existente. El consenso es nulo porque no es una colección.
         return repositorioHechos.filtrarPorCriterios(todosLosCriterios, null);
       }
     }
-
     // 3. 🛑 SOLUCIÓN AL PROBLEMA: DEVOLVER CON LÍMITE (Paginación por Defecto)
     // Usamos PageRequest para pedir solo los primeros 500 hechos (página 0)
     Pageable pageable = PageRequest.of(0, LIMITE_POR_DEFECTO);
-
     // 🚨 NOTA: Debes asegurarte de que tu repositorio tenga un método findAll(Pageable)
     return repositorioHechos.findAll(pageable).getContent();
   }
@@ -117,5 +110,4 @@ public class ServiceAgregador {
     // Sin hora disponible
     return null;
   }
-
 }

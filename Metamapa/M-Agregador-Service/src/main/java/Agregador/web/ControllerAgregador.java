@@ -1,18 +1,19 @@
 package Agregador.web;
 import Agregador.DTO.FiltrosHechosDTO;
 import Agregador.Service.ServiceAgregador;
+import Agregador.Service.ServiceFuenteDeDatos;
+import Agregador.Service.ServiceConsenso;
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
+import Agregador.persistencia.*;
 import jakarta.validation.Valid;
 import java.util.*;
-import Agregador.Service.ServiceFuenteDeDatos;
-import Agregador.persistencia.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import Agregador.Service.ServiceConsenso;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.slf4j.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,8 +23,8 @@ public class ControllerAgregador {
   private final RepositorioHechos repositorioHechos;
   private final ServiceConsenso serviceConsenso;
   private final ServiceAgregador serviceAgregador;
-
   private final Map<String,String> URLsFuentes = new HashMap<>();
+  private static final Logger log = LoggerFactory.getLogger(ControllerAgregador.class);
 
   @PostMapping("/fuenteDeDatos")
   public ResponseEntity<String> agregarFuente(@RequestBody Map<String, Object> body) {
@@ -33,10 +34,8 @@ public class ControllerAgregador {
       return ResponseEntity.noContent().build();
     }
     URLsFuentes.put(url, tipoFuente);
-    //todo eliminar prints para la entrega
-    System.out.println("Agregando fuente de datos: " + url + " tipoFuente: " + tipoFuente);
-    //imprimir lista de URLs
-    System.out.println("Lista de URLs: " + URLsFuentes);
+    log.info("Agregando fuente de datos: {} tipoFuente: {}", url, tipoFuente);
+    log.debug("Lista de URLs: {}", URLsFuentes);
     return ResponseEntity.ok(url);
   }
 
@@ -48,9 +47,6 @@ public class ControllerAgregador {
   @PostMapping("/actualizarHechos")
   public ResponseEntity<?> actualizarHechos() {
     URLsFuentes.keySet().forEach(servicefuenteDeDatos::actualizarHechos);
-
-
-    //URLsFuentes.forEach(servicefuenteDeDatos::actualizarHechos);
     return ResponseEntity.ok("Se actualizaron los hechos");
   }
 
@@ -97,5 +93,4 @@ public class ControllerAgregador {
       return ResponseEntity.status(500).body(Map.of("error", "Error al ejecutar la búsqueda de texto libre: " + e.getMessage()));
     }
   }*/
-
 }

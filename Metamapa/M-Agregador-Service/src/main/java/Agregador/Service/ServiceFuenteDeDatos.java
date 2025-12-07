@@ -1,9 +1,9 @@
 package Agregador.Service;
 import Agregador.business.Hechos.*;
-import java.time.LocalDateTime;
-import java.util.*;
 import Agregador.business.Consenso.Consenso;
 import Agregador.persistencia.RepositorioHechos;
+import java.time.LocalDateTime;
+import java.util.*;
 import lombok.*;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -17,10 +17,8 @@ public class ServiceFuenteDeDatos {
   private final RepositorioHechos repositorioHechos;
   private final Normalizador normalizador;
   private static final int FACTOR_TIPO = 1_000_000;
-
-  // ==== Rutas ====
-  //private static final String PATH_HECHOS_POR_FUENTE = "%s/fuentesDeDatos/%d/hechos"; // o "%s/%d/hechos"
-  private static final String PATH_LISTAR_FUENTES    = "%s/fuentesDeDatos";           // o "%s/"
+  //private static final String PATH_HECHOS_POR_FUENTE = "%s/fuentesDeDatos/%d/hechos";
+  private static final String PATH_LISTAR_FUENTES    = "%s/fuentesDeDatos";
 
   // ================== API ==================
   /** Trae hechos de UNA fuente (sin filtros) y los mapea a tu dominio. */

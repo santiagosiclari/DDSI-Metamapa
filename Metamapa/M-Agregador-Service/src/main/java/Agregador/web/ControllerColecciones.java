@@ -4,7 +4,6 @@ import Agregador.Service.ServiceColecciones;
 import Agregador.business.Colecciones.Coleccion;
 import Agregador.business.Consenso.ModosDeNavegacion;
 import Agregador.business.Hechos.Hecho;
-import Agregador.persistencia.RepositorioColecciones;
 import java.util.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

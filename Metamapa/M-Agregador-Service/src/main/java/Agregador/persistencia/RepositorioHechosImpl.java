@@ -8,10 +8,7 @@ import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
 import java.util.*;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import jakarta.persistence.TypedQuery; // Necesario para la consulta paginada
+import org.springframework.data.domain.*;
 
 @Repository
 public class RepositorioHechosImpl implements RepositorioHechosCustom {

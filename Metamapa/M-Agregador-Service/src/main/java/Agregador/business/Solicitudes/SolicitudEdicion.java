@@ -1,11 +1,10 @@
 package Agregador.business.Solicitudes;
 import java.time.LocalDateTime;
-
 import java.util.*;
 import Agregador.business.Hechos.Hecho;
+import Agregador.business.Hechos.Multimedia;
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import Agregador.business.Hechos.Multimedia;
 
 @Entity
 @Getter

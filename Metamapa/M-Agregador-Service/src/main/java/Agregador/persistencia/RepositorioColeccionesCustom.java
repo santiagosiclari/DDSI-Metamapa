@@ -1,7 +1,5 @@
 package Agregador.persistencia;
 
-import Agregador.DTO.ColeccionDTO;
-import Agregador.DTO.CriterioDTO;
 import Agregador.business.Colecciones.Coleccion;
 import Agregador.business.Colecciones.Criterio;
 import java.util.List;

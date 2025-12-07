@@ -1,8 +1,7 @@
 package Agregador.business.Colecciones;
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import Agregador.business.Hechos.Hecho;
-import Agregador.business.Hechos.TipoMultimedia;
+import Agregador.business.Hechos.*;
 import jakarta.persistence.criteria.*;
 
 @Entity

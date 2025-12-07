@@ -1,8 +1,6 @@
 package Agregador.DTO;
 
 import Agregador.business.Hechos.Hecho;
-import Agregador.business.Hechos.Multimedia;
-import Agregador.business.Consenso.Consenso;
 import lombok.*;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -14,7 +12,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HechoDTO {
-
   private BigInteger id;
   private String titulo;
   private String descripcion;

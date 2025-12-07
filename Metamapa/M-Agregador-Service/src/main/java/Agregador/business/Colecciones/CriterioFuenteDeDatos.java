@@ -19,8 +19,6 @@ public class CriterioFuenteDeDatos extends Criterio {
 
   @Override
   public boolean cumple(Hecho hechoAValidar){
-    //BigInteger idFuenteDeDatosAValidar = hechoAValidar.getId();
-    //return this.getIdFuenteDeDatos().equals(idFuenteDeDatosAValidar);
     return inclusion == Objects.equals(hechoAValidar.getIdFuente(), this.idFuenteDeDatos);
   }
 

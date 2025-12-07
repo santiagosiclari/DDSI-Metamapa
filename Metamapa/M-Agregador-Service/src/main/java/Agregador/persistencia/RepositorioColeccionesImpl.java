@@ -1,19 +1,12 @@
 package Agregador.persistencia;
 
-import Agregador.business.Colecciones.Coleccion;
-import Agregador.business.Colecciones.Criterio;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import Agregador.business.Colecciones.*;
+import jakarta.persistence.*;
+import java.util.*;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class RepositorioColeccionesImpl implements RepositorioColeccionesCustom {
-
   @PersistenceContext
   private EntityManager em;
 

@@ -1,7 +1,6 @@
 package Agregador.business.Colecciones;
 import jakarta.persistence.Entity;
 import jakarta.persistence.criteria.*;
-import java.util.Objects;
 import lombok.Getter;
 import Agregador.business.Hechos.Hecho;
 

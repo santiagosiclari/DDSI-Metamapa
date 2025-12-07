@@ -9,7 +9,7 @@ import lombok.*;
 public abstract class Solicitud {
   @ManyToOne (cascade = CascadeType.ALL)
   private Hecho hechoAfectado;
-  @Enumerated(EnumType.STRING) // ← Esto le dice a JPA que guarde el nombre del enum
+  @Enumerated(EnumType.STRING)
   private EstadoSolicitud estado;
   //UUID id;
   @Id

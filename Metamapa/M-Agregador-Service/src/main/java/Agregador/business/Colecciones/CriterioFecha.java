@@ -1,5 +1,4 @@
 package Agregador.business.Colecciones;
-
 import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -35,11 +34,9 @@ public class CriterioFecha extends Criterio {
     } else if (fechaHasta != null) {
       predicate = cb.lessThanOrEqualTo(root.get("fechaHecho"), fechaHasta);
     }
-
     if (predicate == null) {
       return cb.conjunction();
     }
-
     return inclusion ? predicate : cb.not(predicate);
   }
 }

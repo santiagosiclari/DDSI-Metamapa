@@ -1,12 +1,10 @@
 package Agregador.persistencia;
 
 import Agregador.DTO.FiltrosHechosDTO;
-
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Consenso.Consenso;
-import org.springframework.data.domain.Page;
 import Agregador.business.Hechos.Hecho;
-import org.springframework.data.domain.Pageable; // 💡 DEBE SER ESTE IMPORT
+import org.springframework.data.domain.*;
 import java.util.List;
 
 public interface RepositorioHechosCustom {

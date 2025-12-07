@@ -1,8 +1,6 @@
 package Agregador.Service;
 import Agregador.DTO.*;
-import Agregador.business.Colecciones.Coleccion;
-import Agregador.business.Colecciones.Criterio;
-import Agregador.business.Colecciones.CriterioFuenteDeDatos;
+import Agregador.business.Colecciones.*;
 import Agregador.business.Consenso.*;
 import Agregador.business.Hechos.*;
 import Agregador.persistencia.*;
@@ -17,7 +15,6 @@ public class ServiceColecciones {
   private final RepositorioColecciones repositorioColecciones;
   private final RepositorioHechosImpl repositorioHechos;
   private final RepositorioConsenso repositorioConsenso;
-
 
   public List<Hecho> getHechosFiltrados(UUID id, ModosDeNavegacion modoNavegacion, FiltrosHechosDTO filtros) {
     Coleccion coleccion = repositorioColecciones.getColeccion(id)
