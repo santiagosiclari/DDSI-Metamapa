@@ -1,0 +1,30 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+    # 1. Usamos Service Discovery para que Promtail hable con Docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+
+    # 2. Relabeling: Convertimos la metadata de Docker en etiquetas útiles para ti
+    relabel_configs:
+      # Esto crea la etiqueta 'container_name' (ej: /proyecto-m-agregador-1 -> m-agregador-1)
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container_name'
+      # Esto crea la etiqueta 'service_name' usando el nombre del servicio en docker-compose (ej: m-agregador)
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'compose_service'
+
+    # 3. Pipeline: Limpia el JSON automáticamente (ya no necesitarás | json | line_format)
+    pipeline_stages:
+      - docker: {}

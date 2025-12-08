@@ -8,7 +8,8 @@ services:
       - "8080:8080"     # Puerto de Actuator para Prometheus
     restart: on-failure # ✅ CUMPLE REQUISITO: Política de Autorestart
     depends_on:
-      - zipkin
+      zipkin:
+        condition: service_healthy
     # Permite al contenedor encontrar el SQL Server en tu máquina Windows
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -22,6 +23,11 @@ services:
     container_name: zipkin
     ports:
       - "9411:9411"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9411/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   # --- 3. MÉTRICAS (Prometheus) ---
   prometheus:
@@ -47,3 +53,28 @@ services:
     depends_on:
       - prometheus
       - zipkin
+      - loki
+
+  # --- 5. LOGS (Loki) ---
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - ./loki:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # --- 6. PROMTAIL (agente que manda logs a Loki) ---
+  promtail:
+    image: grafana/promtail:3.3.0
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
