@@ -2,6 +2,7 @@ package FuenteDemo.DTO;
 import FuenteDemo.business.Hechos.Hecho;
 import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.*;
 
@@ -13,7 +14,7 @@ public class HechoDTO {
   private Float latitud;
   private Float longitud;
   private String fechaHecho;
-  private LocalDate fechaModificacion;
+  private LocalDateTime fechaModificacion;
   private Integer fuenteId;
   private Integer id;
 
@@ -37,7 +38,7 @@ public class HechoDTO {
     hecho.setCategoria(this.categoria);
     hecho.setLatitud(this.latitud);
     hecho.setLongitud(this.longitud);
-    hecho.setFechaHecho(LocalDate.parse(this.fechaHecho));
+    hecho.setFechaHecho(LocalDateTime.parse(this.fechaHecho));
     hecho.setFuente(fuente);
     return hecho;
   }

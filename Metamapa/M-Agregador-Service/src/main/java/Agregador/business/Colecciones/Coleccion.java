@@ -2,9 +2,7 @@ package Agregador.business.Colecciones;
 import Agregador.business.Consenso.*;
 import jakarta.persistence.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.*;
-import Agregador.business.Hechos.Hecho;
 
 @Entity
 @Getter @Setter
