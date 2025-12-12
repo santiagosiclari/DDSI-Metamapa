@@ -1,14 +1,9 @@
 package Usuarios.web;
 
-import Usuarios.business.Usuarios.Rol;
-import Usuarios.business.Usuarios.Usuario;
+import Usuarios.business.Usuarios.*;
 import Usuarios.service.UsuarioService;
-
-import java.lang.reflect.Array;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

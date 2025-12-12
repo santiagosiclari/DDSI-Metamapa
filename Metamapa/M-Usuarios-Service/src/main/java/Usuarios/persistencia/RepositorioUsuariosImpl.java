@@ -1,12 +1,10 @@
 package Usuarios.persistencia;
 
 import Usuarios.business.Usuarios.Usuario;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.*;
 
 @Repository
 public class RepositorioUsuariosImpl implements RepositorioUsuariosCustom{

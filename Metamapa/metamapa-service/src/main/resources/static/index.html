@@ -20,7 +20,15 @@
             <button class="btn btn-success me-2 login-required d-none" data-bs-toggle="modal" data-bs-target="#modalHecho">+ Hecho</button>
             <button class="btn btn-warning me-2 login-required d-none" onclick="actualizarHechos()">Actualizar</button>
             <button class="btn btn-danger login-required d-none" onclick="curarHechos()">Curar</button>
-            <a id="btnLogin" class="btn btn-outline-light me-2" onclick="iniciarSesionSSO()">Iniciar sesión</a>
+
+            <!-- Botón de login ahora abre modal -->
+            <a id="btnLogin"
+               class="btn btn-outline-light me-2"
+               data-bs-toggle="modal"
+               data-bs-target="#modalLogin">
+                Iniciar sesión
+            </a>
+
             <button id="btnLogout" class="btn btn-outline-light me-2 d-none" onclick="cerrarSesion()">Cerrar sesión</button>
         </div>
     </div>
@@ -55,6 +63,81 @@
         </div>
         <div id="listaColecciones" class="mb-3"></div>
         <div id="mapaColeccion" class="mapa"></div>
+    </div>
+</div>
+
+<!-- ========== MODAL LOGIN ========== -->
+<div class="modal fade" id="modalLogin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Iniciar sesión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- El action se setea desde auth.js usando window.METAMAPA.API_USUARIOS -->
+                <form id="formLogin" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input name="email" type="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input name="password" type="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Iniciar sesión</button>
+                </form>
+
+                <p class="mt-3 text-center">
+                    ¿No tenés cuenta?
+                    <a href="#" id="linkAbrirRegistro">Registrate</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL REGISTRO ========== -->
+<div class="modal fade" id="modalRegistro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Crear cuenta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegistro">
+                    <div class="mb-3">
+                        <label for="nuevoEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="nuevoEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevoPassword" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="nuevoPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevoNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nuevoNombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevoApellido" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="nuevoApellido" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nuevoEdad" class="form-label">Edad</label>
+                        <input type="number" class="form-control" id="nuevoEdad" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipoUsuario" class="form-label">Tipo de usuario</label>
+                        <select id="tipoUsuario" class="form-select" required>
+                            <option value="CONTRIBUYENTE">Contribuidor</option>
+                            <option value="ADMINISTRADOR">Administrador</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Crear cuenta</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -3,9 +3,7 @@ package Usuarios.DTO;
 import Usuarios.business.Usuarios.Rol;
 import Usuarios.business.Usuarios.Usuario;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Getter
 public class UsuarioDTO {

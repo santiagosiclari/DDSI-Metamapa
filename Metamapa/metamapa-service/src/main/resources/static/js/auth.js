@@ -115,3 +115,83 @@ function cerrarSesion() {
             window.location.href = 'http://localhost:9000/index.html';
         });
 }
+document.addEventListener('DOMContentLoaded', () => {
+    // Ya tenés este listener para verificar sesión, no lo toco.
+    // Agrego las cosas de login / registro.
+
+    // 1) Configurar action del form de login
+    const formLogin = document.getElementById('formLogin');
+    if (formLogin && window.METAMAPA && window.METAMAPA.API_USUARIOS) {
+        formLogin.action = `${window.METAMAPA.API_USUARIOS}/login`;
+    }
+
+    // 2) Link "Registrate" que cierra login y abre registro
+    const linkRegistro = document.getElementById('linkAbrirRegistro');
+    if (linkRegistro) {
+        linkRegistro.addEventListener('click', (e) => {
+            e.preventDefault();
+            const modalLoginEl = document.getElementById('modalLogin');
+            const modalRegistroEl = document.getElementById('modalRegistro');
+
+            if (modalLoginEl) {
+                const mLogin = bootstrap.Modal.getInstance(modalLoginEl) || new bootstrap.Modal(modalLoginEl);
+                mLogin.hide();
+            }
+            if (modalRegistroEl) {
+                const mReg = new bootstrap.Modal(modalRegistroEl);
+                mReg.show();
+            }
+        });
+    }
+
+    // 3) Manejar el submit del registro vía fetch
+    const formRegistro = document.getElementById('formRegistro');
+    if (formRegistro && window.METAMAPA && window.METAMAPA.API_USUARIOS) {
+        formRegistro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const usuario = {
+                email: document.getElementById('nuevoEmail').value,
+                password: document.getElementById('nuevoPassword').value,
+                nombre: document.getElementById('nuevoNombre').value,
+                apellido: document.getElementById('nuevoApellido').value,
+                edad: parseInt(document.getElementById('nuevoEdad').value, 10),
+                roles: [document.getElementById('tipoUsuario').value]
+            };
+
+            try {
+                const resp = await fetch(
+                    `${window.METAMAPA.API_USUARIOS}/api-auth/registrar`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(usuario)
+                    }
+                );
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    alert(`Error: ${err.mensaje || resp.statusText}`);
+                    return;
+                }
+
+                alert('Usuario registrado. Ahora podés iniciar sesión.');
+
+                const modalRegistroEl = document.getElementById('modalRegistro');
+                const modalLoginEl = document.getElementById('modalLogin');
+
+                if (modalRegistroEl) {
+                    const mReg = bootstrap.Modal.getInstance(modalRegistroEl) || new bootstrap.Modal(modalRegistroEl);
+                    mReg.hide();
+                }
+                if (modalLoginEl) {
+                    const mLogin = new bootstrap.Modal(modalLoginEl);
+                    mLogin.show();
+                }
+            } catch (err) {
+                console.error('Error registrando usuario:', err);
+                alert('Error de red al registrar usuario.');
+            }
+        });
+    }
+});

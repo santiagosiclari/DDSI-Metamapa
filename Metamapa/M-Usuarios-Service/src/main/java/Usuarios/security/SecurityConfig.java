@@ -5,26 +5,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.core.annotation.Order;
-
-// Imports para la gestión de contraseñas
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-// Import necesario si quieres filtrar por método (POST, GET, etc.)
+import org.springframework.core.annotation.Order;
+import org.springframework.web.cors.*;
 import org.springframework.http.HttpMethod;
+import java.util.*;
 
 @Configuration
 public class SecurityConfig {
-
   @Bean
   public PasswordEncoder passwordEncoder() {
     String encodingId = "bcrypt";
@@ -46,6 +35,7 @@ public class SecurityConfig {
                             "/usuarios/api-auth/**",  // Coincide con AuthController
                             "/usuarios",
                             "/login",
+                            "/login.html",
                             "/.well-known/**",
                             "/oauth2/**",
                             "/error"
@@ -57,10 +47,29 @@ public class SecurityConfig {
                     // 3. Todo lo demás requiere autenticación
                     .anyRequest().authenticated())
 
+//            .formLogin(form -> form
+//                    .usernameParameter("email")
+//                    .defaultSuccessUrl("http://localhost:9000/index.html", true)
+//            )
+
+
             .formLogin(form -> form
+                    // 1) Página de login que querés mostrar (GET /login.html)
+                    .loginPage("/login.html")
+
+                    // 2) Endpoint al que hace POST el formulario con las credenciales
+                    .loginProcessingUrl("/login")
+
+                    // 3) El parámetro de usuario en el form
                     .usernameParameter("email")
+
+                    // 4) A dónde redirigir después de un login exitoso
                     .defaultSuccessUrl("http://localhost:9000/index.html", true)
+
+                    // 5) Dejá que cualquiera pueda ver la página de login
+                    .permitAll()
             )
+
             .logout(logout -> logout
                     .logoutUrl("/usuarios/logout")
                     .logoutSuccessUrl("http://localhost:9000/index.html")
@@ -92,10 +101,10 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
 
     // PERMITIR ACCESO DESDE EL CLIENTE LIVIANO (PUERTO 9000)
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:9000"));
+    configuration.setAllowedOrigins(List.of("*"));
 
     // Permitir credenciales (cookies, tokens)
-    configuration.setAllowCredentials(true);
+    configuration.setAllowCredentials(false);
 
     // Métodos permitidos para las peticiones
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
