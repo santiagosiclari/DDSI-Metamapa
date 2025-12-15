@@ -1,11 +1,7 @@
 package Agregador.Service;
-
 import jakarta.annotation.PostConstruct;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
@@ -35,10 +31,6 @@ public class GeocodingService {
             }
         }
         index.build();
-        //var schema = source.getSchema();
-        //System.out.println("Campos del SHP:");
-        //schema.getAttributeDescriptors()
-        //        .forEach(d -> System.out.println(" - " + d.getLocalName()));
     }
 
     public String obtenerProvincia(double lat, double lon) {

@@ -37,43 +37,20 @@ public class ServiceColecciones {
 
     return hechos;
   }
-/*  public List<Coleccion> getColecciones() {
+  public List<Coleccion> getColecciones() {
     return repositorioColecciones.findAll();
-  }*/
+  }
   public Optional<Coleccion> getColeccion(UUID id) {
     return repositorioColecciones.getColeccion(id);
   }
 
   public List<Coleccion> getColecciones(String query) {
-
-    List<Coleccion> todas = repositorioColecciones.findAll();
-
-    if (query == null) {
-      return todas;
+    System.out.println("Buscando colecciones por texto libre: " + query);
+    if (query == null || query.trim().isEmpty()) {
+      return repositorioColecciones.findAll();
     }
-
-    String q = query.trim().toLowerCase();
-
-    if (q.isEmpty()) {
-      return todas;
-    }
-
-    return todas.stream()
-            .filter(c -> {
-              if (c.getTitulo() == null) return false;
-
-              String titulo = c.getTitulo().trim().toLowerCase();
-              return titulo.equals(q);
-            })
-            .toList();
+    return repositorioColecciones.buscarTextoLibre(query);
   }
-
-  /*public List<Coleccion> getColecciones(String query) {
-  if (query == null || query.trim().isEmpty()) {
-    return repositorioColecciones.findAll();
-  }
-  return repositorioColecciones.buscarTextoLibre(query);
-}*/
 
   public ColeccionDTO crearColeccion(ColeccionDTO coleccionDTO) {
     String nombre = coleccionDTO.getConsenso();

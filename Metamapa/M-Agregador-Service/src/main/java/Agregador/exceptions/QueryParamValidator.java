@@ -19,8 +19,9 @@ public class QueryParamValidator {
             .map(Field::getName)
             .collect(Collectors.toSet());
     for (String param : paramMap.keySet()) {
-      // Solo lanzamos una excepción si el parámetro no está en el DTO
-      if (!validFields.contains(param) && !param.equals("modoNavegacion")) {
+      if (!validFields.contains(param)
+              && !param.equals("modoNavegacion")
+              && !param.equals("query")) {
         throw new IllegalArgumentException("Parámetro inválido: " + param);
       }
     }

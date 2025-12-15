@@ -543,30 +543,6 @@ function renderFuentesMetamapa(fuentes) {
     </ul>`;
 }
 
-/*async function mostrarFuentesView() {
-    cont.innerHTML = "<p>Cargando fuentes...</p>";
-    const fuentes = await obtenerFuentes();
-    const lista = Object.entries(fuentes || {})
-        .map(([url, tipo]) => `
-            <li class="list-group-item d-flex justify-content-between align-items-start">
-                <div>
-                    <strong>${tipo}</strong><br>
-                    <a href="${url}" target="_blank">${url}</a>
-                </div>
-                ${tipo === "Fuente Estatica" ? `
-                    <button class="btn btn-sm btn-primary ms-3" onclick="cargarCSV('${url}')">
-                        Cargar CSV
-                    </button>
-                ` : ""}
-            </li>
-        `)
-        .join("");
-    cont.innerHTML = `
-        <h3>Fuentes registradas (${Object.keys(fuentes || {}).length})</h3>
-        <ul class="list-group">${lista}</ul>
-    `;
-}*/
-
 // Mostrar detalle
 function mostrarDetalleHecho(h) {
     const modalEl = document.getElementById("modalDetalle");
@@ -1342,21 +1318,4 @@ function setDoneUI(button) {
 function setText(el, text) {
     if (!el) return;
     el.textContent = text;
-}
-
-async function fetchJsonWithTimeout(url, { timeoutMs = 12000, options = {} } = {}) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-        const res = await fetch(url, { ...options, signal: controller.signal });
-        if (res.status === 204) return null;
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
-    } catch (e) {
-        if (e.name === "AbortError") throw new Error("Tiempo de espera agotado");
-        throw e;
-    } finally {
-        clearTimeout(timer);
-    }
 }
