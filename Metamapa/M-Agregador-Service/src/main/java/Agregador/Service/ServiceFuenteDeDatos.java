@@ -30,9 +30,9 @@ public class ServiceFuenteDeDatos {
     );
     List<Map<String, Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
     // imprimir raw para debug
-    System.out.println("Hechos raw de la fuente " + urlBase + ": " + raw);
+    //System.out.println("Hechos raw de la fuente " + urlBase + ": " + raw);
 
-    return raw.stream()
+    return raw.parallelStream()
             .map(json -> {
               Object fuenteIdRaw = json.get("fuenteId");
               if (fuenteIdRaw == null)

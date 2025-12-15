@@ -169,8 +169,8 @@ public class Normalizador {
     // Categoría: normalizar con diccionario
     h.setCategoria(normalizarCategoria(h.getCategoria()));
     // Lat/Lon: redondeo
-    if (h.getLatitud() != null)  h.setLatitud(redondear(h.getLatitud()));
-    if (h.getLongitud() != null) h.setLongitud(redondear(h.getLongitud()));
+    if (h.getLatitud() != null)  h.setLatitud(h.getLatitud());
+    if (h.getLongitud() != null) h.setLongitud(h.getLongitud());
     // Fechas: asegurar consistencia básica (si viene nula, no forzar)
     if (h.getFechaCarga() == null)        h.setFechaCarga(LocalDateTime.now());
     if (h.getFechaModificacion() == null) h.setFechaModificacion(LocalDateTime.now());
@@ -294,8 +294,8 @@ public class Normalizador {
     return s == null || s.isBlank();
   }
 
-  private Float redondear(Float valor) {
+ /* private Double redondear(Double valor) {
     if (valor == null) return null;
-    return (float) (Math.round(valor * factor) / factor);
-  }
+    return (Double) (Math.round(valor * factor) / factor);
+  }*/
 }
