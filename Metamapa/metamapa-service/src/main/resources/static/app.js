@@ -160,7 +160,7 @@ const categoriaColores = {
     // Sustancias / ambiente
     "Derrame / Fuga de sustancias": "#00ACC1",
     "Fuga o emanación de gas": "#00897B",
-    "Contaminacion": "#2E7D32",
+    "Contaminación": "#2E7D32",
     "Material volcanico": "#4E342E",
 
     // Clima
@@ -576,7 +576,7 @@ const CATEGORIAS = [
     "Inundación",
     "Emergencia sanitaria",
     "Intoxicacion masiva",
-    "Contaminacion",
+    "Contaminación",
     "Sequia",
     "Escasez de agua",
     "Material volcanico",
@@ -1293,13 +1293,15 @@ async function poblarSelectsFuentesColecciones(rootEl) {
     }
 }
 
-
-
 async function mostrarColecciones() {
     const contLista = document.getElementById("listaColecciones");
     contLista.innerHTML = "<p class='text-muted'>Cargando colecciones...</p>";
 
     try {
+        const esAdmin = usuarioActual &&
+            Array.isArray(usuarioActual.roles) &&
+            usuarioActual.roles.includes("ADMINISTRADOR");
+
         const q = document.getElementById("busquedaColeccion")?.value?.trim() || "";
         const colecciones = await obtenerColecciones(q);
 
@@ -1326,6 +1328,7 @@ async function mostrarColecciones() {
               Ver hechos
             </button>
 
+            ${ esAdmin ? `
             <div class="input-group input-group-sm" style="width: 320px;">
               <select class="form-select fuenteSelect" data-handle="${escapeHtml(c.handle)}">
                 <option value="">Cargando fuentes...</option>
@@ -1334,20 +1337,26 @@ async function mostrarColecciones() {
                 Agregar
               </button>
             </div>
+            ` : '' }
 
+            ${ esAdmin ? `
             <button class="btn btn-sm admin-only btn-outline-primary"
                     onclick="cambiarConsenso('${escapeHtml(c.handle)}')">
               Cambiar consenso
             </button>
+            ` : '' }
+            
           </div>
         </div>
       </div>
     `).join("");
 
-        // cargar opciones del select para todas las cards
-        await poblarSelectsFuentesColecciones(contLista);
+        // 4. OPTIMIZACIÓN: Solo cargamos el select si el usuario es admin y el HTML existe
+        if (esAdmin) {
+            await poblarSelectsFuentesColecciones(contLista);
+        }
 
-        // IMPORTANTE: delegación de eventos bien hecha (sin return temprano)
+        // DELEGACIÓN DE EVENTOS
         contLista.onclick = async (e) => {
             const btnVer = e.target.closest(".btnVerHechos");
             const btnFuente = e.target.closest(".btnAgregarFuente");
@@ -1389,11 +1398,8 @@ async function mostrarColecciones() {
                 setLoadingUI({ container: estado, message: "Agregando fuente..." });
 
                 try {
-                    // si tu back espera número, lo convertimos si se puede
                     const idFuente = Number.isFinite(Number(fuenteValue)) ? Number(fuenteValue) : fuenteValue;
-
                     await agregarFuenteAColeccion(handle, idFuente);
-
                     setText(estado, "✅Fuente agregada.");
                     if (sel) sel.value = "";
                 } catch (err) {
@@ -2801,7 +2807,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         modalColeccion.addEventListener("hidden.bs.modal", limpiarFormularioColeccion);
     }
 
-    verificarSesionYActualizarUI();
+    await verificarSesionYActualizarUI();
 
     const vista = sessionStorage.getItem("vistaActual") || "colecciones";
     await mostrar(vista);
