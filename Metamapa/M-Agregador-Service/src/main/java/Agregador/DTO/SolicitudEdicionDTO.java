@@ -1,11 +1,9 @@
 package Agregador.DTO;
-import Agregador.business.Hechos.Multimedia;
 import Agregador.business.Solicitudes.SolicitudEdicion;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.*;
 
 @Getter @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,7 +16,6 @@ public class SolicitudEdicionDTO {
   private Float latitudMod;
   private Float longitudMod;
   private LocalDateTime fechaHechoMod;
-  private ArrayList<Multimedia> multimediaMod;
   private Boolean anonimidadMod;
   private String sugerencia;
   private Integer id;
@@ -32,11 +29,10 @@ public class SolicitudEdicionDTO {
     this.latitudMod = solicitudEdicion.getLatitudMod();
     this.longitudMod = solicitudEdicion.getLongitudMod();
     this.fechaHechoMod = solicitudEdicion.getFechaHechoMod();
-    this.multimediaMod = solicitudEdicion.getMultimediaMod();
     this.anonimidadMod = solicitudEdicion.getAnonimidadMod();
     this.sugerencia = solicitudEdicion.getSugerencia();
     this.hechoAfectado = solicitudEdicion.getHechoAfectado().getId();
-    this.estado = solicitudEdicion.getEstado().name();  // Estado como String
+    this.estado = solicitudEdicion.getEstado().name();
     this.id = solicitudEdicion.getId();
   }
 }

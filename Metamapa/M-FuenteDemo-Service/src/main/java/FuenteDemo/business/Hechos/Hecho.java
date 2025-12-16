@@ -2,8 +2,7 @@ package FuenteDemo.business.Hechos;
 import FuenteDemo.business.FuentesDeDatos.FuenteDemo;
 import java.time.LocalDateTime;
 import lombok.*;
-//import jakarta.persistence.*;
-//@Entity
+
 @Getter @Setter
 public class Hecho {
   private String titulo;

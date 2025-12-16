@@ -17,7 +17,6 @@ public class ServiceFuenteDeDatos {
   private final RestTemplate restTemplate;
   private final RepositorioHechos repositorioHechos;
   private final Normalizador normalizador;
-  private static final String PATH_LISTAR_FUENTES = "%s/fuentesDeDatos";
   private static final Logger log = LoggerFactory.getLogger(ServiceFuenteDeDatos.class);
   private final GeocodingService geocodingService;
 
@@ -46,15 +45,6 @@ public class ServiceFuenteDeDatos {
     repositorioHechos.saveAll(normalizador.normalizarYUnificar(hechos));
     log.info("Total hechos guardados: {}", repositorioHechos.findAll().size());
   }
-
-  /* Lista todas las fuentes (dinámicas+estáticas+proxy). */
-/*  private List<FuenteInfoDTO> fetchFuentes(String base) {
-    String url = String.format(PATH_LISTAR_FUENTES, base);
-    ResponseEntity<List<FuenteInfoDTO>> resp = restTemplate.exchange(
-            url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
-    );
-    return Optional.ofNullable(resp.getBody()).orElseGet(List::of);
-  }*/
 
   /** Devuelve SOLO los hechos nuevos respecto a tu repositorio (útil para sincronización). */
   public List<Hecho> getHechosNuevosDeFuente(String urlBase) {
@@ -135,11 +125,4 @@ public class ServiceFuenteDeDatos {
   private static Float f(Object o)           { try { return o == null ? null : Float.valueOf(String.valueOf(o)); } catch(Exception e){ return null; } }
   private static Boolean bool(Object o)      { return o == null ? null : Boolean.valueOf(String.valueOf(o)); }
   private static LocalDateTime date(Object o)    { try { return o == null ? null : LocalDateTime.parse(String.valueOf(o)); } catch(Exception e){ return null; } }
-
-  // ================== DTOs simples ==================
-  @Data
-  public static class FuenteInfoDTO {
-    private Integer id;
-    private String nombre;
-  }
 }

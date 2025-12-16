@@ -1,178 +1,240 @@
-/* Layout general */
+
+:root{
+    --mm-bg: #f6f7fb;
+    --mm-surface: #ffffff;
+    --mm-accent: #2563eb;
+    --mm-accent-2: #f59e0b;
+    --mm-text: #111827;
+    --mm-muted: #6b7280;
+    --mm-border: rgba(17,24,39,0.10);
+    --mm-shadow: 0 10px 24px rgba(17,24,39,0.06);
+}
+
+body{
+    background: var(--mm-bg);
+    color: var(--mm-text);
+}
+
 .letter-tight { letter-spacing: 0.2px; }
 
-.loading {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 18px;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 10px;
-    background: #fff;
+
+.loading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:18px;
+    border:1px solid var(--mm-border);
+    border-radius:12px;
+    background: var(--mm-surface);
+    box-shadow: var(--mm-shadow);
 }
 
-.spinner {
-    width: 18px;
-    height: 18px;
-    border: 3px solid rgba(0,0,0,0.15);
-    border-top-color: rgba(0,0,0,0.55);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+.spinner{
+    width:16px;
+    height:16px;
+    border:2px solid rgba(17,24,39,0.18);
+    border-top-color: rgba(17,24,39,0.55);
+    border-radius:50%;
+    animation:mm-spin 0.8s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes mm-spin { to { transform: rotate(360deg); } }
 
-/* Mapas */
-.mapa {
-    height: 520px;
-    width: 100%;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
-    background: #fff;
+.card{
+    background: var(--mm-surface);
+    border-radius:14px;
+    border:1px solid var(--mm-border);
+    box-shadow: var(--mm-shadow);
 }
 
-.mapa-seleccion {
-    height: 320px;
-    width: 100%;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
-    background: #fff;
+.modal-content{
+    border-radius:14px;
+    border:1px solid var(--mm-border);
+    box-shadow: 0 18px 40px rgba(17,24,39,0.12);
 }
 
-#mapaUbicacion {
-    height: 420px;
-    width: 100%;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
-}
-
-/* Skeleton tabla */
-.skeleton-cell {
-    height: 14px;
-    border-radius: 8px;
-    background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.10), rgba(0,0,0,0.06));
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-}
-
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* Pequeños ajustes */
 .table td, .table th { vertical-align: middle; }
 
-.card {
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
-}
-
-.modal-content {
-    border-radius: 14px;
-}
-/* Leaflet necesita height sí o sí */
-.mapa {
-    height: 60vh;
-    min-height: 420px;
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-#mapaSeleccion {
-    height: 320px;
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-#mapaUbicacion {
-    height: 520px;
-    width: 100%;
-}
-/* =========================
-   MetaMapa - UI helpers
-   ========================= */
-
-/* Cards consistentes (las uso en estadísticas, colecciones, etc.) */
-.mm-card {
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
-
-/* Contenedor de la lista en colecciones */
-.mm-lista {
-    max-height: 60vh;
-    overflow: auto;
-}
-
-/* Card que envuelve un mapa */
-.mm-map-card .card-body {
-    padding: 0;
-}
-
-/* Asegura alto del mapa (si el div no tiene alto, Leaflet no renderiza) */
-.mapa {
-    width: 100%;
-    height: 70vh;
-    min-height: 420px;
-    border-radius: 14px;
-}
-
-/* Mapa del modal (selección de punto) */
-.mapa-seleccion {
-    width: 100%;
-    height: 320px;
-    min-height: 280px;
-    border-radius: 12px;
-}
-
-/* Mapa del modal de ubicación (radio) */
-#mapaUbicacion {
-    width: 100%;
-    height: 420px;
-    min-height: 320px;
-    border-radius: 12px;
-}
-
-/* Spinner simple (si ya tenés uno, podés borrar esto) */
-.spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(0, 0, 0, 0.15);
-    border-top-color: rgba(0, 0, 0, 0.55);
-    border-radius: 50%;
-    animation: mm-spin 0.8s linear infinite;
-}
-
-@keyframes mm-spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Skeleton cells (si usás skeletons en tablas) */
-.skeleton-cell {
-    height: 12px;
-    width: 100%;
-    border-radius: 8px;
+.skeleton-cell{
+    height:12px;
+    width:100%;
+    border-radius:8px;
     background: linear-gradient(
             90deg,
-            rgba(0,0,0,0.06) 25%,
-            rgba(0,0,0,0.12) 37%,
-            rgba(0,0,0,0.06) 63%
+            rgba(17,24,39,0.06) 25%,
+            rgba(17,24,39,0.12) 37%,
+            rgba(17,24,39,0.06) 63%
     );
     background-size: 400% 100%;
     animation: mm-skel 1.2s ease-in-out infinite;
 }
 
-@keyframes mm-skel {
+@keyframes mm-skel{
     0% { background-position: 100% 0; }
     100% { background-position: 0 0; }
 }
 
-/* Mejoras de legibilidad */
-.letter-tight { letter-spacing: 0.2px; }
+.mapa{
+    width:100%;
+    height:70vh;
+    min-height:420px;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--mm-border);
+    background: var(--mm-surface);
+    box-shadow: var(--mm-shadow);
+}
 
-#estadisticas-container .card { border-radius: 14px; }
-#estadisticas-container .card-title { font-weight: 600; }
+#mapaSeleccion,
+.mapa-seleccion{
+    width:100%;
+    height:320px;
+    min-height:280px;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid var(--mm-border);
+    background: var(--mm-surface);
+}
+
+#mapaUbicacion{
+    width:100%;
+    height:420px;
+    min-height:320px;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid var(--mm-border);
+    background: var(--mm-surface);
+}
+
+.mapa-leyenda{
+    color: var(--mm-text);
+}
+
+.mm-card{
+    border:1px solid var(--mm-border);
+    border-radius:14px;
+    box-shadow: var(--mm-shadow);
+    background: var(--mm-surface);
+}
+
+.mm-lista{
+    max-height:60vh;
+    overflow:auto;
+}
+
+.mm-map-card .card-body{
+    padding:0;
+}
+
+#estadisticas-container .card{ border-radius:14px; }
+#estadisticas-container .card-title{ font-weight:600; }
+
+.mm-nav .nav-link{
+    border-radius:10px;
+    padding:.45rem .75rem;
+    color: var(--mm-muted);
+}
+
+.mm-nav .nav-link:hover{
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--mm-text);
+}
+
+.mm-nav .nav-link.is-active{
+    background: rgba(37, 99, 235, 0.14);
+    color: var(--mm-accent);
+    font-weight:600;
+    border:1px solid rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary{
+    background-color: var(--mm-accent);
+    border-color: var(--mm-accent);
+}
+
+.btn-primary:hover{
+    filter: brightness(0.95);
+}
+
+.btn-outline-primary{
+    color: var(--mm-accent);
+    border-color: rgba(37,99,235,0.45);
+}
+
+.btn-outline-primary:hover{
+    background: rgba(37,99,235,0.10);
+    color: var(--mm-accent);
+}
+
+#btn-acciones {
+    color: var(--mm-accent);
+    background: var(--mm-surface);
+}
+
+#btn-acciones:hover {
+    color: var(--mm-surface);
+    background: var(--mm-accent-2);
+}
+
+.mm-nav .btn.is-active,
+.mm-nav .dropdown-item.is-active,
+#btnAdminMenu.is-active{
+    background: rgba(255,255,255,0.92);
+    color: var(--mm-accent) !important;
+    border-color: rgba(255,255,255,0.92) !important;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(17,24,39,0.12);
+}
+
+.mm-nav .btn.is-active:hover,
+#btnAdminMenu.is-active:hover{
+    filter: brightness(0.98);
+}
+
+.mm-userchip{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.20);
+    color: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    line-height: 1;
+}
+
+.mm-userchip__dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e; /* verde online */
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
+}
+
+.mm-userchip__name{
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* estado invitado (si querés mostrarlo cuando no hay sesión) */
+.mm-userchip.is-guest .mm-userchip__dot{
+    background: rgba(255,255,255,0.55);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.10);
+}
+
+.mm-modal .modal-header{
+    background: #0B5ED7; /* similar a bg-primary pero un poco más profundo */
+    color: #fff;
+    border-bottom: 0;
+}
+.mm-modal .modal-content{
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.18);
+}

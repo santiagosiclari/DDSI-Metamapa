@@ -144,7 +144,7 @@ async function fetchSeguro(url) {
 /* =========================================================
    Mapas (Leaflet) - básico y estable
    ========================================================= */
-console.log("mapa (leaflet) cargado correctamente");
+
 
 // ==============================
 // Colores por categoría (fallback a "Otro")
@@ -197,10 +197,7 @@ const categoriaColores = {
 const colorPorCategoria = (cat) => categoriaColores[cat] || categoriaColores["Otro"];
 
 
-// ==============================
-// Registro de mapas por contenedor
-// (así podés tener #mapa y #mapaColeccion sin pisarte)
-// ==============================
+
 const _maps = new Map(); // divId -> { map, markers, legend }
 
 // Espera a que el div exista y tenga tamaño
@@ -1021,12 +1018,14 @@ async function mostrar(seccion) {
     try {
         if (fn) await fn();
         sessionStorage.setItem("vistaActual", seccion);
+        marcarNavActiva(seccion);              // <-- AGREGAR ESTO
         verificarSesionYActualizarUI();
     } catch (e) {
         cont.innerHTML = `<div class="alert alert-danger">Error al cargar la vista: ${escapeHtml(e?.message || e)}</div>`;
         console.error(e);
     }
 }
+
 window.mostrar = mostrar;
 
 /* === Hechos === */
@@ -1381,14 +1380,17 @@ async function mostrarFuentesView() {
         html += `
       <h3>Fuentes estáticas (${estaticas.fuentes.length})</h3>
       ${renderFuentesEstaticas(estaticas.fuentes)}
-      <button class="btn btn-success mt-2" onclick="crearFuenteEstaticaView()">Crear fuente estática</button>
+      <button class="btn btn-success mt-2" onclick="abrirModalFuente('estatica')">Crear fuente estática</button>
+
     `;
     }
     if (dinamicas.disponible) {
         html += `
       <h3 class="mt-4">Fuentes dinámicas (${dinamicas.fuentes.length})</h3>
       ${renderFuentesDinamicas(dinamicas.fuentes)}
-      <button class="btn btn-success mt-2" onclick="crearFuenteDinamicaView()">Crear fuente dinámica</button>
+     
+      <button class="btn btn-success mt-2" onclick="abrirModalFuente('dinamica')">Crear fuente dinámica</button>
+
     `;
     }
     if (demo.disponible) {
@@ -1441,6 +1443,7 @@ function renderFuentesDemo(fuentes) {
       <li class="list-group-item">
         <strong>Nombre: ${escapeHtml(f.nombre)}</strong><br>
         <span>ID: ${escapeHtml(f.id)}</span><br>
+        <span>URL: ${escapeHtml(f.endpointBase)}</span><br>
       </li>
     `).join("")}
   </ul>`;
@@ -1453,6 +1456,7 @@ function renderFuentesMetamapa(fuentes) {
       <li class="list-group-item">
         <strong>Nombre: ${escapeHtml(f.nombre)}</strong><br>
         <span>ID: ${escapeHtml(f.id)}</span><br>
+        <span>URL: ${escapeHtml(f.endpointBase)}</span><br>
       </li>
     `).join("")}
   </ul>`;
@@ -1466,12 +1470,17 @@ async function crearFuenteEstaticaView() {
     mostrarModal("Fuente estática creada.", "Fuentes");
 }
 
-async function crearFuenteDinamicaView() {
-    const nombre = prompt("Ingrese el nombre de la fuente dinámica:");
-    if (!nombre) return;
-    const fuente = await crearFuenteDinamica(nombre);
-    if (!fuente) return mostrarModal("No se pudo crear la fuente dinámica", "Error");
-    mostrarModal("Fuente dinámica creada.", "Fuentes");
+let modalCrearFuenteDinamica;
+
+function crearFuenteDinamicaView() {
+    const modalEl = document.getElementById("modalCrearFuenteDinamica");
+    modalCrearFuenteDinamica = new bootstrap.Modal(modalEl, {
+        backdrop: "static", // no se cierra clickeando afuera
+        keyboard: false     // no se cierra con ESC
+    });
+
+    document.getElementById("inputNombreFuenteDinamica").value = "";
+    modalCrearFuenteDinamica.show();
 }
 
 async function crearFuenteDemoView() {
@@ -1821,6 +1830,27 @@ async function mostrarEstadisticasView() {
             setDoneUI(btn);
         }
     });
+
+    async function actualizarEstadisticas() {
+        try {
+            const response = await fetch(`${window.METAMAPA.API_ESTADISTICA}/actualizar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                // body: JSON.stringify({ ... }) // si necesitás mandar algo
+            });
+
+            if (response.status === 204) return; // No hay datos
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            // Si el endpoint devuelve JSON y querés consumirlo igual:
+            // await response.json();
+        } catch (error) {
+            console.error("Error al actualizar estadisticas:", error);
+        }
+    }
+
 
     async function obtenerProvinciaMasReportadaColeccion(uuid) {
         try {
@@ -2392,7 +2422,13 @@ function mostrarFormularioEdicion(h, contenedor) {
       </div>
       <div class="mb-2">
         <label class="form-label"><b>Categoría</b></label>
-        <input id="categoriaMod" class="form-control" value="${h.categoria || ''}">
+        <select id="categoriaMod" class="form-select">
+          ${CATEGORIAS.map(c => `
+            <option value="${escapeHtml(c)}" ${c === (h.categoria || "") ? "selected" : ""}>
+              ${escapeHtml(c)}
+            </option>
+          `).join("")}
+        </select>
       </div>
       <div class="row">
         <div class="col-md-6 mb-2">
@@ -2403,6 +2439,12 @@ function mostrarFormularioEdicion(h, contenedor) {
           <label class="form-label"><b>Longitud</b></label>
           <input id="longitudMod" type="number" step="any" class="form-control" value="${h.longitud ?? ''}">
         </div>
+        <div class="mb-2">
+          <label class="form-label"><b>Seleccionar ubicación en el mapa</b></label>
+          <div id="mapaEdicionSolicitud" class="border rounded" style="height:260px;"></div>
+          <div class="form-text">Click en el mapa o arrastrá el marcador.</div>
+        </div>
+        
       </div>
       <div class="mb-2">
         <label class="form-label"><b>Fecha del hecho</b></label>
@@ -2418,6 +2460,12 @@ function mostrarFormularioEdicion(h, contenedor) {
       </div>
     </div>
     `;
+    setTimeout(() => {
+        const lat = (h.latitud != null) ? Number(h.latitud) : NaN;
+        const lng = (h.longitud != null) ? Number(h.longitud) : NaN;
+        inicializarMapaEdicionSolicitud(lat, lng);
+    }, 150);
+
     contenedor.querySelector("#btnCancelar").addEventListener("click", () => {
         renderDetalleHechoView(h, contenedor);
     });
@@ -2434,7 +2482,7 @@ function mostrarFormularioEdicion(h, contenedor) {
             hechoAfectado: h.id
         };
         const ok = await enviarSolicitudEdicion(solicitud);
-        alert(ok ? "✅ Solicitud de edición enviada con éxito." : "❌ Error al enviar la solicitud.");
+        alert(ok ? "✅ Solicitud de edición enviada con éxito." : "Error al enviar la solicitud.");
         renderDetalleHechoView(h, contenedor);
     });
 }
@@ -2470,6 +2518,9 @@ function actualizarVisibilidadPorRoles(roles, nombre) {
     const btnsVisualizador = document.querySelectorAll(".visualizador-level");
     const btnsLoginRequired = document.querySelectorAll(".login-required, .contribuyente-level");
     const btnsAdminOnly = document.querySelectorAll(".admin-only"); // (sin espacio adelante)
+    const chip = document.getElementById("userChip");
+    if (chip) chip.classList.remove("d-none");
+
 
     // Login/Logout
     if (btnLogin) btnLogin.classList.add("d-none");
@@ -2497,9 +2548,12 @@ function actualizarVisibilidadPorRoles(roles, nombre) {
 function ocultarTodoYMostrarLogin() {
     const btnsLoginRequired = document.querySelectorAll(".login-required, .contribuyente-level");
     const btnsAdminOnly = document.querySelectorAll(".admin-only");
+    const chip = document.getElementById("userChip");
+    if (chip) chip.classList.add("d-none");
 
     btnsLoginRequired.forEach(btn => btn.classList.add("d-none"));
     btnsAdminOnly.forEach(btn => btn.classList.add("d-none"));
+
 
     if (btnLogin) btnLogin.classList.remove("d-none");
     if (btnLogout) btnLogout.classList.add("d-none");
@@ -2615,6 +2669,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const vista = sessionStorage.getItem("vistaActual") || "colecciones";
     await mostrar(vista);
+    marcarNavActiva(vista);
+
 });
 
 function esUrlAbsoluta(u) {
@@ -2732,3 +2788,234 @@ async function cargarYRenderizarMultimedia(hecho, cont) {
     const lista = await obtenerMultimediaHecho(hecho);
     renderizarMultimedia(lista, cont);
 }
+let mapaEdicionSolicitud = null;
+let marcadorEdicionSolicitud = null;
+
+function actualizarInputsLatLngMod(lat, lng) {
+    const inLat = document.getElementById("latitudMod");
+    const inLng = document.getElementById("longitudMod");
+    if (inLat) inLat.value = Number(lat).toFixed(6);
+    if (inLng) inLng.value = Number(lng).toFixed(6);
+}
+
+function colocarMarcadorEdicionSolicitud(lat, lng) {
+    if (!mapaEdicionSolicitud) return;
+
+    if (!marcadorEdicionSolicitud) {
+        marcadorEdicionSolicitud = L.marker([lat, lng], { draggable: true })
+            .addTo(mapaEdicionSolicitud)
+            .on("drag dragend", (ev) => {
+                const p = ev.target.getLatLng();
+                actualizarInputsLatLngMod(p.lat, p.lng);
+            });
+    } else {
+        marcadorEdicionSolicitud.setLatLng([lat, lng]);
+    }
+
+    actualizarInputsLatLngMod(lat, lng);
+}
+
+function inicializarMapaEdicionSolicitud(latInicial, lngInicial) {
+    const el = document.getElementById("mapaEdicionSolicitud");
+    if (!el) return;
+
+    // Si el div fue recreado (innerHTML), el mapa viejo queda pegado a un container viejo: destruir
+    if (mapaEdicionSolicitud && mapaEdicionSolicitud._container !== el) {
+        try { mapaEdicionSolicitud.remove(); } catch {}
+        mapaEdicionSolicitud = null;
+        marcadorEdicionSolicitud = null;
+    }
+
+    if (!mapaEdicionSolicitud) {
+        const lat0 = Number.isFinite(latInicial) ? latInicial : -34.61;
+        const lng0 = Number.isFinite(lngInicial) ? lngInicial : -58.38;
+
+        mapaEdicionSolicitud = L.map("mapaEdicionSolicitud").setView([lat0, lng0], 12);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(mapaEdicionSolicitud);
+
+        mapaEdicionSolicitud.on("click", (e) => {
+            colocarMarcadorEdicionSolicitud(e.latlng.lat, e.latlng.lng);
+        });
+    }
+
+    const lat = Number.isFinite(latInicial) ? latInicial : mapaEdicionSolicitud.getCenter().lat;
+    const lng = Number.isFinite(lngInicial) ? lngInicial : mapaEdicionSolicitud.getCenter().lng;
+
+    mapaEdicionSolicitud.setView([lat, lng], 12);
+    colocarMarcadorEdicionSolicitud(lat, lng);
+
+    setTimeout(() => mapaEdicionSolicitud.invalidateSize(true), 0);
+}
+let _modalFuente = null;
+
+function abrirModalFuente(tipo) {
+    const modalEl = document.getElementById("modalFuente");
+    if (!modalEl) {
+        console.error("No existe #modalFuente en el HTML");
+        return;
+    }
+
+    _modalFuente = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    // refs
+    const title = document.getElementById("modalFuenteTitle");
+    const subtitle = document.getElementById("modalFuenteSubtitle");
+    const inTipo = document.getElementById("fuenteTipo");
+    const inNombre = document.getElementById("fuenteNombre");
+    const inUrl = document.getElementById("fuenteUrl");
+    const inEndpoint = document.getElementById("fuenteEndpoint");
+    const gUrl = document.getElementById("grupoFuenteUrl");
+    const gEndpoint = document.getElementById("grupoFuenteEndpoint");
+    const err = document.getElementById("fuenteError");
+
+    // reset UI
+    err.classList.add("d-none");
+    err.textContent = "";
+    inTipo.value = tipo;
+    inNombre.value = "";
+    inUrl.value = "";
+    inEndpoint.value = "";
+
+    // modo según tipo
+    gUrl.classList.toggle("d-none", tipo !== "demo");
+    gEndpoint.classList.toggle("d-none", tipo !== "metamapa");
+
+    if (tipo === "dinamica") {
+        title.textContent = "Crear fuente dinámica";
+        subtitle.textContent = "Se crea en el servicio de fuentes dinámicas.";
+    } else if (tipo === "estatica") {
+        title.textContent = "Crear fuente estática";
+        subtitle.textContent = "Luego podés cargar un CSV en la fuente.";
+    } else if (tipo === "demo") {
+        title.textContent = "Crear fuente demo";
+        subtitle.textContent = "Requiere una URL.";
+    } else if (tipo === "metamapa") {
+        title.textContent = "Crear fuente metamapa";
+        subtitle.textContent = "Requiere un endpoint.";
+    } else {
+        title.textContent = "Crear fuente";
+        subtitle.textContent = "Completá los datos.";
+    }
+
+    _modalFuente.show();
+
+    // foco
+    setTimeout(() => inNombre?.focus(), 150);
+}
+
+window.abrirModalFuente = abrirModalFuente;
+
+// submit (una sola vez)
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("formFuente");
+    if (!form) return;
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const tipo = document.getElementById("fuenteTipo").value;
+        const nombre = (document.getElementById("fuenteNombre").value || "").trim();
+        const url = (document.getElementById("fuenteUrl").value || "").trim();
+        const endpoint = (document.getElementById("fuenteEndpoint").value || "").trim();
+
+        const btn = document.getElementById("btnCrearFuente");
+        const loader = document.getElementById("fuenteLoader");
+        const btnText = document.getElementById("fuenteBtnText");
+        const err = document.getElementById("fuenteError");
+
+        err.classList.add("d-none");
+        err.textContent = "";
+
+        if (!nombre) {
+            err.textContent = "El nombre es obligatorio.";
+            err.classList.remove("d-none");
+            return;
+        }
+        if (tipo === "demo" && !url) {
+            err.textContent = "La URL es obligatoria para una fuente demo.";
+            err.classList.remove("d-none");
+            return;
+        }
+        if (tipo === "metamapa" && !endpoint) {
+            err.textContent = "El endpoint es obligatorio para una fuente metamapa.";
+            err.classList.remove("d-none");
+            return;
+        }
+
+        btn.disabled = true;
+        loader.classList.remove("d-none");
+        btnText.textContent = "Creando...";
+
+        try {
+            let ok = false;
+
+            if (tipo === "dinamica") ok = !!(await crearFuenteDinamica(nombre));
+            else if (tipo === "estatica") ok = !!(await crearFuenteEstatica(nombre));
+            else if (tipo === "demo") ok = !!(await crearFuenteDemo(nombre, url));
+            else if (tipo === "metamapa") ok = !!(await crearFuenteMetamapa(nombre, endpoint));
+
+            if (ok) {
+                _modalFuente?.hide();
+
+                // refresco suave de la vista fuentes (sin mensajes)
+                try { await mostrar("fuentes"); } catch {}
+            } else {
+                err.textContent = "No se pudo crear la fuente (respuesta no OK).";
+                err.classList.remove("d-none");
+            }
+        } catch (ex) {
+            console.error(ex);
+            err.textContent = "Error de red o del servidor al crear la fuente.";
+            err.classList.remove("d-none");
+        } finally {
+            btn.disabled = false;
+            loader.classList.add("d-none");
+            btnText.textContent = "Crear";
+        }
+    });
+});
+
+function marcarNavActiva(seccion) {
+    // Limpia activos
+    document.querySelectorAll('.mm-nav [data-seccion].is-active')
+        .forEach(el => el.classList.remove('is-active'));
+
+    // Marca el que coincide
+    const btn = document.querySelector(`.mm-nav [data-seccion="${seccion}"]`);
+    if (btn) btn.classList.add('is-active');
+
+    // Si estás en fuentes/solicitudes, marcá también el toggle Admin
+    const adminToggle = document.getElementById('btnAdminMenu');
+    if (adminToggle) {
+        const esAdminSeccion = (seccion === 'fuentes' || seccion === 'solicitudes');
+        adminToggle.classList.toggle('is-active', esAdminSeccion);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document
+        .getElementById("btnConfirmarCrearFuenteDinamica")
+        .addEventListener("click", async () => {
+            const nombre = document
+                .getElementById("inputNombreFuenteDinamica")
+                .value
+                .trim();
+
+            if (!nombre) return;
+
+            const fuente = await crearFuenteDinamica(nombre);
+
+            if (!fuente) {
+                mostrarModal("No se pudo crear la fuente dinámica", "Error");
+                return;
+            }
+
+            modalCrearFuenteDinamica.hide();
+            mostrarModal("Fuente dinámica creada.", "Fuentes");
+        });
+
+});

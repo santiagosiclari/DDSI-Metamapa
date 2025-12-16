@@ -18,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/api-fuentesDeDatos") //Cambuiar a /api-fuente
+@RequestMapping("/api-fuentesDeDatos") //Cambiar a /api-fuente
 public class ControllerFuenteDinamica {
   public RepositorioFuentes repositorioFuentes;
   public RepositorioHechos repositorioHechos;
@@ -177,9 +177,9 @@ public class ControllerFuenteDinamica {
 
     try {
       restTemplate.postForObject(url, request, String.class);
-      System.out.println("✅ Publicado exitosamente en agregador: " + url);
+      System.out.println("Publicado exitosamente en agregador: " + url);
     } catch (Exception e) {
-      System.err.println("⚠️ No se pudo conectar al agregador en " + url);
+      System.err.println("⚠No se pudo conectar al agregador en " + url);
       System.err.println("   → Error: " + e.getMessage());
     }
   }

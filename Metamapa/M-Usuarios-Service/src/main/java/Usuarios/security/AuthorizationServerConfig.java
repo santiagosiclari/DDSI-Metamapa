@@ -27,18 +27,15 @@ import java.util.UUID;
 @EnableWebSecurity
 public class AuthorizationServerConfig {
 
-  // La cadena de autorización debe ejecutarse primero para manejar /oauth2/*
   @Bean
-  @Order(1) // 👈 3. PRIORIDAD 1
+  @Order(1)
   public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 
-    // 4. CREA EL MATCHER ESPECÍFICO
     OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
             new OAuth2AuthorizationServerConfigurer();
     RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
 
     http
-            // 5. APLICA EL MATCHER (¡ESTA ES LA LÍNEA CLAVE!)
             .securityMatcher(endpointsMatcher)
 
             .authorizeHttpRequests(auth -> auth
@@ -48,9 +45,7 @@ public class AuthorizationServerConfig {
             .exceptionHandling(exceptions -> exceptions
                     .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
             )
-            // 6. Aplica la configuración
             .with(authorizationServerConfigurer, Customizer.withDefaults());
-    // Habilita OIDC
     http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .oidc(Customizer.withDefaults());
 
@@ -60,33 +55,26 @@ public class AuthorizationServerConfig {
   // --- CLIENTES REGISTRADOS ---
   @Bean
   public RegisteredClientRepository registeredClientRepository() {
-    // 1. Cliente Frontend (flujo Authorization Code con PKCE para el SSO)
-    //
     RegisteredClient metamapaClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("metamapa-service")
-            // Usa NONE porque el secreto está en el navegador y se usa PKCE
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            // Usá un placeholder para la URL del frontend. Asumo que es el mismo que Metamapa-Service
             .redirectUri("http://localhost:9000/callback")
             .redirectUri("http://localhost:9000/authorized") // Otra posible URI de callback
             .scope("read").scope("write")
-            // Require PKCE (Proof Key for Code Exchange) para más seguridad en navegadores
             .clientSettings(ClientSettings.builder().requireProofKey(true).requireAuthorizationConsent(true).build())
             .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(2))
                     .refreshTokenTimeToLive(Duration.ofDays(30))
                     .build())
             .build();
 
-    // 2. Cliente Backend (flujo Client Credentials para comunicación M2M)
-    //
     RegisteredClient agregadorClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("agregador-service")
-            .clientSecret("{noop}agregador-secret") // {noop} para texto plano de prueba
+            .clientSecret("{noop}agregador-secret")
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .scope("internal") // Un scope para servicios internos
+            .scope("internal")
             .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(2)).build())
             .redirectUri("http://localhost:9000/callback")
             .build();
@@ -98,7 +86,7 @@ public class AuthorizationServerConfig {
   @Bean
   public AuthorizationServerSettings authorizationServerSettings() {
     return AuthorizationServerSettings.builder()
-            .issuer("http://localhost:9005") // URL base de tu server (donde corre el Usuarios-Service)
+            .issuer("http://localhost:9005") // URL base del server (donde corre el Usuarios-Service)
             .build();
   }
 
@@ -110,7 +98,7 @@ public class AuthorizationServerConfig {
     return (selector, context) -> selector.select(jwkSet);
   }
 
-  private static RSAKey generateRsa() { // Hago el método 'static' por convención
+  private static RSAKey generateRsa() {
     try {
       KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
       generator.initialize(2048);

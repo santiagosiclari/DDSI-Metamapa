@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 public class ControllerHechos {
   private final ServiceAgregador service;
 
-  // Endpoint específico para la estadística solicitada
   @GetMapping("/categoria-mas-reportada")
   public ResponseEntity<String> categoriaMasReportada(){
     var categoria = service.categoriaMasReportada();

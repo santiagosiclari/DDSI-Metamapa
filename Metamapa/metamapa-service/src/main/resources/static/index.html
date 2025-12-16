@@ -22,27 +22,40 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mmNavbar">
-            <div class="navbar-nav me-auto gap-2 py-2 py-lg-0">
-                <button class="btn btn-outline-light btn-sm login-required d-none" onclick="mostrar('hechos')">Hechos</button>
-                <button class="btn btn-light btn-sm visualizador-level" onclick="mostrar('colecciones')">Colecciones</button>
-                <button class="btn btn-outline-light btn-sm login-required d-none" onclick="mostrar('estadisticas')">Estadísticas</button>
+            <div class="navbar-nav me-auto gap-2 py-2 py-lg-0 mm-nav">
+                <button class="btn btn-outline-light btn-sm login-required d-none"
+                        data-seccion="hechos"
+                        onclick="mostrar('hechos')">Hechos</button>
+
+                <button class="btn btn-outline-light btn-sm visualizador-level"
+                        data-seccion="colecciones"
+                        onclick="mostrar('colecciones')">Colecciones</button>
+
+                <button class="btn btn-outline-light btn-sm login-required d-none"
+                        data-seccion="estadisticas"
+                        onclick="mostrar('estadisticas')">Estadísticas</button>
 
                 <div class="dropdown login-required admin-only d-none">
-                    <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle"
+                            id="btnAdminMenu"
+                            data-bs-toggle="dropdown" type="button">
                         Admin
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><button class="dropdown-item" type="button" onclick="mostrar('fuentes')">Fuentes</button></li>
-                        <li><button class="dropdown-item" type="button" onclick="mostrar('solicitudes')">Solicitudes</button></li>
+                        <li><button class="dropdown-item" type="button" data-seccion="fuentes" onclick="mostrar('fuentes')">Fuentes</button></li>
+                        <li><button class="dropdown-item" type="button" data-seccion="solicitudes" onclick="mostrar('solicitudes')">Solicitudes</button></li>
                     </ul>
                 </div>
             </div>
 
             <div class="d-flex flex-wrap align-items-center gap-2 py-2 py-lg-0">
-                <span id="nombreUsuarioDisplay" class="navbar-text text-white-50 small me-2"></span>
+                <div id="userChip" class="mm-userchip d-none">
+                    <span class="mm-userchip__dot" aria-hidden="true"></span>
+                    <span id="nombreUsuarioDisplay" class="mm-userchip__name"></span>
+                </div>
 
                 <div class="dropdown login-required d-none">
-                    <button class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                    <button id="btn-acciones" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" type="button">
                         Acciones
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -235,6 +248,52 @@
         </div>
     </div>
 </div>
+<!-- Modal: Crear Fuente -->
+<div class="modal fade" id="modalFuente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content mm-modal">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-0" id="modalFuenteTitle">Crear fuente</h5>
+                    <div class="small opacity-75" id="modalFuenteSubtitle">Completá los datos</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <form id="formFuente" class="modal-body">
+                <input type="hidden" id="fuenteTipo" value="dinamica">
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre</label>
+                    <input id="fuenteNombre" class="form-control" placeholder="Ej: Noticias BA" required>
+                    <div class="form-text">Se mostrará en la lista de fuentes.</div>
+                </div>
+
+                <div class="mb-3 d-none" id="grupoFuenteUrl">
+                    <label class="form-label fw-semibold">URL (solo demo)</label>
+                    <input id="fuenteUrl" class="form-control" placeholder="http://..." />
+                </div>
+
+                <div class="mb-3 d-none" id="grupoFuenteEndpoint">
+                    <label class="form-label fw-semibold">Endpoint (solo metamapa)</label>
+                    <input id="fuenteEndpoint" class="form-control" placeholder="http://.../api-fuentesDeDatos" />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-2">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="btnCrearFuente">
+                        <span class="spinner-border spinner-border-sm d-none" id="fuenteLoader" aria-hidden="true"></span>
+                        <span id="fuenteBtnText">Crear</span>
+                    </button>
+                </div>
+
+                <div class="mt-3">
+                    <div class="small text-warning-emphasis d-none" id="fuenteError"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL NUEVA CATEGORIA -->
 <div class="modal fade" id="modalCategoria" tabindex="-1" aria-hidden="true">
@@ -256,7 +315,35 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalCrearFuenteDinamica" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h5 class="modal-title">Crear fuente dinámica</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <label class="form-label">Nombre de la fuente</label>
+                <input
+                        type="text"
+                        class="form-control"
+                        id="inputNombreFuenteDinamica"
+                        placeholder="Ingrese el nombre"
+                />
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-success" id="btnConfirmarCrearFuenteDinamica">
+                    Crear
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="app.js"></script>

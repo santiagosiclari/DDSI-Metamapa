@@ -1,8 +1,6 @@
 package Agregador.business.Solicitudes;
 import java.time.LocalDateTime;
-import java.util.*;
 import Agregador.business.Hechos.Hecho;
-import Agregador.business.Hechos.Multimedia;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 
@@ -15,7 +13,6 @@ public class SolicitudEdicion extends Solicitud {
   private Float latitudMod;
   private Float longitudMod;
   private LocalDateTime fechaHechoMod;
-  private ArrayList<Multimedia> multimediaMod;
   private Boolean anonimidadMod;
   private String sugerencia;
 
@@ -25,7 +22,6 @@ public class SolicitudEdicion extends Solicitud {
                           Float latitudMod,
                           Float longitudMod,
                           LocalDateTime fechaHechoMod,
-                          ArrayList<Multimedia> multimediaMod,
                           Boolean anonimidadMod,
                           String sugerencia,
                           Hecho hechoAfectado) {
@@ -36,7 +32,6 @@ public class SolicitudEdicion extends Solicitud {
     this.latitudMod = latitudMod;
     this.longitudMod = longitudMod;
     this.fechaHechoMod = fechaHechoMod;
-    this.multimediaMod = multimediaMod;
     this.anonimidadMod = anonimidadMod;
     this.sugerencia = sugerencia;
   }
@@ -57,8 +52,7 @@ public class SolicitudEdicion extends Solicitud {
             this.latitudMod,
             this.longitudMod,
             this.fechaHechoMod,
-            this.anonimidadMod,
-            this.multimediaMod);
+            this.anonimidadMod);
   }
 
   public void rechazarSolicitud() {

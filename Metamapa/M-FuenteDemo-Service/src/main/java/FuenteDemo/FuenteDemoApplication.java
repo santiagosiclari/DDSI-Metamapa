@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 public class FuenteDemoApplication {
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(FuenteDemoApplication.class);
-    //app.setDefaultProperties(Collections.singletonMap("server.port", "9006"));
     var context = app.run(args);
     // para cerrar la app, comentar cuando se prueben cosas
     //context.close();

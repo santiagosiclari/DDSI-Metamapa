@@ -14,7 +14,6 @@ public class DetectorDeSpam {
                 .POST(HttpRequest.BodyPublishers.ofString(
                         "blog=" + BLOG_URL +
                         "&comment_content=" + texto
-                        //TODO ver si mandamos mas parametros a la API, cuales y como conseguirlos
 //                    +
 //                    "&comment_author=Spammer" +
 //                    "&comment_author_email=spammer@example.com"

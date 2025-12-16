@@ -195,7 +195,7 @@ public class Normalizador {
       for (Map.Entry<String, String> entrada : PATRONES.entrySet()) {
         if (clave.contains(entrada.getKey())) {
           resultado = entrada.getValue();
-          break; // Encontrado, salimos del bucle
+          break;
         }
       }
     }

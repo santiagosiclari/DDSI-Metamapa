@@ -1,9 +1,7 @@
 package Estadistica.Service;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import Estadistica.persistencia.*;
 import Estadistica.business.Colecciones.Coleccion;
 import Estadistica.business.Estadistica.*;
@@ -11,19 +9,15 @@ import Estadistica.business.Hechos.Hecho;
 
 @Service
 public class ServiceEstadistica {
-    private final String baseUrl;
     private final RepositorioHechos repositorioHechos;
     private final RepositorioSolicitudesEliminacion repositorioSolicitudesEliminacion;
     private final RepositorioColecciones repositorioColecciones;
     private final RepositorioEstadisticas repositorioEstadisticas;
 
-    public ServiceEstadistica(RestTemplate restTemplate,
-                              @Value("${M.Agregador.Service.url}") String baseUrl,
-                              RepositorioHechos repositorioHechos,
+    public ServiceEstadistica(RepositorioHechos repositorioHechos,
                               RepositorioSolicitudesEliminacion repositorioSolicitudesEliminacion,
                               RepositorioColecciones repositorioColecciones,
                               RepositorioEstadisticas repositorioEstadisticas) {
-        this.baseUrl = baseUrl;
         this.repositorioHechos = repositorioHechos;
         this.repositorioSolicitudesEliminacion = repositorioSolicitudesEliminacion;
         this.repositorioColecciones = repositorioColecciones;
@@ -37,18 +31,17 @@ public class ServiceEstadistica {
         repositorioEstadisticas.save(topCategoriaStats);
         List<String> categorias = repositorioHechos.obtenerCategorias();
         for (String categoria : categorias) {
-        HoraConMasHechosPorCategoria horaStats = estadisticaHoraCategoria(categoria);
-        ProvinciaConMasHechosPorCategoria provinciaCategoriaStats = estadisticaProvinciaCategoria(categoria);
-        repositorioEstadisticas.save(horaStats);
-        repositorioEstadisticas.save(provinciaCategoriaStats);
+            HoraConMasHechosPorCategoria horaStats = estadisticaHoraCategoria(categoria);
+            ProvinciaConMasHechosPorCategoria provinciaCategoriaStats = estadisticaProvinciaCategoria(categoria);
+            repositorioEstadisticas.save(horaStats);
+            repositorioEstadisticas.save(provinciaCategoriaStats);
         }
-        List <Coleccion> colecciones = repositorioColecciones.findAll();
+        List<Coleccion> colecciones = repositorioColecciones.findAll();
         for (Coleccion coleccion : colecciones) {
             ProvinciaConMasHechosPorColeccion coleccionStats = estadisticaColeccionProvincia(coleccion.getHandle());
             repositorioEstadisticas.save(coleccionStats);
         }
     }
-
 
     public String exportarCsv() {
         StringBuilder csv = new StringBuilder();
@@ -113,7 +106,6 @@ public class ServiceEstadistica {
         return new HoraConMasHechosPorCategoria(hora,categoria);
     }
 
-
     //¿En qué provincia se presenta la mayor cantidad de hechos de una cierta categoría?
     public ProvinciaConMasHechosPorCategoria estadisticaProvinciaCategoria(String categoria) {
         String provincia = repositorioHechos.obtenerProvinciaConMasHechosPorCategoria(categoria).orElse("N/A");
@@ -143,11 +135,13 @@ public class ServiceEstadistica {
     }
 
     public CantidadDeSpam obtenerUltimaEstadisticaSpam() {
-        return repositorioEstadisticas.obtenerMasNueva(CantidadDeSpam.class, new HashMap<String, Object>()).orElse(new CantidadDeSpam(0));
+        return repositorioEstadisticas.obtenerMasNueva(CantidadDeSpam.class, null).orElse(new CantidadDeSpam(0));
     }
+
     public CategoriaConMasHechos obtenerUltimaEstadisticaCategoriaMasReportada() {
-        return repositorioEstadisticas.obtenerMasNueva(CategoriaConMasHechos.class, new HashMap<String, Object>()).orElse(new CategoriaConMasHechos("N/A"));
+        return repositorioEstadisticas.obtenerMasNueva(CategoriaConMasHechos.class, null).orElse(new CategoriaConMasHechos("N/A"));
     }
+
     public HoraConMasHechosPorCategoria obtenerUltimaEstadisticaHoraCategoria(String categoria) {
         Map map = new HashMap<String, Object>();
         map.put("categoria", categoria);
@@ -164,9 +158,9 @@ public class ServiceEstadistica {
 
     public ProvinciaConMasHechosPorColeccion obtenerUltimaEstadisticaColeccionProvincia(UUID idColeccion) {
         Coleccion coleccion = repositorioColecciones.findById(idColeccion).orElse(null);
-        Map map = new HashMap<String, Object>();
+        Map map = new HashMap<>();
         map.put("coleccion", coleccion);
-        return (ProvinciaConMasHechosPorColeccion) repositorioEstadisticas.obtenerMasNueva(ProvinciaConMasHechosPorColeccion.class,map)
+        return (ProvinciaConMasHechosPorColeccion) repositorioEstadisticas.obtenerMasNueva(ProvinciaConMasHechosPorColeccion.class, map)
                 .orElse(new ProvinciaConMasHechosPorColeccion("N/A", null));
     }
 }

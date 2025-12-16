@@ -27,41 +27,32 @@ public class ServiceAgregador {
   }
 
   public Integer horaMasReportada(String categoria) {
-    // Traé los hechos de esa categoría (y NO eliminados, si aplica)
     List<Hecho> hechos = repo.findByCategoriaIgnoreCaseAndEliminadoFalse(categoria);
-    // Extraé la hora (0–23) de cada hecho
     Map<Integer, Long> conteoPorHora = hechos.stream()
-            .map(this::horaDelHecho)                  // Integer 0..23 o null
+            .map(this::horaDelHecho)
             .filter(Objects::nonNull)
             .collect(Collectors.groupingBy(h -> h, Collectors.counting()));
-    // Tomá la hora con mayor frecuencia (modo)
     return conteoPorHora.entrySet().stream()
             .max(Map.Entry.comparingByValue())
             .map(Map.Entry::getKey)
-            .orElse(null); // si no hay datos con hora
+            .orElse(null);
   }
 
   private Integer horaDelHecho(Hecho h) {
-    // 1) Si migraste a LocalDateTime:
-    // if (h.getFechaHechoDateTime() != null) return h.getFechaHechoDateTime().getHour();
-    // 2) Mientras tanto, intentar metadata["hora"]
     if (h.getMetadata() != null) {
       String hh = h.getMetadata().get("hora");
       if (hh != null) {
         try {
-          // HH:mm
           return java.time.LocalTime.parse(hh).getHour();
         } catch (Exception ignore) {
         }
         try {
-          // HH directo
           int x = Integer.parseInt(hh);
           if (0 <= x && x <= 23) return x;
         } catch (Exception ignore) {
         }
       }
     }
-    // Sin hora disponible
     return null;
   }
 }

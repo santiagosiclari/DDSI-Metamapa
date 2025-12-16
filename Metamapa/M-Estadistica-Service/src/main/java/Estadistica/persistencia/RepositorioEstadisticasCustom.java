@@ -1,9 +1,6 @@
 package Estadistica.persistencia;
 
 import Estadistica.business.Estadistica.Estadistica;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 
 import java.util.Map;
 import java.util.Optional;

@@ -49,9 +49,6 @@ public class GeocodingService {
     }
 
     private String resolverProvincia(double lat, double lon) {
-        //System.out.printf("Buscando provincia a partir de coordenadas (%.6f, %.6f)%n",
-        //        lat, lon
-        //);
         Point point = geometryFactory.createPoint(
                 new Coordinate(lon, lat) // x=lon, y=lat
         );

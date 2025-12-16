@@ -1,7 +1,6 @@
 package Usuarios.web;
 import Usuarios.business.Usuarios.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import Usuarios.DTO.UsuarioDTO;
 import Usuarios.persistencia.RepositorioUsuarios;
 import org.springframework.http.*;
@@ -14,27 +13,6 @@ public class controllerUsuarios {
   public controllerUsuarios(RepositorioUsuarios usersRepository) {
     this.usersRepository = usersRepository;
   }
-
-// @PostMapping(value = "/usuarios", consumes = "application/json", produces = "application/json")
-//  public ResponseEntity<UsuarioDTO> subirUsuario(@RequestBody Map<String, Object> requestBody) {
-//    try {
-//      String email = (String) requestBody.get("email");
-//      String contraseniaHasheada = (String) requestBody.get("contrasenia");
-//      String nombre = (String) requestBody.get("nombre");
-//      String apellido = (String) requestBody.get("apellido");
-//      Integer edad = (Integer) requestBody.get("edad");
-//      List<String> rolesInput = (List<String>) requestBody.get("roles");  // Recibe roles como lista de strings
-//      Set<Rol> roles = rolesInput.stream()
-//          .map(Rol::valueOf)  // Convierte el string a un Rol
-//          .collect(Collectors.toSet());
-//      Usuario user = new Usuario(email, contraseniaHasheada,nombre, apellido, edad,roles);
-//      System.out.println("User creado " + user);
-//      usersRepository.save(user);
-//      return ResponseEntity.ok(new UsuarioDTO(user));
-//    } catch (Exception e) {
-//      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//  }
 
   @GetMapping(value = "/usuarios/{id}", produces = "application/json")
   public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Long id){
@@ -49,5 +27,4 @@ public class controllerUsuarios {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
   }
-
 }

@@ -1,8 +1,6 @@
 package Agregador.web;
 import Agregador.DTO.FiltrosHechosDTO;
-import Agregador.Service.ServiceAgregador;
-import Agregador.Service.ServiceFuenteDeDatos;
-import Agregador.Service.ServiceConsenso;
+import Agregador.Service.*;
 import Agregador.business.Colecciones.Criterio;
 import Agregador.business.Hechos.Hecho;
 import Agregador.persistencia.*;
@@ -11,8 +9,6 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.slf4j.*;
 
 @RestController
@@ -22,7 +18,6 @@ public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioHechos repositorioHechos;
   private final ServiceConsenso serviceConsenso;
-  private final ServiceAgregador serviceAgregador;
   private final Map<String,String> URLsFuentes = new HashMap<>();
   private static final Logger log = LoggerFactory.getLogger(ControllerAgregador.class);
 
@@ -71,25 +66,4 @@ public class ControllerAgregador {
       return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     }
   }
-
-  /*@GetMapping("/hechos/buscar")
-  public ResponseEntity<?> buscarHechosPorTextoLibre(
-          @RequestParam String texto, // Se espera el texto de búsqueda (requerido)
-          @PageableDefault(size = 500, page = 0) Pageable pageable
-  ) {
-    if (texto.isBlank()) {
-      return ResponseEntity.badRequest().body(Map.of("error", "El texto de búsqueda no puede estar vacío."));
-    }
-
-    try {
-      // Delega al servicio la búsqueda por texto libre con paginación
-      List<Hecho> hechos = serviceAgregador.obtenerHechos(texto, pageable);
-
-      return ResponseEntity.ok(hechos);
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      return ResponseEntity.status(500).body(Map.of("error", "Error al ejecutar la búsqueda de texto libre: " + e.getMessage()));
-    }
-  }*/
 }

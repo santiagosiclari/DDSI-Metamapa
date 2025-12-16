@@ -93,7 +93,6 @@ public class ServiceSolicitudes {
                 dto.getLatitudMod(),
                 dto.getLongitudMod(),
                 dto.getFechaHechoMod(),
-                dto.getMultimediaMod(),
                 dto.getAnonimidadMod(),
                 dto.getSugerencia(),
                 hecho

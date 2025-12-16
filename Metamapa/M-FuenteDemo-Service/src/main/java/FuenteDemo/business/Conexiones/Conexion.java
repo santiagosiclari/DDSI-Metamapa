@@ -2,7 +2,6 @@ package FuenteDemo.business.Conexiones;
 import java.time.LocalDateTime;
 import java.util.Map;
 import org.springframework.web.client.RestTemplate;
-import FuenteDemo.business.Hechos.Hecho;
 
 public class Conexion {
     /**
@@ -10,7 +9,6 @@ public class Conexion {
      * atributo. Si el metodo retorna null, significa que no hay nuevos hechos
      * por ahora. La fecha es opcional
      */
-
 
     public Conexion() {
     }

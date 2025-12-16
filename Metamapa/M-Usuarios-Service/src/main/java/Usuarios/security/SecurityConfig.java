@@ -29,10 +29,9 @@ public class SecurityConfig {
     http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                    // 1. Endpoints públicos y de autenticación (CORREGIDO)
                     .requestMatchers(
                             "/actuator/**",
-                            "/usuarios/api-auth/**",  // Coincide con AuthController
+                            "/usuarios/api-auth/**",
                             "/usuarios",
                             "/login",
                             "/logout",
@@ -43,10 +42,8 @@ public class SecurityConfig {
                             "/error"
                     ).permitAll()
 
-                    // 2. Permitir creación de usuarios sin login (POST /usuarios)
                     .requestMatchers(HttpMethod.POST, "/**").permitAll()
 
-                    // 3. Todo lo demás requiere autenticación
                     .anyRequest().authenticated())
 
 //            .formLogin(form -> form
@@ -56,19 +53,10 @@ public class SecurityConfig {
 
 
             .formLogin(form -> form
-                    // 1) Página de login que querés mostrar (GET /login.html)
                     .loginPage("/login.html")
-
-                    // 2) Endpoint al que hace POST el formulario con las credenciales
                     .loginProcessingUrl("/login")
-
-                    // 3) El parámetro de usuario en el form
                     .usernameParameter("email")
-
-                    // 4) A dónde redirigir después de un login exitoso
                     .defaultSuccessUrl("http://localhost:9000/index.html", true)
-
-                    // 5) Dejá que cualquiera pueda ver la página de login
                     .permitAll()
             )
 
@@ -78,16 +66,13 @@ public class SecurityConfig {
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID")
             )
-            // Configuración de Social Login (Auth0/Google)
             .oauth2Login(oauth2 -> oauth2
-                    // Después del Social Login exitoso, inicia el flujo de obtención de token de TU SAS
                     .defaultSuccessUrl("/oauth2/authorize?client_id=metamapa-service&redirect_uri=http://localhost:9000/callback&scope=openid%20read&response_type=code&code_challenge=xyz&code_challenge_method=S256", true)
 
                     .userInfoEndpoint(userInfo -> userInfo
-                            .userService(customOAuth2UserService) // Usa el parámetro inyectado
+                            .userService(customOAuth2UserService)
                     )
             )
-            // Deshabilita CSRF para desarrollo y peticiones API
             .csrf(csrf -> csrf.disable());
 
     return http.build();

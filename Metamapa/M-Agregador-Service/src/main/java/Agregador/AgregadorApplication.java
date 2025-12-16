@@ -14,9 +14,8 @@ import java.util.Collections;
 public class AgregadorApplication {
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(AgregadorApplication.class);
-    // si querés fijar el puerto por código (mejor en application.properties):
     app.setDefaultProperties(Collections.singletonMap("server.port", "9004"));
-    app.run(args); // <-- ¡una sola vez!
+    app.run(args);
   }
 
   @Bean

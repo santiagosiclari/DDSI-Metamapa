@@ -3,7 +3,7 @@ package Agregador.business.Consenso;
 import Agregador.business.Hechos.Hecho;
 import java.util.List;
 import jakarta.persistence.*;
-//TODO linkear las fuentes de domain en este modulo o crear una carpeta con la clase a usar
+
 @Entity
 @DiscriminatorValue("MAYORIA_SIMPLE")
 public class MayoriaSimple extends Consenso {

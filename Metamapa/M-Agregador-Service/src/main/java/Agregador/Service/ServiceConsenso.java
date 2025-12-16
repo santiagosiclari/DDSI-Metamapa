@@ -18,9 +18,7 @@ public class ServiceConsenso {
   public void consensuarHechos() {
     List<Hecho> hechos = repositorioHechos.findAll();
     List<Consenso> consensos = repositorioConsenso.findAll();
-    // Contar fuentes una sola vez
     int cantFuentes = (int) hechos.stream().map(Hecho::getIdFuente).distinct().count();
-    // Agrupar hechos por "clave de igualdad" para reducir iteraciones
     Map<String, List<Hecho>> hechosPorClave = hechos.stream()
             .collect(Collectors.groupingBy(this::claveHecho));
     for (Hecho hecho : hechos) {

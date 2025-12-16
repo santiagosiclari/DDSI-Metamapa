@@ -1,4 +1,3 @@
-/*
 package Estadistica.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ public class TareasProgramadas {
 
   @Scheduled(fixedRate = 30 * 60 * 1000) // cada 30 min
   public void recalcularEstadisticas() {
-    serviceEstadistica.actualizar();           // refresca datos del agregador
-    serviceEstadistica.actualizarDashboards(); // recalcula stats y actualiza lo que consume la UI
+    serviceEstadistica.actualizar();
   }
-}*/
+}
+

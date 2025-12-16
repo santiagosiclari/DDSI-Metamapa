@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/estadistica")
 public class ControllerEstadistica {
   private final ServiceEstadistica estadisticaService;
-  //private final TareasProgramadas tareasProgramadas;
   private List<Map<String, String>> agregadores = new ArrayList<>();
 
   @PostMapping("/agregador")
@@ -36,28 +35,11 @@ public class ControllerEstadistica {
     }
   }
 
-  /*@Scheduled(fixedRate = 30 * 60 * 1000)
-  public void actualizarHechosySolicitudes() {
-    try {
-      agregadores.forEach(agregador -> tareasProgramadas.actualizarEstadisticas(agregador.get("UrlBase") + agregador.get("endpointHechos"),
-              agregador.get("UrlBase") + agregador.get("endpointSolicitudesEliminacion"),
-              agregador.get("endpointColecciones")));
-    } catch (Exception e) {
-      //no se que hacer aca
-    }
-  }*/
-
   @PostMapping("/actualizar")
   public ResponseEntity<Void> actualizarEstadisticas() {
     estadisticaService.actualizar();
     return ResponseEntity.noContent().build();
   }
-
-/*  @PostMapping("/actualizar-ui")
-  public ResponseEntity<Void> actualizarEstadisticaUI() {
-    estadisticaService.actualizarDashboards();
-    return ResponseEntity.accepted().build();
-  }*/
 
   //De una colección, ¿en qué provincia se agrupan la mayor cantidad de hechos reportados? 
   @Operation(
@@ -165,7 +147,6 @@ public class ControllerEstadistica {
   public ResponseEntity<byte[]> exportarDatos() {
     String csv = estadisticaService.exportarCsv();
     byte[] bytes = csv.getBytes(StandardCharsets.UTF_8);
-    // 💡 Aquí se define el nombre del archivo para la descarga
     String filename = "metamapa_estadisticas.csv";
     return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")

@@ -71,8 +71,6 @@ public class Hecho {
     this.metadata = new HashMap<>();
     this.consensos = new HashSet<>();
     this.id = BigInteger.valueOf(fuenteId.longValue()).multiply(BASE).add(BigInteger.valueOf(hechoId.longValue()));
-    //TODO FuenteId tiene que venir de la siguiente froma xyyyyyy siendo x el tipo de fuente 1 para dinamica, 2 para estaica, 3 para proxy. y despues yyyyyy es el id de la fuente. esto se logra para sumandole 1000000 a un id de fuente dinamica, 2000000 para estatica y 3000000 para proxu
-    // prefijos 1000000/2000000/3000000 para tipo de fuente → ya quedan dentro de fuenteId
   }
 
   private static final BigInteger BASE = BigInteger.TEN.pow(9);
@@ -93,7 +91,7 @@ public class Hecho {
     return consensos.stream().anyMatch(c -> c.getId().equals(consenso.getId()));
   }
 
-  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDateTime fechaHecho, Boolean anonimidad, ArrayList<Multimedia> multimedia) {
+  public void editarHecho(String titulo, String descripcion, String categoria, Float latitud, Float longitud, LocalDateTime fechaHecho, Boolean anonimidad) {
     if (titulo != null)
       this.titulo = titulo;
     if (descripcion != null)
@@ -108,8 +106,6 @@ public class Hecho {
       this.fechaHecho = fechaHecho;
     if (anonimidad != null)
       this.anonimo = anonimidad;
-    if (multimedia != null)
-      this.multimedia = multimedia;
     this.fechaModificacion = LocalDateTime.now();
   }
 

@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/usuarios/api-auth")
 @RequiredArgsConstructor
 public class AuthController {
-
   private final UsuarioService usuarioService;
+
   @PostMapping("/registrar")
   public ResponseEntity<?> register(@RequestBody Map<String, Object> body) {
     List<String> rolesList = (List<String>) body.get("roles"); // <-- ahora sí
@@ -39,7 +39,6 @@ public class AuthController {
     if (auth == null || !auth.isAuthenticated()) {
       return ResponseEntity.status(401).body(Map.of("error", "No autenticado"));
     }
-
     String email;
     Object principal = auth.getPrincipal();
 
@@ -81,6 +80,4 @@ public class AuthController {
       return ResponseEntity.status(500).body(Map.of("error", "Error al buscar el usuario: " + e.getMessage()));
     }
   }
-
-
 }

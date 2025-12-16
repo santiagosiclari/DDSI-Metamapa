@@ -22,11 +22,9 @@
         <div class="card-body">
             <div id="loginMensaje" class="alert d-none mb-3"></div>
 
-            <!-- IMPORTANTE: action = /login (processingUrl), method = POST -->
             <form method="POST" action="/login">
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <!-- name="email" porque usernameParameter("email") -->
                     <input name="email" type="email" class="form-control" required>
                 </div>
                 <div class="mb-3">
@@ -135,7 +133,6 @@
             });
         }
 
-        // Registro contra tu AuthController (Usuarios-Service)
         if (!formRegistro) return;
 
         formRegistro.addEventListener('submit', async (e) => {
