@@ -143,6 +143,67 @@ async function fetchSeguro(url) {
 // ==============================
 // Colores por categoría (fallback a "Otro")
 // ==============================
+
+
+// ==============================
+// Categorías visibles + colores persistentes
+// ==============================
+
+
+
+function _normCat(c) {
+    return (c ?? "").toString().trim();
+}
+
+const LS_COLORS = "mm_categoria_colores";
+let _CAT_COLORS = JSON.parse(localStorage.getItem(LS_COLORS) || "{}");
+
+function _saveColors() {
+    localStorage.setItem(LS_COLORS, JSON.stringify(_CAT_COLORS));
+}
+
+function _hash(str) {
+    str = String(str || "");
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0);
+}
+
+function _generarColorUnico(cat) {
+    const used = new Set(Object.values(_CAT_COLORS || {}));
+    const base = _hash(cat);
+
+    for (let i = 0; i < 60; i++) {
+        const hue = (base + i * 137.508) % 360;
+        const color = `hsl(${hue} 70% 42%)`;
+        if (!used.has(color)) return color;
+    }
+    return `hsl(${base % 360} 70% 42%)`;
+}
+
+function colorPorCategoria(cat) {
+    const c = (cat ?? "").toString().trim() || "Otro";
+    if (_CAT_COLORS[c]) return _CAT_COLORS[c];
+
+    const nuevo = _generarColorUnico(c);
+    _CAT_COLORS[c] = nuevo;
+    _saveColors();
+    return nuevo;
+}
+
+
+
+
+
+
+
+
+
+
+
 const categoriaColores = {
     // Incendios / explosiones
     "Incendio": "#E53935",
@@ -188,7 +249,6 @@ const categoriaColores = {
     "Otro": "#43A047"
 };
 
-const colorPorCategoria = (cat) => categoriaColores[cat] || categoriaColores["Otro"];
 
 const _maps = new Map(); // divId -> { map, markers, legend }
 
@@ -554,47 +614,39 @@ function escapeHtml(str) {
 /* =========================================================
    Categorías
    ========================================================= */
-const CATEGORIAS = [
-    "Incendio",
-    "Incendio forestal",
-    "Explosión",
-    "Accidente industrial",
-    "Fuga o emanación de gas",
-    "Accidente químico",
-    "Derrame / Fuga de sustancias",
-    "Accidente ferroviario",
-    "Accidente aéreo",
-    "Accidente de transporte",
-    "Siniestro vial",
-    "Viento fuerte",
-    "Viento huracanado",
-    "Tormenta",
-    "Granizo",
-    "Lluvia",
-    "Tormenta / Granizo",
-    "Tormenta de nieve",
-    "Inundación",
-    "Emergencia sanitaria",
-    "Intoxicacion masiva",
-    "Contaminación",
-    "Sequia",
-    "Escasez de agua",
-    "Material volcanico",
-    "Temperatura extrema",
-    "Protesta",
-    "Delito"
-];
+// ==============================
+// Categorías: solo desde hechos
+// ==============================
+let _CATS_FROM_HECHOS = new Set(); // estado en memoria (se reconstruye con cada fetch)
+
+function categoriasDisponibles() {
+    return [..._CATS_FROM_HECHOS]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, "es"));
+}
+
+function registrarCategoriasDesdeHechos(hechos) {
+    const s = new Set();
+    (hechos || []).forEach(h => {
+        const c = (h?.categoria || "").trim();
+        if (c) s.add(c);
+    });
+    _CATS_FROM_HECHOS = s;
+}
 
 function cargarCategorias() {
     const dataList = document.getElementById("categoriasList");
     if (!dataList) return;
+    const cats = categoriasDisponibles();
     dataList.innerHTML = "";
-    CATEGORIAS.forEach(cat => {
+    cats.forEach(cat => {
         const opt = document.createElement("option");
         opt.value = cat;
         dataList.appendChild(opt);
     });
 }
+
+
 
 function agregarNuevaCategoriaModal() {
     document.getElementById("nuevaCategoriaInput").value = "";
@@ -606,11 +658,17 @@ function guardarNuevaCategoria() {
     const input = document.getElementById("nuevaCategoriaInput");
     const nueva = (input.value || "").trim();
     if (!nueva) return mostrarModal("Debe escribir una categoría válida.");
-    if (!CATEGORIAS.includes(nueva)) CATEGORIAS.push(nueva);
+
+    // registrar + color automático
+    _CATS.add(nueva);
+    _saveCats();
+    colorPorCategoria(nueva);
+
     cargarCategorias();
     document.getElementById("categoriaSelect").value = nueva;
     bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
 }
+
 
 window.agregarNuevaCategoriaModal = agregarNuevaCategoriaModal;
 window.guardarNuevaCategoria = guardarNuevaCategoria;
@@ -803,10 +861,14 @@ async function crearHecho(e) {
     const f = e.target;
 
     const categoria = (f.categoria.value || "").trim();
-    if (!CATEGORIAS.includes(categoria)) {
-        mostrarModal(`La categoría "${escapeHtml(categoria)}" no es válida.`, "Validación");
+    if (!categoria) {
+        mostrarModal("Debés indicar una categoría.", "Validación");
         return;
     }
+
+// si no existe aún, la registramos y queda disponible + color asignado
+    colorPorCategoria(categoria);
+
 
     const btn = document.getElementById("btnGuardar");
     const texto = document.getElementById("btnGuardarTexto");
@@ -1102,6 +1164,8 @@ async function mostrarHechosView() {
     await new Promise(r => setTimeout(r, 0));
 
     const hechos = await obtenerHechos();
+    registrarCategoriasDesdeHechos(hechos);
+    cargarCategorias();
     await ensureMapaInit("mapa");
     mostrarHechosEnMapa(hechos, "mapa");
 
@@ -1145,7 +1209,9 @@ async function mostrarColeccionesView() {
         </div>
       </div>
 
-      <div id="panelFiltrosColeccion" class="border p-3 rounded bg-light mb-3">
+      <div id="listaColecciones" class="mb-3"></div>
+      
+      <div id="panelFiltrosColeccion" class="border p-3 rounded bg-light mb-3 d-none">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h6 class="mb-0">Filtros dinámicos</h6>
           <button id="btnAgregarFiltroColeccion" class="btn btn-sm btn-outline-secondary" onclick="agregarFiltro('panelFiltrosColeccion')">
@@ -1157,9 +1223,8 @@ async function mostrarColeccionesView() {
           Aplicar filtros
         </button>
       </div>
-
-      <div id="listaColecciones" class="mb-3"></div>
-      <div id="mapaColeccion" class="mapa"></div>
+      
+      <div id="mapaColeccion" class="mapa"></div> 
     </div>
   `;
 
@@ -1182,6 +1247,10 @@ async function mostrarColeccionesView() {
     const input = document.getElementById("busquedaColeccion");
 
     async function buscarColeccionesConLoading() {
+        // CAMBIO: Si buscamos de nuevo, ocultamos el panel para "limpiar" la vista visualmente
+        const panel = document.getElementById("panelFiltrosColeccion");
+        if(panel) panel.classList.add("d-none");
+
         setLoadingUI({ container: lista, message: "Buscando colecciones..." });
         setLoadingUI({ button: btnBuscar });
         setLoadingUI({ button: btnLimpiar });
@@ -1424,6 +1493,8 @@ async function verHechosColeccion(idColeccion) {
     const modo = document.getElementById("modoNav").value;
     const params = new URLSearchParams({ modoNavegacion: modo });
     const hechos = await obtenerHechosColeccionFiltrados(idColeccion, params);
+    registrarCategoriasDesdeHechos(hechos);
+    cargarCategorias();
     await ensureMapaInit("mapaColeccion");
     mostrarHechosEnMapa(hechos, "mapaColeccion");
 }
@@ -1437,6 +1508,8 @@ async function aplicarFiltrosColeccion() {
 
     try {
         const hechos = await obtenerHechosColeccionFiltrados(coleccionSeleccionada, params);
+        registrarCategoriasDesdeHechos(hechos);
+        cargarCategorias();
         await ensureMapaInit("mapaColeccion");
         mostrarHechosEnMapa(hechos, "mapaColeccion");
     } catch (e) {
@@ -1860,8 +1933,9 @@ async function mostrarEstadisticasView() {
         }
     }
 
-    function cargarSelectCategorias() {
-        const opts = (CATEGORIAS || []).map(c => ({ value: c, label: c }));
+    function cargarSelectCategoriasDesdeHechos() {
+        const cats = categoriasDisponibles(); // viene de tu set armado desde hechos
+        const opts = cats.map(c => ({ value: c, label: c }));
         setSelectOptions(selCatProv, opts, "Seleccioná una categoría...");
         setSelectOptions(selCatHora, opts, "Seleccioná una categoría...");
     }
@@ -1886,28 +1960,23 @@ async function mostrarEstadisticasView() {
         }
     }
 
-    // Siempre refresca al entrar a la pestaña
-    cargarSelectCategorias();
+// 1) Traigo hechos para construir categorías reales
+    try {
+        const hechos = await obtenerHechos(); // tu función existente
+        registrarCategoriasDesdeHechos(hechos);
+    } catch (e) {
+        console.warn("No se pudieron cargar hechos para categorías:", e);
+    }
+
+// 2) Cargo selects desde hechos
+    cargarSelectCategoriasDesdeHechos();
+
+// 3) resto
     await cargarSelectColecciones();
     await refrescarEstadisticasBase();
 
-    // Loading inicial (estadísticas generales)
-    setLoadingUI({ container: pCategoria, message: "Cargando categoría más reportada..." });
-    setLoadingUI({ container: pSpam, message: "Cargando cantidad de spam..." });
 
-    try {
-        const categoriaMasReportada = await obtenerCategoriaMasReportada();
-        setText(pCategoria, categoriaMasReportada || "No hay datos");
-    } catch {
-        setText(pCategoria, "Error al cargar");
-    }
 
-    try {
-        const spam = await obtenerCantidadSolicitudesSpam();
-        setText(pSpam, String(spam));
-    } catch {
-        setText(pSpam, "Error al cargar");
-    }
 
     // eventos
     document.getElementById("btnBuscarProvinciaColeccion").addEventListener("click", async (e) => {
@@ -2213,6 +2282,8 @@ async function aplicarFiltrosHechos() {
 
     try {
         const hechos = await obtenerHechos(params);
+        registrarCategoriasDesdeHechos(hechos);
+        cargarCategorias();
         await ensureMapaInit("mapa");
         mostrarHechosEnMapa(hechos, "mapa");
         tabla.innerHTML = renderTablaHechos("Hechos filtrados", hechos);
@@ -2246,7 +2317,70 @@ function actualizarCamposCriterio(div, tipo) {
     });
 
     const selectorAMostrar = camposMap[tipo];
-    if (selectorAMostrar) div.querySelector(selectorAMostrar).classList.remove("d-none");
+    if (selectorAMostrar) div.querySelector(selectorAMostrar)?.classList.remove("d-none");
+}
+
+function poblarSelectCategorias(selectEl, selected = "") {
+    if (!selectEl) return;
+
+    const cats = categoriasDisponibles(); // <- sale del Set dinámico
+
+    selectEl.innerHTML =
+        `<option value="">Seleccioná una categoría...</option>` +
+        cats.map(c => {
+            const sel = (String(c) === String(selected)) ? "selected" : "";
+            return `<option value="${escapeHtml(c)}" ${sel}>${escapeHtml(c)}</option>`;
+        }).join("");
+}
+
+
+async function poblarSelectFuentes(selectEl, selectedValue = "") {
+    if (!selectEl) return;
+
+    selectEl.disabled = true;
+    selectEl.innerHTML = `<option value="">Cargando fuentes...</option>`;
+
+    try {
+        const fuentes = await obtenerTodasLasFuentes(); // [{value,label},...]
+        selectEl.innerHTML =
+            `<option value="">Seleccioná una fuente...</option>` +
+            fuentes.map(f => {
+                const sel = (String(f.value) === String(selectedValue)) ? "selected" : "";
+                return `<option value="${escapeHtml(f.value)}" ${sel}>${escapeHtml(f.label)}</option>`;
+            }).join("");
+    } catch (e) {
+        console.error(e);
+        selectEl.innerHTML = `<option value="">Error al cargar fuentes</option>`;
+    } finally {
+        selectEl.disabled = false;
+    }
+}
+// Cache simple para no pedir hechos/fuentes 20 veces
+
+let _catsCargadas = false;
+let _fuentesCache = null;
+
+let _catsPromise = null;
+
+function ensureCategoriasDesdeHechos() {
+    if (_catsCargadas) return Promise.resolve();
+    if (_catsPromise) return _catsPromise;
+
+    _catsPromise = (async () => {
+        const hechos = await obtenerHechos();           // una sola vez
+        registrarCategoriasDesdeHechos(hechos);
+        _catsCargadas = true;
+    })().finally(() => {
+        _catsPromise = null;
+    });
+
+    return _catsPromise;
+}
+
+async function ensureFuentes() {
+    if (_fuentesCache) return _fuentesCache;
+    _fuentesCache = await obtenerTodasLasFuentes(); // [{value,label},...]
+    return _fuentesCache;
 }
 
 function agregarCriterio(criterioExistente = null) {
@@ -2269,10 +2403,17 @@ function agregarCriterio(criterioExistente = null) {
           <option value="multimedia">Multimedia</option>
         </select>
       </div>
-      <div class="col-md-4">
+
+      <div class="col-md-4 valor-col">
         <label class="form-label">Valor</label>
-        <input type="text" name="valor" class="form-control" placeholder="Valor o texto">
+
+        <!-- Este input es el que lee armarCriterio() -->
+        <input type="text" name="valor" class="form-control valor-text" placeholder="Valor o texto">
+
+        <!-- Select solo para UI de categoría -->
+        <select class="form-select valor-categoria d-none"></select>
       </div>
+
       <div class="col-md-3">
         <label class="form-label">Incluir</label>
         <select name="inclusion" class="form-select">
@@ -2280,8 +2421,9 @@ function agregarCriterio(criterioExistente = null) {
           <option value="false">Excluir</option>
         </select>
       </div>
+
       <div class="col-md-1 d-flex align-items-end">
-        <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.criterio-box').remove()">Quitar</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.criterio-box').remove()">X</button>
       </div>
     </div>
 
@@ -2298,8 +2440,10 @@ function agregarCriterio(criterioExistente = null) {
 
     <div class="row mb-2 campos-fuente d-none">
       <div class="col">
-        <label>ID Fuente</label>
-        <input type="number" name="idFuenteDeDatos" class="form-control" placeholder="1">
+        <label>Fuente</label>
+        <select name="idFuenteDeDatos" class="form-select fuente-select">
+          <option value="">Cargando fuentes...</option>
+        </select>
       </div>
     </div>
 
@@ -2317,7 +2461,9 @@ function agregarCriterio(criterioExistente = null) {
         <input type="number" step="0.1" name="radio" class="form-control" readonly>
       </div>
       <div class="col d-flex align-items-end">
-        <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">Seleccionar en mapa</button>
+        <button type="button" class="btn btn-outline-success w-100" onclick="abrirMapaUbicacion(this)">
+          Seleccionar en mapa
+        </button>
       </div>
     </div>
 
@@ -2333,24 +2479,98 @@ function agregarCriterio(criterioExistente = null) {
     </div>
   `;
 
+    // refs
     const tipoSelect = div.querySelector(".tipo-criterio");
-    tipoSelect.addEventListener("change", () => actualizarCamposCriterio(div, tipoSelect.value));
+    const valorCol = div.querySelector(".valor-col");
+    const inputValor = div.querySelector(".valor-text");
+    const selCategoria = div.querySelector(".valor-categoria");
+    const selFuente = div.querySelector('select[name="idFuenteDeDatos"]');
 
+    // cuando elijo una categoría, la guardo en el input name="valor"
+    selCategoria.addEventListener("change", () => {
+        inputValor.value = selCategoria.value || "";
+    });
+
+    function syncUIByTipo(tipo) {
+        // base
+        valorCol.classList.remove("d-none");
+        inputValor.classList.remove("d-none");
+        selCategoria.classList.add("d-none");
+
+        actualizarCamposCriterio(div, tipo);
+
+        if (tipo === "categoria") {
+            inputValor.classList.add("d-none");
+            selCategoria.classList.remove("d-none");
+        }
+
+        if (tipo === "fuente" || tipo === "ubicacion" || tipo === "multimedia" || tipo === "fecha" || tipo === "fechareportaje") {
+            valorCol.classList.add("d-none");
+        }
+    }
+
+    tipoSelect.addEventListener("change", () => syncUIByTipo(tipoSelect.value));
+
+    // precarga si viene existente
     if (criterioExistente) {
         tipoSelect.value = criterioExistente.tipo;
-        div.querySelector('[name="valor"]').value = criterioExistente.valor || "";
         div.querySelector('[name="inclusion"]').value = criterioExistente.inclusion ? "true" : "false";
+
+        // valor (si no es categoría)
+        inputValor.value = criterioExistente.valor || "";
+
         if (criterioExistente.fechaDesde) div.querySelector('[name="fechaDesde"]').value = criterioExistente.fechaDesde;
         if (criterioExistente.fechaHasta) div.querySelector('[name="fechaHasta"]').value = criterioExistente.fechaHasta;
-        if (criterioExistente.idFuenteDeDatos) div.querySelector('[name="idFuenteDeDatos"]').value = criterioExistente.idFuenteDeDatos;
-        if (criterioExistente.latitud) div.querySelector('[name="latitud"]').value = criterioExistente.latitud;
-        if (criterioExistente.longitud) div.querySelector('[name="longitud"]').value = criterioExistente.longitud;
+
+        if (criterioExistente.idFuenteDeDatos != null) selFuente.value = String(criterioExistente.idFuenteDeDatos);
+
+        if (criterioExistente.latitud != null) div.querySelector('[name="latitud"]').value = criterioExistente.latitud;
+        if (criterioExistente.longitud != null) div.querySelector('[name="longitud"]').value = criterioExistente.longitud;
+        if (criterioExistente.radio != null) div.querySelector('[name="radio"]').value = criterioExistente.radio;
         if (criterioExistente.tipoMultimedia) div.querySelector('[name="tipoMultimedia"]').value = criterioExistente.tipoMultimedia;
-        actualizarCamposCriterio(div, criterioExistente.tipo);
     }
+
+    // UI inicial
+    syncUIByTipo(tipoSelect.value);
+    selCategoria.disabled = true;
+    selCategoria.innerHTML = `<option value="">Cargando categorías...</option>`;
+
+    // Cargar categorías y fuentes (async) sin romper la UI
+    (async () => {
+        await ensureCategoriasDesdeHechos();
+
+        poblarSelectCategorias(
+            selCategoria,
+            criterioExistente?.tipo === "categoria" ? (criterioExistente?.valor || "") : ""
+        );
+
+        selCategoria.disabled = false;
+
+        if (criterioExistente?.tipo === "categoria") {
+            selCategoria.value = criterioExistente.valor || "";
+            inputValor.value = selCategoria.value || "";
+        }
+
+        // fuentes (igual que ahora)
+        try {
+            const fuentes = await ensureFuentes();
+            selFuente.innerHTML =
+                `<option value="">Seleccioná una fuente...</option>` +
+                fuentes.map(f => {
+                    const sel = (String(f.value) === String(criterioExistente?.idFuenteDeDatos ?? "")) ? "selected" : "";
+                    return `<option value="${escapeHtml(f.value)}" ${sel}>${escapeHtml(f.label)}</option>`;
+                }).join("");
+        } catch (e) {
+            selFuente.innerHTML = `<option value="">Error al cargar fuentes</option>`;
+        }
+    })();
+
 
     container.appendChild(div);
 }
+
+
+
 window.agregarCriterio = agregarCriterio;
 
 function armarCriterio(div) {
@@ -2362,15 +2582,26 @@ function armarCriterio(div) {
         return Number.isFinite(x) ? x : null;
     };
 
+    const tipo = get("tipo");
+
+    // valor: si es categoria, viene del select .valor-categoria (no del input)
+    let valor = get("valor");
+    if (tipo === "categoria") {
+        valor = div.querySelector(".valor-categoria")?.value?.trim() || null;
+    }
+
     const criterio = {
-        tipo: get("tipo"),
-        valor: get("valor"),
+        tipo,
+        valor,
         inclusion: get("inclusion") === "true"
     };
 
     if (get("fechaDesde")) criterio.fechaDesde = get("fechaDesde");
     if (get("fechaHasta")) criterio.fechaHasta = get("fechaHasta");
-    if (get("idFuenteDeDatos")) criterio.idFuenteDeDatos = parseInt(get("idFuenteDeDatos"), 10);
+
+    // fuente: se guarda SI o SI en idFuenteDeDatos
+    const idFuenteStr = get("idFuenteDeDatos");
+    if (idFuenteStr) criterio.idFuenteDeDatos = parseInt(idFuenteStr, 10);
 
     const lat = num("latitud");
     const lon = num("longitud");
@@ -2382,8 +2613,12 @@ function armarCriterio(div) {
 
     if (get("tipoMultimedia")) criterio.tipoMultimedia = get("tipoMultimedia");
 
+    // opcional: si es fuente, no mandes "valor" para evitar ruido
+    if (tipo === "fuente") criterio.valor = null;
+
     return criterio;
 }
+
 
 /* =========================================================
    Detalle y solicitudes desde detalle (mínimo)
@@ -2556,6 +2791,8 @@ function mostrarFormularioEliminacion(h, contenedor) {
 }
 
 function mostrarFormularioEdicion(h, contenedor) {
+    const cats = categoriasDisponibles();
+    if (h.categoria && !cats.includes(h.categoria)) cats.unshift(h.categoria);
     contenedor.innerHTML = `
     <div class="container-fluid">
       <h5 class="text-warning mb-3">Solicitud de edición del hecho #${h.id}</h5>
@@ -2569,13 +2806,13 @@ function mostrarFormularioEdicion(h, contenedor) {
       </div>
       <div class="mb-2">
         <label class="form-label"><b>Categoría</b></label>
-        <select id="categoriaMod" class="form-select">
-          ${CATEGORIAS.map(c => `
-            <option value="${escapeHtml(c)}" ${c === (h.categoria || "") ? "selected" : ""}>
-              ${escapeHtml(c)}
-            </option>
-          `).join("")}
-        </select>
+<select id="categoriaMod" class="form-select">
+  ${cats.map(c => `
+    <option value="${escapeHtml(c)}" ${c === (h.categoria || "") ? "selected" : ""}>
+      ${escapeHtml(c)}
+    </option>
+  `).join("")}
+</select>
       </div>
       <div class="row">
         <div class="col-md-6 mb-2">
@@ -2782,7 +3019,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const categoriaInput = document.getElementById("categoriaSelect");
     categoriaInput.addEventListener("input", () => {
         const valor = categoriaInput.value.trim();
-        const ok = (valor === "" || CATEGORIAS.includes(valor));
+        const ok = (valor === "" || categoriasDisponibles().includes(valor));
         categoriaInput.classList.toggle("is-invalid", !ok);
         categoriaInput.classList.toggle("is-valid", ok && valor !== "");
     });
@@ -2792,6 +3029,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (modalHecho) {
         modalHecho.addEventListener("shown.bs.modal", async () => {
+            await ensureCategoriasDesdeHechos();
             cargarCategorias();
             await cargarSelectFuentesDinamicas();
             setTimeout(inicializarMapaSeleccion, 200);
@@ -2808,6 +3046,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     await verificarSesionYActualizarUI();
+    ensureCategoriasDesdeHechos().catch(() => {});
 
     const vista = sessionStorage.getItem("vistaActual") || "colecciones";
     await mostrar(vista);

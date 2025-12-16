@@ -141,16 +141,16 @@ public class ControllerEstadistica {
 
 
   // Se deberá implementar la exportación de las estadísticas en formato CSV.
-  @Operation(summary = "Exportación CSV genérica")
-  @ApiResponse(responseCode = "200", description = "CSV", content = @Content(mediaType = "text/csv"))
-  @GetMapping(value = "/export", produces = "text/csv")
-  public ResponseEntity<byte[]> exportarDatos() {
-    byte[] csv = estadisticaService.exportarCsv();
-    String filename = "metamapa_estadisticas.csv";
-    return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-            .contentType(MediaType.valueOf("text/csv"))
-            .contentLength(bytes.length)
-            .body(bytes);
-  }
+  //@Operation(summary = "Exportación CSV genérica")
+  //@ApiResponse(responseCode = "200", description = "CSV", content = @Content(mediaType = "text/csv"))
+  //@GetMapping(value = "/export", produces = "text/csv")
+  //public ResponseEntity<byte[]> exportarDatos() {
+  //  byte[] csv = estadisticaService.exportarCsv();
+  //  String filename = "metamapa_estadisticas.csv";
+  //  return ResponseEntity.ok()
+  //          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+  //          .contentType(MediaType.valueOf("text/csv"))
+  //          .contentLength(bytes.length)
+  //          .body(bytes);
+  //}
 }
