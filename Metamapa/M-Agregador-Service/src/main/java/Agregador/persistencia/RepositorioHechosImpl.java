@@ -21,7 +21,6 @@ public class RepositorioHechosImpl implements RepositorioHechosCustom {
     CriteriaQuery<Hecho> query = cb.createQuery(Hecho.class);
     Root<Hecho> root = query.from(Hecho.class);
     List<Predicate> predicates = new ArrayList<>();
-    // Filtrar solo no eliminados
     predicates.add(cb.isFalse(root.get("eliminado")));
     // Agrego los predicados SQL
     criterios.forEach(c -> predicates.add(c.toPredicate(root, cb)));
@@ -38,13 +37,12 @@ public class RepositorioHechosImpl implements RepositorioHechosCustom {
       else
         otrosNoSQL.add(c);
     }
-    // 1) Aplicar criterios NO SQL normales (AND)
+
     for (Criterio c : otrosNoSQL) {
       filtrados = filtrados.stream()
-              .filter(c::cumple)        // AND
+              .filter(c::cumple)
               .toList();
     }
-    // 2) Aplicar criterios de fuente con OR
     if (!criteriosFuente.isEmpty()) {
       filtrados = filtrados.stream()
               .filter(h -> {

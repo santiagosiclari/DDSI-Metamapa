@@ -1,14 +1,9 @@
 package FuenteEstatica.business.Hechos;
 import java.time.LocalDateTime;
 import lombok.*;
-//import jakarta.persistence.*;
 
-//@Entity
-//@Table(name = "hecho")
 @Getter @Setter
 public class Hecho {
-  //@Id
-  //@GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
   private String titulo;
   private String descripcion;
@@ -17,8 +12,6 @@ public class Hecho {
   private Float longitud;
   private LocalDateTime fechaHecho;
   private LocalDateTime fechaCarga;
-  //@ManyToOne
-  //@JoinColumn(name = "fuente_id")
   private Integer fuenteId;
   static public Integer contadorID = 1;
 

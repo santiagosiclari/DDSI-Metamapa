@@ -51,24 +51,4 @@ public abstract class Consenso {
     return mismaFecha && latitudCercana && longitudCercana && mismoTitulo;
   }
 
-  //ABSOLUTA
-  // "SELECT * FROM hechos as Hecho1 where (select count(distinct left(Hechos1.hechos_id,4)) from hechos) = (select count(distinct left(hechos_id,4)) from hechos as Hecho2 where equals(Hecho1,Hecho2))"
-
-  //MAYORIA SIMPLE
-  // "SELECT * FROM hechos as Hecho1 where (select count(distinct left(Hechos1.hechos_id,4)) from hechos)/2 =< (select count(distinct left(hechos_id,4)) from hechos as Hecho2 where equals(Hecho1,Hecho2)) "
-
-  //MULTIPLES MENCIONES
-  /*select titulo, latitud, longitud, etc
-    from hechos h
-    group by titulo, latitud, longitud, etc
-    having
-          count(distinct fuente_id) >= 2
-          and not exists(
-                  select 1 from hechos h2
-                  where h2.titulo = h.titulo
-                    and (h2.latitud != h.latitud or h2.longitud != h.longitud or ... )
-  );*/
-
-  // "SELECT * FROM hechos as Hecho1
-  // where (select count(distinct left(Hechos1.hechos_id,4)) from hechos as Hecho2 where equals(Hecho1,Hecho2)) > 1 and (select count(*) from hechos as Hecho2 where Hecho1.titulo = Hecho2.titulo and todo lo demas distinto) "
 }

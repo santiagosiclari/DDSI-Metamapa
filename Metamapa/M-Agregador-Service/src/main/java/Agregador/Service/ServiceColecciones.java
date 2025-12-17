@@ -30,10 +30,6 @@ public class ServiceColecciones {
     }
     List<Hecho> hechos = repositorioHechos.filtrarPorCriterios(criterios, consenso);
 
-    System.out.println("Colección: " + coleccion.getTitulo() +
-        " | Criterios: " + criterios.size() +
-        " | Modo: " + modoNavegacion +
-        " | Hechos encontrados: " + hechos.size());
 
     return hechos;
   }

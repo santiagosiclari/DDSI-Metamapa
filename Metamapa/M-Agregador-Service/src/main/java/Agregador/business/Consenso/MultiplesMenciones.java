@@ -18,7 +18,6 @@ public class MultiplesMenciones extends Consenso {
     boolean hayConflictos = false;
     for (Hecho h : hechos) {
       if (Consenso.sonIguales(h, hecho)) {
-        //TODO hacer algo que compare descripciones bien
         if (h.getDescripcion().equals(hecho.getDescripcion())) aparicionesExactas++;
         else hayConflictos = true;
       }

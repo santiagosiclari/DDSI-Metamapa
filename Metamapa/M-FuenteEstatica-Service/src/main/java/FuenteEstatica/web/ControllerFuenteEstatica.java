@@ -44,9 +44,6 @@ public class ControllerFuenteEstatica {
       String nombreFE = (String) requestBody.get("nombre");
       FuenteEstatica fuenteEstatica = new FuenteEstatica(nombreFE);
       repositorioFuentes.agregarFuente(fuenteEstatica);
-      //crear carpeta para la fuente
-      Path rutaPendienteFuente = Path.of(rutaPending, String.valueOf(fuenteEstatica.getFuenteId()));
-      Files.createDirectories(rutaPendienteFuente);
       return ResponseEntity.ok(fuenteEstatica);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
@@ -68,6 +65,7 @@ public class ControllerFuenteEstatica {
           Files.createDirectories(carpetaProcesados); // crear carpeta si no existe
           Files.move(archivo.toPath(), carpetaProcesados.resolve(archivo.getName()), StandardCopyOption.REPLACE_EXISTING);
         }
+        repositorioFuentes.marcarComoProcesada(fuenteID);
       } catch (Exception e) {
         System.out.println("Error al procesar los archivos CSV: " + e.getMessage());
       }
@@ -92,7 +90,7 @@ public class ControllerFuenteEstatica {
   public ResponseEntity<ArrayList<Hecho>> getHechos() {
     ArrayList<Hecho> hechos;
     try {
-      hechos = repositorioFuentes.fuentesDeDatos.stream().map(f -> procesarCSVs(f.getFuenteId())).flatMap(ArrayList::stream).collect(Collectors.toCollection(ArrayList::new));
+      hechos = repositorioFuentes.getFuentesDeDatos().stream().map(f -> procesarCSVs(f.getFuenteId())).flatMap(ArrayList::stream).collect(Collectors.toCollection(ArrayList::new));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatusCode.valueOf(500)).body(null);
     }
@@ -102,10 +100,8 @@ public class ControllerFuenteEstatica {
   // Subir un csv al file server... (ACA NO SE PROCESARIA LOS HECHOS, SOLO SE SUBE)
   @PostMapping(value = "/{idFuenteDeDatos}/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
   public ResponseEntity<?> cargarCSV(@PathVariable Integer idFuenteDeDatos, @RequestParam("file") MultipartFile file) {
-    try { // En postman probar con form-data y file
-      Path carpetaPendientes = Paths.get(rutaPending, String.valueOf(idFuenteDeDatos));
-      Files.createDirectories(carpetaPendientes); // asegurarse que exista la carpeta
-      Files.copy(file.getInputStream(), carpetaPendientes.resolve(Objects.requireNonNull(file.getOriginalFilename())), StandardCopyOption.REPLACE_EXISTING);
+    try {
+        repositorioFuentes.subirArchivoCsv(file, idFuenteDeDatos);
       return ResponseEntity.ok("CSV cargado correctamente");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
