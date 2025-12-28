@@ -11,7 +11,7 @@ public class RepositorioUsuariosImpl implements RepositorioUsuariosCustom{
   @PersistenceContext
   private EntityManager em;
 
-  @Transactional(readOnly = true) // 💡 Añade esto a la implementación del repositorio
+  @Transactional(readOnly = true)
   public Optional<Usuario> findByEmail (String email)
   {
     try {
@@ -20,8 +20,8 @@ public class RepositorioUsuariosImpl implements RepositorioUsuariosCustom{
                 FROM Usuario u
                 WHERE u.email = :email
             """, Usuario.class)
-          .setParameter("email", email)
-          .getSingleResult();
+              .setParameter("email", email)
+              .getSingleResult();
       return Optional.of(usuario);
     } catch (NoResultException e) {
       return Optional.empty();

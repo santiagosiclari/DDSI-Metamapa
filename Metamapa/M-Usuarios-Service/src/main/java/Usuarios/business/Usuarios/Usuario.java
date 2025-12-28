@@ -45,11 +45,6 @@ public class Usuario {
   private String apellido;
   private Integer edad;
 
-  //@ElementCollection
-  //private List<Integer> solicitudesDeEliminacion;
-
-  //@ElementCollection
-  //private List<Integer> solicitudesDeEdicion;
 
   public Usuario(String email, String contraseniaHasheada, String nombre, String apellido, Integer edad, Set<Rol> roles) {
     this.email = email;
