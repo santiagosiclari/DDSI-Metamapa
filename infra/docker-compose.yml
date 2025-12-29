@@ -1,16 +1,134 @@
-version: "3.9"
+version: '3.8'
 
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: metamapa-prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - metamapa-net
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
+  metamapa-service:
+    build:
+      context: ../Metamapa/metamapa-service
+      dockerfile: Dockerfile
+    container_name: metamapa-core
     ports:
-      - "3000:3000"
+      - "9000:9000"
+    environment:
+      - SERVER_PORT=9000
+      - M_AGREGADOR_SERVICE_URL=http://agregador:9004
+      - M_USUARIOS_SERVICE_URL=http://usuarios-service:9005
+    networks:
+      - metamapa-net
+
+  fuente-dinamica:
+    build:
+      context: ../Metamapa/M-FuenteDinamica-Service
+      dockerfile: Dockerfile
+    container_name: fuente-dinamica
+    ports:
+      - "9001:9001"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=MetamapaDB_FD;encrypt=true;trustServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=miusuario
+      - SPRING_DATASOURCE_PASSWORD=mipassword
+      - SERVER_PORT=9001
+    networks:
+      - metamapa-net
+
+  fuente-estatica:
+    build:
+      context: ../Metamapa/M-FuenteEstatica-Service
+      dockerfile: Dockerfile
+    container_name: fuente-estatica
+    ports:
+      - "9002:9002"
+    environment:
+      - SERVER_PORT=9002
+    networks:
+      - metamapa-net
+
+  agregador:
+    build:
+      context: ../Metamapa/M-Agregador-Service
+      dockerfile: Dockerfile
+    container_name: agregador
+    ports:
+      - "9004:9004"
+    environment:
+      - SERVER_PORT=9004
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=MetamapaDB_Agregador;encrypt=true;trustServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=miusuario
+      - SPRING_DATASOURCE_PASSWORD=mipassword
+      - M_FUENTEDINAMICA_SERVICE_URL=http://fuente-dinamica:9001
+      - M_FUENTEESTATICA_SERVICE_URL=http://fuente-estatica:9002
+      - M_ESTADISTICA_SERVICE_URL=http://estadistica-service:9008
+    depends_on:
+      - fuente-dinamica
+      - fuente-estatica
+      - estadistica-service
+    networks:
+      - metamapa-net
+
+  usuarios-service:
+    build:
+      context: ../Metamapa/M-Usuarios-Service
+      dockerfile: Dockerfile
+    container_name: usuarios-service
+    ports:
+      - "9005:9005"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=MetamapaDB_Usuarios;encrypt=true;trustServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=miusuario
+      - SPRING_DATASOURCE_PASSWORD=mipassword
+      - SERVER_PORT=9005
+    networks:
+      - metamapa-net
+
+  fuente-demo:
+    build:
+      context: ../Metamapa/M-FuenteDemo-Service
+      dockerfile: Dockerfile
+    container_name: fuente-demo
+    ports:
+      - "9006:9006"
+    environment:
+      - SERVER_PORT=9006
+    networks:
+      - metamapa-net
+
+  fuente-metamapa:
+    build:
+      context: ../Metamapa/M-FuenteMetamapa-Service
+      dockerfile: Dockerfile
+    container_name: fuente-metamapa
+    ports:
+      - "9007:9007"
+    environment:
+      - SERVER_PORT=9007
+    networks:
+      - metamapa-net
+
+  # 8. Servicio de Estadística (Puerto 9008)
+  estadistica-service:
+    build:
+      context: ../Metamapa/M-Estadistica-Service
+      dockerfile: Dockerfile
+    container_name: estadistica-service
+    ports:
+      - "9008:9008"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=MetamapaDB_Agregador;encrypt=true;trustServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=stats_user
+      - SPRING_DATASOURCE_PASSWORD=Stats_Pass_2025!
+      - SERVER_PORT=9008
+    networks:
+      - metamapa-net
+
+networks:
+  metamapa-net:
+    driver: bridge

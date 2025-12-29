@@ -17,7 +17,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
   private Bucket resolveBucket(HttpServletRequest request) {
     String key = request.getRemoteAddr(); // o usuario/JWT si querés
-    return buckets.computeIfAbsent(key, _ -> newBucket());
+    return buckets.computeIfAbsent(key, k -> newBucket());
   }
 
   private Bucket newBucket() {

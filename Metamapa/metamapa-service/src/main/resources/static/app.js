@@ -1,19 +1,15 @@
-/* =========================================================
-   Configuración (ajustá endpoints a tu entorno)
-   ========================================================= */
+const currentHost = window.location.hostname;
 window.METAMAPA = window.METAMAPA || {
-    API_AGREGADOR: "http://localhost:9004/api-agregador",
-    API_COLECCIONES: "http://localhost:9004/api-colecciones",
-    API_FUENTE_DINAMICA: "http://localhost:9001/api-fuentesDeDatos",
-    API_FUENTE_ESTATICA: "http://localhost:9002/api-fuentesDeDatos",
-    API_FUENTE_DEMO: "http://localhost:9006/api-fuentesDeDatos",
-    API_FUENTE_METAMAPA: "http://localhost:9007/api-fuentesDeDatos",
-    API_SOLICITUDES: "http://localhost:9004/api-solicitudes",
-    API_USUARIOS: "http://localhost:9005/usuarios",
-    API_ESTADISTICA: "http://localhost:9008/estadistica"
+    API_AGREGADOR: `http://${currentHost}:9004/api-agregador`,
+    API_COLECCIONES: `http://${currentHost}:9004/api-colecciones`,
+    API_FUENTE_DINAMICA: `http://${currentHost}:9001/api-fuentesDeDatos`,
+    API_FUENTE_ESTATICA: `http://${currentHost}:9002/api-fuentesDeDatos`,
+    API_FUENTE_DEMO: `http://${currentHost}:9006/api-fuentesDeDatos`,
+    API_FUENTE_METAMAPA: `http://${currentHost}:9007/api-fuentesDeDatos`,
+    API_SOLICITUDES: `http://${currentHost}:9004/api-solicitudes`,
+    API_USUARIOS: `http://${currentHost}:9005/usuarios`,
+    API_ESTADISTICA: `http://${currentHost}:9008/estadistica`
 };
-
-console.log("app.js cargado correctamente");
 
 /* =========================================================
    Estado global
