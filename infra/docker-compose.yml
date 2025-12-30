@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   prometheus:
     image: prom/prometheus:latest
@@ -10,6 +8,11 @@ services:
       - "9090:9090"
     networks:
       - metamapa-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 200M
 
   metamapa-service:
     build:
@@ -22,8 +25,16 @@ services:
       - SERVER_PORT=9000
       - M_AGREGADOR_SERVICE_URL=http://agregador:9004
       - M_USUARIOS_SERVICE_URL=http://usuarios-service:9005
+      - JAVA_OPTS=-Xmx512m -Xms256m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.80'
+          memory: 600M
 
   fuente-dinamica:
     build:
@@ -37,8 +48,16 @@ services:
       - SPRING_DATASOURCE_USERNAME=miusuario
       - SPRING_DATASOURCE_PASSWORD=mipassword
       - SERVER_PORT=9001
+      - JAVA_OPTS=-Xmx256m -Xms128m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 300M
 
   fuente-estatica:
     build:
@@ -49,8 +68,16 @@ services:
       - "9002:9002"
     environment:
       - SERVER_PORT=9002
+      - JAVA_OPTS=-Xmx256m -Xms128m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 300M
 
   agregador:
     build:
@@ -67,12 +94,20 @@ services:
       - M_FUENTEDINAMICA_SERVICE_URL=http://fuente-dinamica:9001
       - M_FUENTEESTATICA_SERVICE_URL=http://fuente-estatica:9002
       - M_ESTADISTICA_SERVICE_URL=http://estadistica-service:9008
+      - JAVA_OPTS=-Xmx1500m -Xms512m  # Le damos 1.5GB a Java para procesar los mapas
     depends_on:
       - fuente-dinamica
       - fuente-estatica
       - estadistica-service
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2048M
 
   usuarios-service:
     build:
@@ -86,8 +121,16 @@ services:
       - SPRING_DATASOURCE_USERNAME=miusuario
       - SPRING_DATASOURCE_PASSWORD=mipassword
       - SERVER_PORT=9005
+      - JAVA_OPTS=-Xmx400m -Xms200m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
 
   fuente-demo:
     build:
@@ -98,8 +141,16 @@ services:
       - "9006:9006"
     environment:
       - SERVER_PORT=9006
+      - JAVA_OPTS=-Xmx256m -Xms128m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 300M
 
   fuente-metamapa:
     build:
@@ -110,10 +161,17 @@ services:
       - "9007:9007"
     environment:
       - SERVER_PORT=9007
+      - JAVA_OPTS=-Xmx256m -Xms128m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 300M
 
-  # 8. Servicio de Estadística (Puerto 9008)
   estadistica-service:
     build:
       context: ../Metamapa/M-Estadistica-Service
@@ -126,8 +184,16 @@ services:
       - SPRING_DATASOURCE_USERNAME=stats_user
       - SPRING_DATASOURCE_PASSWORD=Stats_Pass_2025!
       - SERVER_PORT=9008
+      - JAVA_OPTS=-Xmx400m -Xms200m
     networks:
       - metamapa-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
 
 networks:
   metamapa-net:
