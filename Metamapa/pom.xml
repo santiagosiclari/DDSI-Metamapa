@@ -18,7 +18,7 @@
 
     <modules>
         <module>M-Agregador-Service</module>
-        <module>Metamapa-Service</module>
+        <module>metamapa-service</module>
         <module>M-Usuarios-Service</module>
         <module>M-FuenteDinamica-Service</module>
         <module>M-FuenteEstatica-Service</module>
