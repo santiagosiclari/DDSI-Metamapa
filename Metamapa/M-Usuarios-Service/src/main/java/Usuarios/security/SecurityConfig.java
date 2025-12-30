@@ -46,28 +46,22 @@ public class SecurityConfig {
 
                     .anyRequest().authenticated())
 
-//            .formLogin(form -> form
-//                    .usernameParameter("email")
-//                    .defaultSuccessUrl("http://localhost:9000/index.html", true)
-//            )
-
-
             .formLogin(form -> form
                     .loginPage("/login.html")
                     .loginProcessingUrl("/login")
                     .usernameParameter("email")
-                    .defaultSuccessUrl("http://localhost:9000/index.html", true)
+                    .defaultSuccessUrl("https://santiagosiclari.org/metamapa/index.html", true)
                     .permitAll()
             )
 
             .logout(logout -> logout
                     .logoutUrl("/usuarios/logout")
-                    .logoutSuccessUrl("http://localhost:9000/index.html")
+                    .logoutSuccessUrl("https://santiagosiclari.org/metamapa/index.html")
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID")
             )
             .oauth2Login(oauth2 -> oauth2
-                    .defaultSuccessUrl("/oauth2/authorize?client_id=metamapa-service&redirect_uri=http://localhost:9000/callback&scope=openid%20read&response_type=code&code_challenge=xyz&code_challenge_method=S256", true)
+                    .defaultSuccessUrl("/oauth2/authorize?client_id=metamapa-service&redirect_uri=https://santiagosiclari.org/metamapa/callback&scope=openid%20read&response_type=code&code_challenge=xyz&code_challenge_method=S256", true)
 
                     .userInfoEndpoint(userInfo -> userInfo
                             .userService(customOAuth2UserService)
@@ -88,8 +82,8 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
 
     // PERMITIR ACCESO DESDE EL CLIENTE LIVIANO (PUERTO 9000)
-    configuration.setAllowedOrigins(List.of("http://localhost:9000"));
-
+    configuration.setAllowedOrigins(List.of("https://santiagosiclari.org"));
+    
     // Permitir credenciales (cookies, tokens)
     configuration.setAllowCredentials(true);
 

@@ -60,8 +60,8 @@ public class AuthorizationServerConfig {
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .redirectUri("http://localhost:9000/callback")
-            .redirectUri("http://localhost:9000/authorized") // Otra posible URI de callback
+            .redirectUri("https://santiagosiclari.org/metamapa/callback")
+            .redirectUri("https://santiagosiclari.org/metamapa/authorized") // Otra posible URI de callback
             .scope("read").scope("write")
             .clientSettings(ClientSettings.builder().requireProofKey(true).requireAuthorizationConsent(true).build())
             .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(2))
@@ -76,7 +76,7 @@ public class AuthorizationServerConfig {
             .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
             .scope("internal")
             .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofHours(2)).build())
-            .redirectUri("http://localhost:9000/callback")
+            .redirectUri("https://santiagosiclari.org/metamapa/callback")
             .build();
 
     return new InMemoryRegisteredClientRepository(metamapaClient, agregadorClient);
@@ -86,7 +86,7 @@ public class AuthorizationServerConfig {
   @Bean
   public AuthorizationServerSettings authorizationServerSettings() {
     return AuthorizationServerSettings.builder()
-            .issuer("http://localhost:9005") // URL base del server (donde corre el Usuarios-Service)
+            .issuer("https://santiagosiclari.org/usuarios") // URL base del server (donde corre el Usuarios-Service)
             .build();
   }
 

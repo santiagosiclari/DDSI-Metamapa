@@ -1,14 +1,16 @@
-const currentHost = window.location.hostname;
 window.METAMAPA = window.METAMAPA || {
-    API_AGREGADOR: `http://${currentHost}:9004/api-agregador`,
-    API_COLECCIONES: `http://${currentHost}:9004/api-colecciones`,
-    API_FUENTE_DINAMICA: `http://${currentHost}:9001/api-fuentesDeDatos`,
-    API_FUENTE_ESTATICA: `http://${currentHost}:9002/api-fuentesDeDatos`,
-    API_FUENTE_DEMO: `http://${currentHost}:9006/api-fuentesDeDatos`,
-    API_FUENTE_METAMAPA: `http://${currentHost}:9007/api-fuentesDeDatos`,
-    API_SOLICITUDES: `http://${currentHost}:9004/api-solicitudes`,
-    API_USUARIOS: `http://${currentHost}:9005/usuarios`,
-    API_ESTADISTICA: `http://${currentHost}:9008/estadistica`
+    API_AGREGADOR: "/api-agregador",
+    API_COLECCIONES: "/api-colecciones",
+    API_SOLICITUDES: "/api-solicitudes",
+    API_USUARIOS: "/usuarios",
+
+    // Rutas para las fuentes mapeadas en Nginx
+    API_FUENTE_DINAMICA: "/api-fuente-dinamica",
+    API_FUENTE_ESTATICA: "/api-fuente-estatica",
+    API_FUENTE_DEMO: "/api-fuente-demo",
+    API_FUENTE_METAMAPA: "/api-fuente-metamapa",
+
+    API_ESTADISTICA: "/estadistica"
 };
 
 /* =========================================================
@@ -131,21 +133,6 @@ async function fetchSeguro(url) {
         clearTimeout(timeout);
     }
 }
-
-/* =========================================================
-   Mapas (Leaflet) - básico y estable
-   ========================================================= */
-
-// ==============================
-// Colores por categoría (fallback a "Otro")
-// ==============================
-
-
-// ==============================
-// Categorías visibles + colores persistentes
-// ==============================
-
-
 
 function _normCat(c) {
     return (c ?? "").toString().trim();
@@ -2998,7 +2985,7 @@ async function verificarSesionYActualizarUI() {
 }
 
 function iniciarSesionSSO() {
-    window.location.href = `${window.METAMAPA.API_USUARIOS}/login`;
+    window.location.href = window.METAMAPA.API_USUARIOS + "/login.html";
 }
 
 function cerrarSesion() {
@@ -3009,8 +2996,7 @@ function cerrarSesion() {
         .catch(err => console.error("Error al hacer logout:", err))
         .finally(() => {
             ocultarTodoYMostrarLogin();
-            window.location.href = "http://localhost:9000/index.html";
-            // window.location.href = `${window.location.origin}/index.html`;
+            window.location.href = "/metamapa/index.html";
         });
 }
 
