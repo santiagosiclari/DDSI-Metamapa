@@ -15,7 +15,7 @@ public class SecurityConfig {
     http
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .anyRequest().permitAll() // por ahora no pedimos login
+                    .anyRequest().permitAll()
             )
             .csrf(csrf -> csrf.disable());
 

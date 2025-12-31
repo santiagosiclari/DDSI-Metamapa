@@ -20,17 +20,14 @@ const cont = document.getElementById("contenido");
 let usuarioActual = null;
 let coleccionSeleccionada = null;
 
-// Refresca la vista actual (usa tu router "mostrar")
 async function refrescarVistaActual() {
     const vista = sessionStorage.getItem("vistaActual") || "colecciones";
     try { await mostrar(vista); } catch (e) { console.error(e); }
 }
 
-// Intercepta fetch: si es una modificación (POST/PUT/PATCH/DELETE) y salió OK, refresca la vista actual
 (function instalarAutoRefreshEnFetch() {
     const _fetch = window.fetch.bind(window);
 
-    // Evita refrescos múltiples cuando un flujo hace varios fetch seguidos
     let refreshPendiente = null;
 
     window.fetch = async (...args) => {
@@ -43,11 +40,9 @@ async function refrescarVistaActual() {
 
             const esMutacion = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
 
-            // Opcional: evitá refrescar por ciertos endpoints (login/logout, etc.)
             const ignorar = url.includes("/api-auth/") || url.includes("/login") || url.includes("/logout");
 
             if (esMutacion && !ignorar && resp.ok) {
-                // refresco "debounced": si llegan 3 mutaciones seguidas, refresca 1 vez
                 clearTimeout(refreshPendiente);
                 refreshPendiente = setTimeout(() => {
                     refrescarVistaActual();
@@ -177,16 +172,6 @@ function colorPorCategoria(cat) {
     return nuevo;
 }
 
-
-
-
-
-
-
-
-
-
-
 const categoriaColores = {
     // Incendios / explosiones
     "Incendio": "#E53935",
@@ -255,7 +240,6 @@ async function inicializarMapa(divId = "mapa") {
         return null;
     }
 
-    // Si ya existe en cache, validar que siga apuntando al mismo DIV real
     if (_maps.has(divId)) {
         const ctx = _maps.get(divId);
         const liveEl = document.getElementById(divId);
@@ -265,7 +249,6 @@ async function inicializarMapa(divId = "mapa") {
             liveEl &&
             ctx.map._container === liveEl;
 
-        // Si el DIV fue reemplazado por innerHTML, el mapa quedó atado al viejo: lo destruimos
         if (!contenedorOk) {
             try { ctx.map.remove(); } catch (e) {}
             _maps.delete(divId);
@@ -305,7 +288,6 @@ async function inicializarMapa(divId = "mapa") {
 
     _maps.set(divId, { map, markers, legend });
 
-    // Importante: invalidar tamaño cuando ya está pintado
     requestAnimationFrame(() => map.invalidateSize(true));
 
     console.log("Mapa inicializado:", divId);
@@ -582,9 +564,6 @@ function confirmarUbicacion() {
     bootstrap.Modal.getInstance(document.getElementById("modalUbicacion")).hide();
 }
 
-/* =========================================================
-   Sanitización básica para HTML
-   ========================================================= */
 function escapeHtml(str) {
     return String(str ?? "")
         .replaceAll("&", "&amp;")
@@ -655,8 +634,6 @@ function guardarNuevaCategoria() {
 
     bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
 }
-
-
 
 window.agregarNuevaCategoriaModal = agregarNuevaCategoriaModal;
 window.guardarNuevaCategoria = guardarNuevaCategoria;
@@ -1235,7 +1212,6 @@ async function mostrarColeccionesView() {
     const input = document.getElementById("busquedaColeccion");
 
     async function buscarColeccionesConLoading() {
-        // CAMBIO: Si buscamos de nuevo, ocultamos el panel para "limpiar" la vista visualmente
         const panel = document.getElementById("panelFiltrosColeccion");
         if(panel) panel.classList.add("d-none");
 
@@ -1370,14 +1346,12 @@ async function mostrarColecciones() {
         }
 
         contLista.innerHTML = colecciones.map(c => {
-            // Extraemos los IDs de las fuentes directamente de los criterios
             const idsFuentes = [...new Set(
                 (c.criterios || [])
                     .filter(crit => crit.idFuenteDeDatos)
                     .map(crit => crit.idFuenteDeDatos)
             )];
 
-            // Renderizamos los badges solo con el ID disponible
             const badgesFuentes = idsFuentes.map(id => {
                 return `<span class="badge bg-info text-dark border me-1 my-1">Fuente ${id}</span>`;
             }).join("");
@@ -1432,17 +1406,14 @@ async function mostrarColecciones() {
             await poblarSelectsFuentesColecciones(contLista);
         }
 
-        // DELEGACIÓN DE EVENTOS
         contLista.onclick = async (e) => {
             const btnVer = e.target.closest(".btnVerHechos");
             const btnFuente = e.target.closest(".btnAgregarFuente");
 
-            // --- BOTÓN VER HECHOS ---
             if (btnVer) {
                 const handle = btnVer.dataset.handle;
                 const estado = document.getElementById(`estadoColeccion_${handle}`);
 
-                // -- MANEJO DEL PANEL DE FILTROS --
                 const panel = document.getElementById("panelFiltrosColeccion");
                 const filtrosDiv = document.getElementById("filtrosContainerColeccion");
                 const btnApp = document.getElementById("btnAplicarFiltrosColeccion");
@@ -1997,9 +1968,6 @@ async function mostrarEstadisticasView() {
     await cargarSelectColecciones();
     await refrescarEstadisticasBase();
 
-
-
-
     // eventos
     document.getElementById("btnBuscarProvinciaColeccion").addEventListener("click", async (e) => {
         const btn = e.currentTarget;
@@ -2375,7 +2343,6 @@ async function poblarSelectFuentes(selectEl, selectedValue = "") {
         selectEl.disabled = false;
     }
 }
-// Cache simple para no pedir hechos/fuentes 20 veces
 
 let _fuentesCache = null;
 
@@ -3100,11 +3067,9 @@ function tipoMultimedia(item) {
 }
 
 async function obtenerMultimediaHecho(hecho) {
-    // 1) si ya vino embebida en el hecho, usarla
     if (Array.isArray(hecho?.multimedia) && hecho.multimedia.length) return hecho.multimedia;
     if (Array.isArray(hecho?.archivos) && hecho.archivos.length) return hecho.archivos;
 
-    // 2) si no vino, intentar endpoints típicos (no rompe si no existen)
     const id = hecho?.id;
     if (!id) return [];
 
