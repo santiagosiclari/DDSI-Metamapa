@@ -16,7 +16,7 @@ WORKDIR /app
 
 # Copiar el archivo JAR generado desde la etapa de construcción
 # Maven guarda el resultado en la carpeta 'target'
-COPY --from=build /app/target/*.jar app.jar
-
+COPY --from=build /app/target/M-Usuarios-Service-1.0.0.jar app.jar
 # Exponer el puerto (se define en el docker-compose)
+EXPOSE 9005
 ENTRYPOINT ["java", "-jar", "app.jar"]

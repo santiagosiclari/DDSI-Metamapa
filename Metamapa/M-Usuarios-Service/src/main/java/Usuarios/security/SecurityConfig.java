@@ -1,5 +1,6 @@
 package Usuarios.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -31,11 +32,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
                             "/actuator/**",
-                            "/usuarios/api-auth/**",
+                            "/api-auth/**",
                             "/usuarios",
                             "/login",
                             "/logout",
-                            "/usuarios/logout",
+                            "/logout",
                             "/login.html",
                             "/.well-known/**",
                             "/oauth2/**",
@@ -55,10 +56,14 @@ public class SecurityConfig {
             )
 
             .logout(logout -> logout
-                    .logoutUrl("/usuarios/logout")
-                    .logoutSuccessUrl("https://santiagosiclari.org/metamapa/index.html")
+                    .logoutUrl("/logout") // URL real: /usuarios/logout
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                      response.setStatus(HttpServletResponse.SC_OK);
+                    })
                     .invalidateHttpSession(true)
+                    .clearAuthentication(true)
                     .deleteCookies("JSESSIONID")
+                    .permitAll()
             )
             .oauth2Login(oauth2 -> oauth2
                     .defaultSuccessUrl("/oauth2/authorize?client_id=metamapa-service&redirect_uri=https://santiagosiclari.org/metamapa/callback&scope=openid%20read&response_type=code&code_challenge=xyz&code_challenge_method=S256", true)

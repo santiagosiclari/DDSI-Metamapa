@@ -14,7 +14,7 @@ public class controllerUsuarios {
     this.usersRepository = usersRepository;
   }
 
-  @GetMapping(value = "/usuarios/{id}", produces = "application/json")
+  @GetMapping(value = "/detalle/{id}", produces = "application/json")
   public ResponseEntity<UsuarioDTO> getUsuario(@PathVariable("id") Long id){
     try{
       Optional<Usuario> usuarioOpt = usersRepository.findById(id);

@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/usuarios/api-auth")
+@RequestMapping("/api-auth")
 @RequiredArgsConstructor
 public class AuthController {
   private final UsuarioService usuarioService;
