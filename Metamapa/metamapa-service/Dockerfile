@@ -1,15 +1,21 @@
-# Etapa 1: Runtime (usamos una imagen ligera de Java 21)
-FROM eclipse-temurin:21-jre-alpine
-
-# Directorio de trabajo dentro del contenedor
+# ETAPA 1: Compilación (Usamos Maven para armar el JAR con el código nuevo)
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copiamos el JAR que generaste con Maven desde tu carpeta target/
-# Asegúrate de que el nombre coincida con el de tu pom.xml
-COPY target/Metamapa-Service-1.0.0.jar app.jar
+# Copiamos el pom.xml y el código fuente
+COPY pom.xml .
+COPY src ./src
 
-# Exponemos el puerto 9000 que es el que usa tu app
+# Compilamos el proyecto (esto mete la carpeta static adentro del JAR)
+RUN mvn clean package -DskipTests
+
+# ETAPA 2: Runtime (Imagen ligera para correr la app)
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Copiamos el JAR que acabamos de buildear en la etapa anterior
+# Usamos un comodín (*) por si cambia la versión en el pom.xml
+COPY --from=build /app/target/Metamapa-Service-1.0.0.jar app.jar
 EXPOSE 9000
 
-# Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]

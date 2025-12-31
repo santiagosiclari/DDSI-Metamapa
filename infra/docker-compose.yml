@@ -36,7 +36,7 @@ services:
     build:
       context: ../Metamapa/metamapa-service
       dockerfile: Dockerfile
-    container_name: metamapa-core
+    container_name: metamapa-service
     ports:
       - "9000:9000"
     environment:
