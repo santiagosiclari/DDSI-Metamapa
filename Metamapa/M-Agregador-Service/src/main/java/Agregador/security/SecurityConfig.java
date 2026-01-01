@@ -23,12 +23,10 @@ public class SecurityConfig {
   public SecurityFilterChain resourceServerSecurity(HttpSecurity http) throws Exception {
     http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .addFilterBefore(ipFilter, SecurityContextPersistenceFilter.class)
-            .addFilterBefore(rateLimitingFilter, SecurityContextPersistenceFilter.class)
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/actuator/**", "/swagger-ui/**",  "/prometheus","/v3/api-docs/**",
                             "/api-agregador/fuenteDeDatos", "/api-colecciones",
-                            "/api-agregador/hechos",
+                            "/api-agregador/hechos", "/hechos", "/api-solicitudes",
                             "/graphql",
                             "/graphiql").permitAll()
                     .anyRequest().permitAll())
@@ -43,14 +41,18 @@ public class SecurityConfig {
   private JwtAuthenticationConverter jwtAuthenticationConverter() {
     return new JwtAuthenticationConverter();
   }
-
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("*"));
+
+    configuration.setAllowedOrigins(List.of("https://santiagosiclari.org"));
+
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-    configuration.setAllowedHeaders(List.of("*")); // Permite todos los encabezados
-    configuration.setAllowCredentials(false);
+    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+
+    configuration.setAllowCredentials(true);
+
+    configuration.setExposedHeaders(List.of("Set-Cookie"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

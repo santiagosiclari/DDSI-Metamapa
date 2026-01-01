@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api-colecciones")
 public class ControllerColecciones {
   private final ServiceColecciones serviceColecciones;
 

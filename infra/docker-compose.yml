@@ -121,6 +121,7 @@ services:
       - metamapa-net
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "santiagosiclari.org:host-gateway" # Permite resolver tu dominio internamente
     deploy:
       resources:
         limits:

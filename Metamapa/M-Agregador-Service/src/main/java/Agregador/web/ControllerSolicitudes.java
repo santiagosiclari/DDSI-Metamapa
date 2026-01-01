@@ -8,7 +8,6 @@ import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api-solicitudes")
 public class ControllerSolicitudes {
     private final ServiceSolicitudes service;
 

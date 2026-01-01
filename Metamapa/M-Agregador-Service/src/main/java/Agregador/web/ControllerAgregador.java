@@ -13,7 +13,6 @@ import org.slf4j.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api-agregador")
 public class ControllerAgregador {
   private final ServiceFuenteDeDatos servicefuenteDeDatos;
   private final RepositorioHechos repositorioHechos;
@@ -54,6 +53,7 @@ public class ControllerAgregador {
   // Listar todos los hechos filtrados
   @GetMapping("/hechos")
   public ResponseEntity<?> getAgregadorHechos(@Valid FiltrosHechosDTO filtros) {
+    log.info(">>> PETICIÓN RECIBIDA EN /hechos DESDE EL NAVEGADOR <<<");
     try {
       List<Criterio> criterios = new ArrayList<>();
       criterios.addAll(repositorioHechos.construirCriterios(filtros, true));

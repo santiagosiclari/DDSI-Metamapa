@@ -795,7 +795,7 @@ async function actualizarEstadisticas() {
 async function obtenerHechos(params = new URLSearchParams()) {
     try {
         const url = `${window.METAMAPA.API_AGREGADOR}/hechos?${params.toString()}`;
-        const resp = await fetch(url);
+        const resp = await fetch(url, {credentials:"include"});
         if (!resp.ok) throw new Error("Error al obtener hechos");
         return await resp.json();
     } catch (e) {
@@ -806,8 +806,11 @@ async function obtenerHechos(params = new URLSearchParams()) {
 
 async function actualizarHechos() {
     try {
-        const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/actualizarHechos`, { method: "POST" });
-        if (resp.ok) mostrarModal("Hechos actualizados desde las fuentes.", "Actualización");
+        const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/actualizarHechos`, {
+            method: "POST",
+            credentials: "include" // <--- FUNDAMENTAL
+        });
+        if (resp.ok) mostrarModal("Hechos actualizados.", "Actualización");
         else mostrarModal(await resp.text(), "Error");
     } catch (e) {
         mostrarModal(e.message || "Error de red", "Error");
@@ -816,8 +819,15 @@ async function actualizarHechos() {
 window.actualizarHechos = actualizarHechos;
 
 async function curarHechos() {
-    const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/consensuarHechos`, { method: "POST" });
-    mostrarModal(resp.ok ? "Curado completado." : "Error al curar hechos.", "Curado");
+    try {
+        const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/consensuarHechos`, {
+            method: "POST",
+            credentials: "include" // <--- FUNDAMENTAL
+        });
+        mostrarModal(resp.ok ? "Curado completado." : "Error al curar.", "Curado");
+    } catch (e) {
+        console.error(e);
+    }
 }
 window.curarHechos = curarHechos;
 
@@ -871,7 +881,8 @@ async function crearHecho(e) {
 
         const resp = await fetch(`${window.METAMAPA.API_FUENTE_DINAMICA}/${data.fuenteId}/hechos`, {
             method: "POST",
-            body: formData
+            body: formData,
+            credentials: "include" // <--- FUNDAMENTAL para que sepa qué usuario crea el hecho
         });
 
         if (resp.ok) {

@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j; // Asegurate de importar esto
 
+@Slf4j // <--- Esto crea automáticamente la variable 'log'
 @RestControllerAdvice
 public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
@@ -47,8 +49,13 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
-    return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+  public ResponseEntity<?> handleGeneral(Exception e) {
+    log.error("ERROR REAL:", e); // Esto sí saldrá en rojo
+    return ResponseEntity.status(500).body(Map.of(
+            "error", "Internal Server Error",
+            "causa_real", e.toString(), // Esto aparecerá en tu navegador
+            "mensaje", e.getMessage() != null ? e.getMessage() : "Sin mensaje"
+    ));
   }
 
   private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
