@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/colecciones")
 public class ControllerColecciones {
   private final ServiceColecciones serviceColecciones;
 
@@ -40,8 +41,7 @@ public class ControllerColecciones {
   }
 
   // Crear una coleccion (post /colecciones)
-  @PostMapping(value = "/", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<ColeccionDTO> crearColeccion(@Valid @RequestBody ColeccionDTO dto) {
+  @PostMapping(value = {"", "/"}, consumes = "application/json", produces = "application/json")  public ResponseEntity<ColeccionDTO> crearColeccion(@Valid @RequestBody ColeccionDTO dto) {
     ColeccionDTO creada = serviceColecciones.crearColeccion(dto);
     System.out.println("9004 → crearColeccion.consenso = " + dto.getConsenso());
     return ResponseEntity.status(HttpStatus.CREATED).body(creada);
@@ -67,13 +67,13 @@ public class ControllerColecciones {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/colecciones/{idColeccion}/fuentes/{idFuente}")
+  @PostMapping("/{idColeccion}/fuentes/{idFuente}")
   public ResponseEntity<String> agregarFuente(@PathVariable UUID idColeccion, @PathVariable Integer idFuente) {
     serviceColecciones.agregarFuenteDeDatos(idColeccion, idFuente);
     return ResponseEntity.ok("Fuente agregada a la colección");
   }
 
-  @DeleteMapping("/colecciones/{idColeccion}/fuentes/{idFuente}")
+  @DeleteMapping("/{idColeccion}/fuentes/{idFuente}")
   public ResponseEntity<Void> eliminarFuente(@PathVariable UUID idColeccion, @PathVariable Integer idFuente) {
     serviceColecciones.eliminarFuenteDeDatos(idColeccion, idFuente);
     return ResponseEntity.noContent().build();

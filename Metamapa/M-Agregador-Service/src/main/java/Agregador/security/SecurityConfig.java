@@ -23,17 +23,18 @@ public class SecurityConfig {
   public SecurityFilterChain resourceServerSecurity(HttpSecurity http) throws Exception {
     http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable) // Desactivar CSRF es clave para APIs
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/actuator/**", "/swagger-ui/**",  "/prometheus","/v3/api-docs/**",
-                            "/api-agregador/fuenteDeDatos", "/api-colecciones",
-                            "/api-agregador/hechos", "/hechos", "/api-solicitudes",
-                            "/graphql",
-                            "/graphiql").permitAll()
-                    .anyRequest().permitAll())
+                    .requestMatchers(
+                            "/actuator/**",
+                            "/prometheus",
+                            "/hechos",       // El endpoint que ya funciona
+                            "/colecciones/**" // Esto cubre /colecciones y /colecciones/id
+                    ).permitAll()
+                    .anyRequest().authenticated() // El resto (POST/PUT/DELETE) pide token
+            )
             .oauth2ResourceServer(oauth2 -> oauth2
-                    .jwt(jwt -> jwt
-                            .jwtAuthenticationConverter(jwtAuthenticationConverter())))
-            .csrf(AbstractHttpConfigurer::disable);
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
     return http.build();
   }

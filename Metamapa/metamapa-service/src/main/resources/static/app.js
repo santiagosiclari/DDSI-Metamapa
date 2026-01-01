@@ -915,24 +915,30 @@ async function crearHecho(e) {
    ========================================================= */
 async function obtenerColecciones(query = "") {
     const q = (query || "").trim();
+    // Forzamos la barra final antes del ? para que Nginx no se maree
     const url = q
-        ? `${window.METAMAPA.API_COLECCIONES}?query=${encodeURIComponent(q)}`
-        : `${window.METAMAPA.API_COLECCIONES}`;
-    const resp = await fetch(url);
+        ? `${window.METAMAPA.API_COLECCIONES}/?query=${encodeURIComponent(q)}`
+        : `${window.METAMAPA.API_COLECCIONES}/`;
+
+    const resp = await fetch(url, { credentials: "include" });
     return resp.ok ? resp.json() : [];
 }
 
 async function obtenerHechosColeccionFiltrados(idColeccion, params) {
     const query = params?.toString();
+    // Usamos la barra simple
     const url = `${window.METAMAPA.API_COLECCIONES}/${idColeccion}/hechos${query ? "?" + query : ""}`;
-    const resp = await fetch(url);
+
+    const resp = await fetch(url, { credentials: "include" });
     if (!resp.ok) throw new Error("Respuesta no OK del servidor");
     return await resp.json();
 }
 
 async function modificarConsensoColeccion(id, consenso) {
+    // VITAL: Los métodos PATCH/POST/PUT necesitan credentials para la sesión
     const resp = await fetch(`${window.METAMAPA.API_COLECCIONES}/${id}`, {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ consenso })
     });
@@ -942,8 +948,8 @@ async function modificarConsensoColeccion(id, consenso) {
 async function crearColeccion(e) {
     e.preventDefault();
     const f = e.target;
-
     const criterios = [...document.querySelectorAll("#criteriosContainer .criterio-box")].map(armarCriterio);
+
     const data = {
         titulo: (f.titulo.value || "").trim(),
         descripcion: (f.descripcion.value || "").trim(),
@@ -958,6 +964,7 @@ async function crearColeccion(e) {
     try {
         const resp = await fetch(url, {
             method,
+            credentials: "include", // VITAL
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
@@ -967,10 +974,11 @@ async function crearColeccion(e) {
             const modal = bootstrap.Modal.getInstance(document.getElementById("modalColeccion"));
             modal.hide();
             limpiarFormularioColeccion();
-            mostrarModal(`Colección guardada (${escapeHtml(json.handle || json.id)})`, "Colecciones");
+            mostrarModal(`Colección guardada`, "Colecciones");
             await mostrar("colecciones");
         } else {
-            mostrarModal(await resp.text(), "Error");
+            const errorText = await resp.text();
+            mostrarModal(errorText, "Error");
         }
     } catch (err) {
         mostrarModal(err.message || "Error inesperado", "Error");
