@@ -29,7 +29,9 @@ public class SecurityConfig {
                             "/actuator/**",
                             "/prometheus",
                             "/hechos",       // El endpoint que ya funciona
-                            "/colecciones/**" // Esto cubre /colecciones y /colecciones/id
+                            "/colecciones/**",
+                            "/solicitudesEliminacion/**", // Permitir acceso a las rutas de eliminación
+                            "/solicitudesEdicion/**"      // Permitir acceso a las rutas de edición// Esto cubre /colecciones y /colecciones/id
                     ).permitAll()
                     .anyRequest().authenticated() // El resto (POST/PUT/DELETE) pide token
             )

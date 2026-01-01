@@ -986,16 +986,20 @@ async function crearColeccion(e) {
 }
 
 /* =========================================================
-   API: Solicitudes (simple)
-   ========================================================= */
+API: Solicitudes (Edición y Eliminación)
+========================================================= */
 async function obtenerSolicitudesEliminacion() {
-    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion`);
+    // VITAL: Agregamos credentials para que el Agregador sepa que sos vos
+    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion`, {
+        credentials: "include"
+    });
     return resp.ok ? resp.json() : [];
 }
 
 async function enviarSolicitudEliminacion(solicitud) {
     const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion`, {
         method: "POST",
+        credentials: "include", // Obligatorio para POST
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(solicitud)
     });
@@ -1006,24 +1010,30 @@ async function procesarSolicitudEliminacion(aprobada, id) {
     const accion = aprobada ? "APROBAR" : "RECHAZAR";
     const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEliminacion/${id}`, {
         method: "PATCH",
+        credentials: "include", // Vital para moderación
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accion })
+        body: JSON.stringify({ accion }) // Coincide con tu AccionSolicitudDTO
     });
+
     if (resp.ok) {
         await mostrarSolicitudesView();
     } else {
-        mostrarModal(await resp.text(), "Error");
+        const errorMsg = await resp.text();
+        mostrarModal(errorMsg || "Error al procesar", "Error");
     }
 }
 
 async function obtenerSolicitudesEdicion() {
-    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEdicion`);
+    const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEdicion`, {
+        credentials: "include"
+    });
     return resp.ok ? resp.json() : [];
 }
 
 async function enviarSolicitudEdicion(solicitud) {
     const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEdicion`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(solicitud)
     });
@@ -1034,9 +1044,11 @@ async function procesarSolicitudEdicion(aprobada, id) {
     const estado = aprobada ? "APROBADA" : "RECHAZADA";
     const resp = await fetch(`${window.METAMAPA.API_SOLICITUDES}/solicitudesEdicion/${id}`, {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ estado })
+        body: JSON.stringify({ estado }) // Coincide con el Map<String, Object> de tu Java
     });
+
     if (resp.ok) {
         await mostrarSolicitudesView();
     } else {
