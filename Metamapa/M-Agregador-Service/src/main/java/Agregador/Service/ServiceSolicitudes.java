@@ -16,6 +16,7 @@ public class ServiceSolicitudes {
     private final RepositorioSolicitudesEliminacion repoSolicitudesEliminacion;
     private final RepositorioSolicitudesEdicion repoSolicitudesEdicion;
     private final RepositorioHechos repoHechos;
+    private final DetectorDeSpam detectorDeSpam;
 
     @Transactional
     public Result aprobar(Integer id) {
@@ -40,7 +41,18 @@ public class ServiceSolicitudes {
     public SolicitudEliminacionDTO crearSolicitud(SolicitudEliminacionDTO dto) {
         Hecho hecho = repoHechos.findById(dto.getHechoAfectado())
                 .orElseThrow(() -> new NoSuchElementException("Hecho no encontrado"));
-        SolicitudEliminacion solicitud = new SolicitudEliminacion(hecho, dto.getMotivo());
+
+        EstadoSolicitud estadoInicial = EstadoSolicitud.PENDIENTE;
+        try {
+            if (detectorDeSpam.esSpam(dto.getMotivo())) {
+                estadoInicial = EstadoSolicitud.SPAM;
+            }
+        } catch (Exception e) {
+            System.err.println("Error al verificar spam: " + e.getMessage());
+        }
+
+        SolicitudEliminacion solicitud = new SolicitudEliminacion(hecho, dto.getMotivo(), estadoInicial);
+
         this.repoSolicitudesEliminacion.save(solicitud);
         return new SolicitudEliminacionDTO(solicitud);
     }
@@ -84,8 +96,19 @@ public class ServiceSolicitudes {
     public SolicitudEdicionDTO crearSolicitudEdicion(SolicitudEdicionDTO dto) {
         Hecho hecho = repoHechos.findById(dto.getHechoAfectado())
                 .orElseThrow(() -> new NoSuchElementException("Hecho no encontrado"));
+
         if (hecho.getFechaCarga().plusDays(7).isBefore(LocalDateTime.now()))
-            throw new IllegalArgumentException("Paso mas de una semana de la carga del Hecho");
+            throw new IllegalArgumentException("Pasó más de una semana de la carga del Hecho");
+
+        EstadoSolicitud estadoInicial = EstadoSolicitud.PENDIENTE;
+        try {
+            if (detectorDeSpam.esSpam(dto.getSugerencia())) {
+                estadoInicial = EstadoSolicitud.SPAM;
+            }
+        } catch (Exception e) {
+            System.err.println("Error al verificar spam en edición: " + e.getMessage());
+        }
+
         SolicitudEdicion solicitud = new SolicitudEdicion(
                 dto.getTituloMod(),
                 dto.getDescMod(),
@@ -95,8 +118,10 @@ public class ServiceSolicitudes {
                 dto.getFechaHechoMod(),
                 dto.getAnonimidadMod(),
                 dto.getSugerencia(),
-                hecho
+                hecho,
+                estadoInicial
         );
+
         repoSolicitudesEdicion.save(solicitud);
         return new SolicitudEdicionDTO(solicitud);
     }

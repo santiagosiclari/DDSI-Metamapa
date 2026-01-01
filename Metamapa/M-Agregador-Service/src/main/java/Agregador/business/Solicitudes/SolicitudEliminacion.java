@@ -8,17 +8,8 @@ public class SolicitudEliminacion extends Solicitud {
   @Getter
   public String motivo;
 
-  public SolicitudEliminacion(Hecho hechoAfectado, String motivo) {
-    super(hechoAfectado, EstadoSolicitud.PENDIENTE); //por defecto se inicializan pendientes
-    boolean esSpam;
-    try {
-      esSpam = DetectorDeSpam.esSpam(motivo);
-    } catch (Exception e) {
-      // Si hay un error al verificar el spam, asumimos que no es spam
-      System.err.println("Error al verificar spam: " + e.getMessage());
-      esSpam = false;
-    }
-    if (esSpam) setEstado(EstadoSolicitud.SPAM); // EstadoSolicitud.RECHAZADA
+  public SolicitudEliminacion(Hecho hechoAfectado, String motivo, EstadoSolicitud estado) {
+    super(hechoAfectado, estado);
     this.motivo = motivo;
   }
 

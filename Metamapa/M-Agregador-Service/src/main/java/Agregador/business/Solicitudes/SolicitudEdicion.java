@@ -24,8 +24,9 @@ public class SolicitudEdicion extends Solicitud {
                           LocalDateTime fechaHechoMod,
                           Boolean anonimidadMod,
                           String sugerencia,
-                          Hecho hechoAfectado) {
-    super(hechoAfectado, EstadoSolicitud.PENDIENTE);
+                          Hecho hechoAfectado,
+                          EstadoSolicitud estado) {
+    super(hechoAfectado, estado);
     this.tituloMod = tituloMod;
     this.descMod = descMod;
     this.categoriaMod = categoriaMod;
