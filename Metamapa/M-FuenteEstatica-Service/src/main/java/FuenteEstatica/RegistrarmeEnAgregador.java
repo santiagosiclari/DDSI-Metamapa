@@ -29,14 +29,14 @@ public class RegistrarmeEnAgregador {
   @EventListener(WebServerInitializedEvent.class)
   public void onWebServerReady(WebServerInitializedEvent event) {
     int port = event.getWebServer().getPort();
-    String host = env.getProperty("registration.hostname", "fuente-dinamica");
+    String host = env.getProperty("registration.hostname", "fuente-estatica");
     String scheme = env.getProperty("server.ssl.enabled", "false").equals("true") ? "https" : "http";
 
     String baseUrl = scheme + "://" + host + ":" + port + "/api-fuentesDeDatos";
 
     Map<String, Object> payload = Map.of(
             "url", baseUrl,
-            "tipoFuente", "Fuente Dinamica"
+            "tipoFuente", "Fuente Estatica"
     );
 
     int retries = 0;

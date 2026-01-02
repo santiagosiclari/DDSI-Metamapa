@@ -91,7 +91,7 @@ services:
       - "9002:9002"
     environment:
       - SERVER_PORT=9002
-      - JAVA_OPTS=-Xmx256m -Xms128m
+      - JAVA_OPTS=-Xmx1024m -Xms512m
     networks:
       - metamapa-net
     extra_hosts:
@@ -117,7 +117,7 @@ services:
       - M_FUENTEDINAMICA_SERVICE_URL=http://fuente-dinamica:9001
       - M_FUENTEESTATICA_SERVICE_URL=http://fuente-estatica:9002
       - M_ESTADISTICA_SERVICE_URL=http://estadistica-service:9008
-      - JAVA_OPTS=-Xmx1500m -Xms512m  # Le damos 1.5GB a Java para procesar los mapas
+      - JAVA_OPTS=-Xmx2000m -Xms900m  # Le damos 1.5GB a Java para procesar los mapas
       - AKISMET_KEY=401e1369cc60
       - AKISMET_URL=https://santiagosiclari.org
     depends_on:

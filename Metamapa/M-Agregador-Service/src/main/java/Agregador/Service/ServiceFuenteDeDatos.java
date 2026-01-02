@@ -20,28 +20,27 @@ public class ServiceFuenteDeDatos {
   private static final Logger log = LoggerFactory.getLogger(ServiceFuenteDeDatos.class);
   private final GeocodingService geocodingService;
 
-  // ================== API ==================
   public List<Hecho> getHechosDeFuente(String urlBase) {
-    String url = urlBase + "/api-fuentesDeDatos/hechos";
-    ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
-            url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
-    );
-    List<Map<String, Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
-
-    return raw.parallelStream()
-            .map(json -> {
-              Object fuenteIdRaw = json.get("fuenteId");
-              if (fuenteIdRaw == null)
-                throw new IllegalArgumentException("Falta 'fuenteId' en el hecho: " + json);
-              int fuenteId = (Integer) fuenteIdRaw;
-              return jsonToHecho(json, fuenteId);
-            })
-            .toList();
+    String url = urlBase + "/hechos";
+    try {
+      ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
+              url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {}
+      );
+      List<Map<String, Object>> raw = Optional.ofNullable(resp.getBody()).orElseGet(List::of);
+      return raw.parallelStream()
+              .map(json -> {
+                Object fuenteIdRaw = json.get("fuenteId");
+                int fuenteId = (fuenteIdRaw != null) ? (Integer) fuenteIdRaw : 0;
+                return jsonToHecho(json, fuenteId);
+              })
+              .toList();
+    } catch (Exception e) {
+      return List.of();
+    }
   }
 
   public void actualizarHechos(String url) {
     List<Hecho> hechos = getHechosDeFuente(url);
-    // Normalizar y persistir
     repositorioHechos.saveAll(normalizador.normalizarYUnificar(hechos));
     log.info("Total hechos guardados: {}", repositorioHechos.findAll().size());
   }

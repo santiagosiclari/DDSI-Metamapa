@@ -5,6 +5,8 @@ import FuenteEstatica.business.Hechos.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import java.io.File;
 
 @RestController
 @RequestMapping("/api-fuentesDeDatos")
+@Slf4j // Para mejores logs en Docker
 public class ControllerFuenteEstatica {
   @Value("${rutas.pendientes}")
   private String rutaPending;
@@ -54,26 +57,35 @@ public class ControllerFuenteEstatica {
     Path rutaPendienteFuente = Path.of(rutaPending, String.valueOf(fuenteID));
     File directorio = rutaPendienteFuente.toFile();
     FuenteEstatica fuente = repositorioFuentes.buscarFuente(fuenteID);
+
     if (directorio.exists() && directorio.isDirectory()) {
-      File[] archivos = directorio.listFiles(File::isFile); // solo archivos
-      try {
-        for (File archivo : archivos) {
-          String rutaArchivo = archivo.getAbsolutePath();
-          fuente.cargar("CSV", rutaArchivo);
-          // Mover archivo a la carpeta de "procesados" de la fuente
-          Path carpetaProcesados = Path.of(rutaProcessed, String.valueOf(fuenteID));
-          Files.createDirectories(carpetaProcesados); // crear carpeta si no existe
-          Files.move(archivo.toPath(), carpetaProcesados.resolve(archivo.getName()), StandardCopyOption.REPLACE_EXISTING);
+      File[] archivos = directorio.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
+
+      if (archivos != null) {
+        try {
+          for (File archivo : archivos) {
+            log.info("Procesando archivo: {} para fuente: {}", archivo.getName(), fuenteID);
+
+            // Carga lógica del CSV
+            fuente.cargar("CSV", archivo.getAbsolutePath());
+
+            // Mover a procesados
+            Path carpetaProcesados = Path.of(rutaProcessed, String.valueOf(fuenteID));
+            Files.createDirectories(carpetaProcesados);
+
+            Files.move(archivo.toPath(),
+                    carpetaProcesados.resolve(archivo.getName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+          }
+          repositorioFuentes.marcarComoProcesada(fuenteID);
+        } catch (Exception e) {
+          log.error("Error procesando CSVs para fuente {}: {}", fuenteID, e.getMessage());
         }
-        repositorioFuentes.marcarComoProcesada(fuenteID);
-      } catch (Exception e) {
-        System.out.println("Error al procesar los archivos CSV: " + e.getMessage());
       }
     }
     return fuente.hechos;
   }
 
-  // este me parece que no se usa, ya que el agregador se actualiza solo por ahi esta para otra cosa
   @GetMapping("/{idFuenteDeDatos}/hechos")
   public ResponseEntity<ArrayList<Hecho>> getHechosFuenteDeDatos(@PathVariable Integer idFuenteDeDatos) {
     ArrayList<Hecho> hechos;
@@ -97,14 +109,15 @@ public class ControllerFuenteEstatica {
     return ResponseEntity.ok(hechos);
   }
 
-  // Subir un csv al file server... (ACA NO SE PROCESARIA LOS HECHOS, SOLO SE SUBE)
-  @PostMapping(value = "/{idFuenteDeDatos}/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
+  @PostMapping(value = "/{idFuenteDeDatos}/csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> cargarCSV(@PathVariable Integer idFuenteDeDatos, @RequestParam("file") MultipartFile file) {
     try {
-        repositorioFuentes.subirArchivoCsv(file, idFuenteDeDatos);
-      return ResponseEntity.ok("CSV cargado correctamente");
+      repositorioFuentes.subirArchivoCsv(file, idFuenteDeDatos);
+      log.info("CSV recibido para fuente {}", idFuenteDeDatos);
+      return ResponseEntity.ok(Map.of("status", "CSV cargado correctamente"));
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
+      log.error("Error al subir CSV: {}", e.getMessage());
+      return ResponseEntity.status(500).body("Error interno: " + e.getMessage());
     }
   }
 }

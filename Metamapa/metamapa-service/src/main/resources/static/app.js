@@ -826,7 +826,7 @@ async function actualizarHechos() {
     try {
         const resp = await fetch(`${window.METAMAPA.API_AGREGADOR}/actualizarHechos`, {
             method: "POST",
-            credentials: "include" // <--- FUNDAMENTAL
+            credentials: "include"
         });
         if (resp.ok) mostrarModal("Hechos actualizados.", "Actualización");
         else mostrarModal(await resp.text(), "Error");

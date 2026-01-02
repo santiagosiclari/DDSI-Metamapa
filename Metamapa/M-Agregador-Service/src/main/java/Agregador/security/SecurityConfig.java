@@ -28,11 +28,13 @@ public class SecurityConfig {
                     .requestMatchers(
                             "/actuator/**",
                             "/prometheus",
-                            "/hechos",       // El endpoint que ya funciona
+                            "/hechos",
                             "/colecciones/**",
-                            "/solicitudesEliminacion/**", // Permitir acceso a las rutas de eliminación
+                            "/solicitudesEliminacion/**",
                             "/solicitudesEdicion/**",
-                            "/fuenteDeDatos"
+                            "/fuenteDeDatos",
+                            "/actualizarHechos",
+                            "/api-agregador/actualizarHechos"
 
                     ).permitAll()
                     .anyRequest().authenticated() // El resto (POST/PUT/DELETE) pide token
