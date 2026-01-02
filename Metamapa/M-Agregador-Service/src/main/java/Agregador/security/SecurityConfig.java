@@ -34,7 +34,8 @@ public class SecurityConfig {
                             "/solicitudesEdicion/**",
                             "/fuenteDeDatos",
                             "/actualizarHechos",
-                            "/api-agregador/actualizarHechos"
+                            "/api-agregador/actualizarHechos",
+                            "/multimedia/**"
 
                     ).permitAll()
                     .anyRequest().authenticated() // El resto (POST/PUT/DELETE) pide token

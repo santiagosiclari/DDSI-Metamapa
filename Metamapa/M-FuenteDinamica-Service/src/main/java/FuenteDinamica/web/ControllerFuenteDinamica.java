@@ -83,7 +83,6 @@ public class ControllerFuenteDinamica {
     }
   }
 
-  // Método para convertir el JSON en un objeto Hecho y asignarle las fechas
   private Hecho crearHechoDesdeJson(String hechoJson, FuenteDinamica fuente) throws IOException {
     HechoDTO hechoDTO = new ObjectMapper().readValue(hechoJson, HechoDTO.class);
     Hecho hecho = hechoDTO.toDomain(fuente);
@@ -92,7 +91,6 @@ public class ControllerFuenteDinamica {
     return hecho;
   }
 
-  // Método para procesar los archivos y asociarlos al Hecho
   private void procesarArchivos(List<MultipartFile> archivos, Hecho hecho) throws IOException {
     for (MultipartFile archivo : archivos) {
       if (!archivo.isEmpty()) {
@@ -111,32 +109,27 @@ public class ControllerFuenteDinamica {
     if (!directorio.exists()) {
       directorio.mkdirs();
     }
-    String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename();
-    Path destino = Paths.get(baseDir).resolve(nombreArchivo);
-    Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
-    return nombreArchivo;
-  }
 
-  @GetMapping("/archivos/{nombreArchivo:.+}")
-  public ResponseEntity<Resource> servirArchivo(@PathVariable String nombreArchivo) {
-    try {
-      String nombreDecodificado = URLDecoder.decode(nombreArchivo, StandardCharsets.UTF_8);
-      Path ruta = Paths.get("Metamapa/M-FuenteDinamica-Service/src/main/resources/archivos")
-              .resolve(nombreDecodificado)
-              .normalize();
-      if (!Files.exists(ruta)) {
-        return ResponseEntity.notFound().build();
-      }
-      Resource recurso = new UrlResource(ruta.toUri());
-      String tipo = Files.probeContentType(ruta);
-      return ResponseEntity.ok()
-              .contentType(MediaType.parseMediaType(
-                      tipo != null ? tipo : "application/octet-stream"))
-              .body(recurso);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return ResponseEntity.badRequest().build();
+    String originalName = Objects.requireNonNull(archivo.getOriginalFilename());
+
+    String extension = "";
+    String nombreSinExtension = originalName;
+    int i = originalName.lastIndexOf('.');
+    if (i > 0) {
+      extension = originalName.substring(i).toLowerCase(); // .jpg
+      nombreSinExtension = originalName.substring(0, i);
     }
+
+    String nombreLimpio = nombreSinExtension.toLowerCase()
+            .replaceAll("[^a-z0-9]", "_") // Reemplaza todo lo raro por _
+            .replaceAll("_+", "_");      // Evita múltiples guiones bajos seguidos
+
+    String nombreFinal = System.currentTimeMillis() + "_" + nombreLimpio + extension;
+
+    Path destino = Paths.get(baseDir).resolve(nombreFinal);
+    Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+
+    return nombreFinal;
   }
 
   private TipoMultimedia deducirTipo(String contentType) {
