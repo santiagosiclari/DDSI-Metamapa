@@ -89,24 +89,36 @@ services:
       - ./data/fuente-estatica/procesados:/app/data/procesados
     ports:
       - "9002:9002"
-    environment:
-      - SERVER_PORT=9002
-      - JAVA_OPTS=-Xmx1024m -Xms512m
     networks:
       - metamapa-net
+    environment:
+      - SERVER_PORT=9002
+      - JAVA_OPTS=-Xmx768m -Xms512m
+      - REGISTRATION_HOSTNAME=fuente-estatica
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      agregador:
+        condition: service_healthy
     deploy:
       resources:
         limits:
-          cpus: '0.30'
-          memory: 300M
+          cpus: '0.50'
+          memory: 1024M
 
   agregador:
     build:
       context: ../Metamapa/M-Agregador-Service
       dockerfile: Dockerfile
     container_name: agregador
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9004/actuator/health" ]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+      start_period: 90s
+    volumes:
+      - ./data/agregador:/app/data
     ports:
       - "9004:9004"
     environment:
@@ -121,8 +133,6 @@ services:
       - AKISMET_KEY=401e1369cc60
       - AKISMET_URL=https://santiagosiclari.org
     depends_on:
-      - fuente-dinamica
-      - fuente-estatica
       - estadistica-service
     networks:
       - metamapa-net
@@ -132,8 +142,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 2560M
+          cpus: '1.5'
+          memory: 3000M
 
   usuarios-service:
     build:

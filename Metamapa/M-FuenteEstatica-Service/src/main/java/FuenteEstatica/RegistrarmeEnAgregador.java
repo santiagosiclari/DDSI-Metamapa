@@ -15,8 +15,8 @@ public class RegistrarmeEnAgregador {
   private final RestTemplate rest;
   private final Environment env;
   private final String registryEndpoint;
-  private static final int MAX_RETRIES = 5;
-  private static final long RETRY_DELAY_MS = 5000;
+  private static final int MAX_RETRIES = 15;
+  private static final long RETRY_DELAY_MS = 10000;
 
   public RegistrarmeEnAgregador(RestTemplate rest,
                                 Environment env,
@@ -28,36 +28,32 @@ public class RegistrarmeEnAgregador {
 
   @EventListener(WebServerInitializedEvent.class)
   public void onWebServerReady(WebServerInitializedEvent event) {
-    int port = event.getWebServer().getPort();
-    String host = env.getProperty("registration.hostname", "fuente-estatica");
-    String scheme = env.getProperty("server.ssl.enabled", "false").equals("true") ? "https" : "http";
+    Thread registrationThread = new Thread(() -> {
+      int port = event.getWebServer().getPort();
+      String host = env.getProperty("registration.hostname", "fuente-estatica");
+      String baseUrl = "http://" + host + ":" + port + "/api-fuentesDeDatos";
 
-    String baseUrl = scheme + "://" + host + ":" + port + "/api-fuentesDeDatos";
+      Map<String, Object> payload = Map.of("url", baseUrl, "tipoFuente", "Fuente Estatica");
 
-    Map<String, Object> payload = Map.of(
-            "url", baseUrl,
-            "tipoFuente", "Fuente Estatica"
-    );
-
-    int retries = 0;
-    while (retries < MAX_RETRIES) {
-      try {
-        rest.postForLocation(registryEndpoint, payload);
-        System.out.println("Self-registered in " + registryEndpoint + " -> " + baseUrl);
-        return;
-      } catch (RestClientException ex) {
-        retries++;
-        System.err.println("Failed to self-register (Attempt " + retries + "): " + ex.getMessage());
-        if (retries < MAX_RETRIES) {
+      int intentos = 0;
+      while (intentos < 100) { // Subimos a 100 intentos
+        try {
+          rest.postForLocation(registryEndpoint, payload);
+          System.out.println("✅ REGISTRO EXITOSO en intento " + (intentos + 1));
+          return; // Salimos del hilo si funcionó
+        } catch (Exception ex) {
+          intentos++;
+          System.err.println("⏳ Esperando al Agregador (Intento " + intentos + "/100)...");
           try {
-            Thread.sleep(RETRY_DELAY_MS);
+            Thread.sleep(10000); // 10 segundos
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             break;
           }
         }
       }
-    }
-    System.err.println("Could not register after " + MAX_RETRIES + " attempts.");
+    });
+    registrationThread.setName("Retry-Registration-Thread");
+    registrationThread.start();
   }
 }

@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 public class FuenteEstaticaApplication {
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(FuenteEstaticaApplication.class);
-    //app.setDefaultProperties(Collections.singletonMap("server.port", "server.port"));
     var context = app.run(args);
     // para cerrar la app, comentar cuando se prueben cosas
     //context.close();
