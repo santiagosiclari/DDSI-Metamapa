@@ -117,7 +117,7 @@ services:
       - M_FUENTEDINAMICA_SERVICE_URL=http://fuente-dinamica:9001
       - M_FUENTEESTATICA_SERVICE_URL=http://fuente-estatica:9002
       - M_ESTADISTICA_SERVICE_URL=http://estadistica-service:9008
-      - JAVA_OPTS=-Xmx2000m -Xms900m  # Le damos 1.5GB a Java para procesar los mapas
+      - JAVA_OPTS=-Xmx2048m -Xms1024m -XX:+UseG1GC
       - AKISMET_KEY=401e1369cc60
       - AKISMET_URL=https://santiagosiclari.org
     depends_on:
@@ -133,7 +133,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 2048M
+          memory: 2560M
 
   usuarios-service:
     build:
