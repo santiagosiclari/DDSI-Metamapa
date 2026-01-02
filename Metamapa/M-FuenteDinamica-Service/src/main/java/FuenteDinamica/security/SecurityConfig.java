@@ -12,7 +12,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
-    // 1. REGISTRO DE RECURSOS (Para que Spring encuentre el archivo)
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/multimedia/**")
@@ -20,14 +19,13 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .setCachePeriod(0);
     }
 
-    // 2. SEGURIDAD (Para que Spring deje pasar la petición)
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/multimedia/**").permitAll() // LIBERAR FOTOS
-                        .anyRequest().permitAll() // Permitir el resto para testear
+                        .requestMatchers("/multimedia/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/actuator/**").permitAll()
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }
