@@ -14,10 +14,12 @@ public class CorsConfig {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")  // frontend
-            .allowedMethods("*")
-            .allowedHeaders("*");
-        System.out.println("Permisos API configurados correctamente");
+                .allowedOrigins("https://santiagosiclari.org") // Tu dominio real
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+
+        System.out.println("CORS configurado para: https://santiagosiclari.org");
       }
     };
   }

@@ -26,13 +26,14 @@ public class RegistrarmeEnAgregador {
   @EventListener(WebServerInitializedEvent.class)
   public void onWebServerReady(WebServerInitializedEvent event) {
     int port = event.getWebServer().getPort();
-    String host = env.getProperty("registration.hostname", "localhost");
+    String host = env.getProperty("registration.hostname", "fuente-dinamica");
     String scheme = env.getProperty("server.ssl.enabled", "false").equals("true") ? "https" : "http";
-    String baseUrl = scheme + "://" + host + ":" + port;
+
+    String baseUrl = scheme + "://" + host + ":" + port + "/api-fuentesDeDatos";
 
     Map<String, Object> payload = Map.of(
             "url", baseUrl,
-              "tipoFuente","Fuente Dinamica"
+            "tipoFuente", "Fuente Dinamica"
     );
 
     int retries = 0;
@@ -46,9 +47,9 @@ public class RegistrarmeEnAgregador {
         System.err.println("Failed to self-register (Attempt " + retries + "): " + ex.getMessage());
         if (retries < MAX_RETRIES) {
           try {
-            Thread.sleep(RETRY_DELAY_MS);  // Esperar 5 segundos antes del próximo intento
+            Thread.sleep(RETRY_DELAY_MS);
           } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+            Thread.currentThread().interrupt();
             break;
           }
         }

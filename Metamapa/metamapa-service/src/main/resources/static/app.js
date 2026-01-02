@@ -3418,8 +3418,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function agregarFuenteAColeccion(id, idFuente) {
-    const url = `${window.METAMAPA.API_COLECCIONES}/colecciones/${id}/fuentes/${idFuente}`;
-    const resp = await fetch(url, { method: "POST" });
+    const url = `${window.METAMAPA.API_COLECCIONES}/${id}/fuentes/${idFuente}`;
+    const resp = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+    });
     if (!resp.ok) throw new Error(await resp.text());
     return true;
 }

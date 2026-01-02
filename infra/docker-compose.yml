@@ -59,6 +59,8 @@ services:
       context: ../Metamapa/M-FuenteDinamica-Service
       dockerfile: Dockerfile
     container_name: fuente-dinamica
+    volumes:
+      - ./data/fuente-dinamica/archivos:/app/multimedia
     ports:
       - "9001:9001"
     environment:

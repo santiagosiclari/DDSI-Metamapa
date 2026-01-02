@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ControllerFuenteDinamica {
   public RepositorioFuentes repositorioFuentes;
   public RepositorioHechos repositorioHechos;
+  private final String baseDir = "/app/multimedia/";
 
   public ControllerFuenteDinamica(RepositorioFuentes repositorioFuentes, RepositorioHechos repositorioHechos) {
     this.repositorioHechos = repositorioHechos;
@@ -61,18 +62,6 @@ public class ControllerFuenteDinamica {
             .map(HechoDTOResponse::new)
             .toList();
   }
-
-  // este me parece que no se usa, ya que el agregador se actualiza solo por ahi esta para otra cosa
-/*  @GetMapping("/{idFuenteDeDatos}/hechos")
-  public ResponseEntity<List<HechoDTO>> getHechosFuenteDeDatos(@PathVariable Integer idFuenteDeDatos) {
-    return repositorioFuentes.findById(idFuenteDeDatos)
-            .map(fuente -> ResponseEntity.ok(
-                    fuente.getHechos().stream()
-                            .map(HechoDTO::fromDomain)
-                            .toList()
-            ))
-            .orElse(ResponseEntity.notFound().build());
-  }*/
 
   // Cargar un hecho a una fuente
   @PostMapping(value = "/{idFuenteDeDatos}/hechos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -117,15 +106,13 @@ public class ControllerFuenteDinamica {
     }
   }
 
-  // Método para guardar el archivo físicamente en disco
   private String guardarArchivoEnDisco(MultipartFile archivo) throws IOException {
-    String baseDir = "Metamapa/M-FuenteDinamica-Service/src/main/resources/archivos/";
     File directorio = new File(baseDir);
     if (!directorio.exists()) {
       directorio.mkdirs();
     }
     String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename();
-    Path destino = Paths.get(baseDir + nombreArchivo);
+    Path destino = Paths.get(baseDir).resolve(nombreArchivo);
     Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
     return nombreArchivo;
   }
@@ -159,29 +146,4 @@ public class ControllerFuenteDinamica {
     return null;
   }
 
-  /*
-  public void publicarmeAAgregador(String URL) {
-
-    String url = String.format("%s/fuenteDeDatos", URL);
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-
-    String body = """
-        {
-            "URLBase": """ + URL + """
-        }
-    """;
-
-    HttpEntity<String> request = new HttpEntity<>(body, headers);
-    RestTemplate restTemplate = new RestTemplate();
-
-    try {
-      restTemplate.postForObject(url, request, String.class);
-      System.out.println("Publicado exitosamente en agregador: " + url);
-    } catch (Exception e) {
-      System.err.println("⚠No se pudo conectar al agregador en " + url);
-      System.err.println("   → Error: " + e.getMessage());
-    }
-  }
-  */
 }
