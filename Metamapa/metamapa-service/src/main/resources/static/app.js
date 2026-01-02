@@ -678,13 +678,30 @@ async function crearFuenteDinamica(nombre) {
     return resp.ok ? await resp.json() : null;
 }
 
+// Agregamos manejo de errores y credenciales
 async function crearFuenteEstatica(nombre) {
-    const resp = await fetch(`${window.METAMAPA.API_FUENTE_ESTATICA}/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre })
-    });
-    return resp.ok ? await resp.json() : null;
+    try {
+        const resp = await fetch(`${window.METAMAPA.API_FUENTE_ESTATICA}/`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre })
+        });
+
+        if (!resp.ok) {
+            const errorMsg = await resp.text();
+            mostrarModal("Error al crear fuente: " + errorMsg, "Error");
+            return null;
+        }
+
+        const data = await resp.json();
+        mostrarModal("Fuente Estática '" + nombre + "' creada.", "Éxito");
+        return data;
+    } catch (err) {
+        console.error("Fallo de red:", err);
+        mostrarModal("No se pudo conectar con el servicio de Fuente Estática.", "Error");
+        return null;
+    }
 }
 
 async function crearFuenteDemo(nombre, url) {
@@ -727,6 +744,7 @@ async function cargarCSV(idFuenteDeDatos) {
         try {
             const resp = await fetch(`${window.METAMAPA.API_FUENTE_ESTATICA}/${idFuenteDeDatos}/csv`, {
                 method: "POST",
+                credentials: "include",
                 body: formData
             });
             if (!resp.ok) throw new Error(await resp.text());

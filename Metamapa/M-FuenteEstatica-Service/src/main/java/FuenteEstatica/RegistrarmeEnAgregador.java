@@ -1,23 +1,26 @@
-package FuenteEstatica.service;
+package FuenteEstatica;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.Map;
 
 @Component
-public class ServiceAgregador {
+public class RegistrarmeEnAgregador {
   private final RestTemplate rest;
   private final Environment env;
   private final String registryEndpoint;
   private static final int MAX_RETRIES = 5;
   private static final long RETRY_DELAY_MS = 5000;
 
-  public ServiceAgregador(RestTemplate rest,
-                          Environment env,
-                          @Value("${registro.agregador}") String registryEndpoint) {
+  public RegistrarmeEnAgregador(RestTemplate rest,
+                                Environment env,
+                                @Value("${registro.agregador}") String registryEndpoint) {
     this.rest = rest;
     this.env = env;
     this.registryEndpoint = registryEndpoint;
@@ -26,13 +29,14 @@ public class ServiceAgregador {
   @EventListener(WebServerInitializedEvent.class)
   public void onWebServerReady(WebServerInitializedEvent event) {
     int port = event.getWebServer().getPort();
-    String host = env.getProperty("registration.hostname", "localhost");
-
+    String host = env.getProperty("registration.hostname", "fuente-dinamica");
     String scheme = env.getProperty("server.ssl.enabled", "false").equals("true") ? "https" : "http";
-    String baseUrl = scheme + "://" + host + ":" + port;
+
+    String baseUrl = scheme + "://" + host + ":" + port + "/api-fuentesDeDatos";
+
     Map<String, Object> payload = Map.of(
             "url", baseUrl,
-            "tipoFuente","Fuente Estatica"
+            "tipoFuente", "Fuente Dinamica"
     );
 
     int retries = 0;
@@ -46,14 +50,14 @@ public class ServiceAgregador {
         System.err.println("Failed to self-register (Attempt " + retries + "): " + ex.getMessage());
         if (retries < MAX_RETRIES) {
           try {
-            Thread.sleep(RETRY_DELAY_MS);  // Esperar 5 segundos antes del próximo intento
+            Thread.sleep(RETRY_DELAY_MS);
           } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+            Thread.currentThread().interrupt();
             break;
           }
         }
       }
     }
-    System.err.println("⚠️ Could not register after " + MAX_RETRIES + " attempts.");
+    System.err.println("Could not register after " + MAX_RETRIES + " attempts.");
   }
 }

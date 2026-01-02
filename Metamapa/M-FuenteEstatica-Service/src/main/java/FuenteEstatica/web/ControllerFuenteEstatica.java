@@ -107,21 +107,4 @@ public class ControllerFuenteEstatica {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno " + e.getMessage());
     }
   }
-
-  public void publicarmeAAgregador() {
-    String url = String.format("%s/fuenteDeDatos", "${M.Agregador.Service.url}");
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-
-    String body = """
-            {
-                "URLBase": """ + "${M.FuenteEstatica.Service.url}" + """
-                }
-            """;
-
-    HttpEntity<String> request = new HttpEntity<>(body, headers);
-    RestTemplate restTemplate = new RestTemplate();
-    restTemplate.postForObject(url, request, String.class);
-  }
 }

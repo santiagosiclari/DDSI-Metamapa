@@ -10,35 +10,36 @@ import lombok.Getter;
 import lombok.*;
 
 @JsonTypeName("FUENTEESTATICA")
-//@Entity
-//@Table(name = "fuente_estatica")
 @Getter @Setter
 public class FuenteEstatica {
   static protected Integer contadorID = 20001;
-  //@Id
-  //@GeneratedValue(strategy = GenerationType.IDENTITY)
+
   protected Integer fuenteId;
   public String nombre;
-  //@OneToMany(mappedBy = "fuente", cascade = CascadeType.ALL, orphanRemoval = true)
-  public ArrayList<Hecho> hechos;
-  //public HechoParser hechoParser;
+  public ArrayList<Hecho> hechos = new ArrayList<>();
 
-  public FuenteEstatica() {} // va a haber que usar dtos para no modificar la capa de negocio
+  public FuenteEstatica() {}
+
+  // Constructor para fuentes NUEVAS (Genera ID)
   public FuenteEstatica(String nombre) {
-    if (contadorID > 29999) {
-      throw new RuntimeException("No hay mas espacio para nuevas fuentes :(");
-    } else {
-      this.nombre = nombre;
-      this.fuenteId = contadorID++;
-      this.hechos = new ArrayList<>();
+    this.nombre = nombre;
+    this.fuenteId = contadorID++;
+    this.hechos = new ArrayList<>();
+  }
+
+  // Constructor para cargar fuentes EXISTENTES desde disco
+  public FuenteEstatica(Integer id, String nombre) {
+    this.fuenteId = id;
+    this.nombre = nombre;
+    this.hechos = new ArrayList<>();
+    if (id >= contadorID) {
+      contadorID = id + 1;
     }
   }
 
   public void cargar(String tipo,String path) {
     if (tipo.equals("CSV")) {
       this.hechos.addAll(new CSVHechoParser().parsearHechos(path, this));
-      //case "JSON": new JSONHechoParser().parsearHechos(path, id).forEach((this::agregarHecho));  arreglar el codigo para que tome un JSON?
-      //break;
     } else {
       this.hechos.addAll(new CSVHechoParser().parsearHechos(path, this));
     }

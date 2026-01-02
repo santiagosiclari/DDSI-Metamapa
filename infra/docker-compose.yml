@@ -84,6 +84,9 @@ services:
       context: ../Metamapa/M-FuenteEstatica-Service
       dockerfile: Dockerfile
     container_name: fuente-estatica
+    volumes:
+      - ./data/fuente-estatica/pendientes:/app/data/pendientes
+      - ./data/fuente-estatica/procesados:/app/data/procesados
     ports:
       - "9002:9002"
     environment:

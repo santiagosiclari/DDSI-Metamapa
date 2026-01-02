@@ -22,13 +22,12 @@ public class RepositorioFuentes {
   @Value("${rutas.procesados}")
   private String rutaProcessed;
 
-
-  public ArrayList<FuenteEstatica> fuentesDeDatos = new ArrayList<>();
-
-
   public void agregarFuente(FuenteEstatica fuente) {
     crearCarpetaSiNoExiste(rutaPending, fuente.getFuenteId());
     crearCarpetaSiNoExiste(rutaProcessed, fuente.getFuenteId());
+
+    // Guardamos el nombre para que no se pierda al reiniciar
+    guardarNombreEnDisco(fuente);
   }
 
   public List<FuenteEstatica> obtenerPendientes() {
@@ -44,26 +43,36 @@ public class RepositorioFuentes {
     List<FuenteEstatica> fuentes = new ArrayList<>();
     Path basePath = Paths.get(rutaBase);
 
-    if (!Files.exists(basePath) || !Files.isDirectory(basePath)) {
-      return fuentes;
-    }
+    if (!Files.exists(basePath) || !Files.isDirectory(basePath)) return fuentes;
 
     try (Stream<Path> carpetas = Files.list(basePath)) {
-      carpetas
-              .filter(Files::isDirectory)
-              .forEach(carpetaFuente -> {
-                FuenteEstatica fuente = construirFuenteDesdeCarpeta(carpetaFuente);
-                if (fuente != null && !fuente.getHechos().isEmpty()) {
-                  fuentes.add(fuente);
-                }
-              });
+      carpetas.filter(Files::isDirectory).forEach(carpetaFuente -> {
+        FuenteEstatica fuente = construirFuenteDesdeCarpeta(carpetaFuente);
+        // QUITAMOS EL FILTRO DE !getHechos().isEmpty()
+        if (fuente != null) {
+          fuentes.add(fuente);
+        }
+      });
     } catch (IOException e) {
       throw new RuntimeException("Error leyendo ruta " + rutaBase, e);
     }
-
     return fuentes;
   }
 
+  private Integer generarNuevoId() {
+    return getFuentesDeDatos().stream()
+            .mapToInt(FuenteEstatica::getFuenteId)
+            .max()
+            .orElse(20000) + 1;
+  }
+
+  private void guardarNombreEnDisco(FuenteEstatica fuente) {
+    Path pathNombre = Paths.get(rutaPending, fuente.getFuenteId().toString(), ".nombre");
+    try {
+      Files.writeString(pathNombre, fuente.getNombre());
+    } catch (IOException e) {
+    }
+  }
 
   private FuenteEstatica construirFuenteDesdeCarpeta(Path carpetaFuente) {
     try {
@@ -84,7 +93,6 @@ public class RepositorioFuentes {
       return fuente;
 
     } catch (NumberFormatException e) {
-      // carpeta con nombre inválido → se ignora
       return null;
     } catch (IOException e) {
       throw new RuntimeException("Error leyendo fuente " + carpetaFuente, e);

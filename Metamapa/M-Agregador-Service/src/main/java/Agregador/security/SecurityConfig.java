@@ -31,7 +31,9 @@ public class SecurityConfig {
                             "/hechos",       // El endpoint que ya funciona
                             "/colecciones/**",
                             "/solicitudesEliminacion/**", // Permitir acceso a las rutas de eliminación
-                            "/solicitudesEdicion/**"      // Permitir acceso a las rutas de edición// Esto cubre /colecciones y /colecciones/id
+                            "/solicitudesEdicion/**",
+                            "/fuenteDeDatos"
+
                     ).permitAll()
                     .anyRequest().authenticated() // El resto (POST/PUT/DELETE) pide token
             )

@@ -13,9 +13,10 @@ public class CorsConfig {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")  // frontend
-            .allowedMethods("*")
-            .allowedHeaders("*");
+                .allowedOrigins("https://santiagosiclari.org") // Dominio real
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true); // Necesario para peticiones con sesión
       }
     };
   }
