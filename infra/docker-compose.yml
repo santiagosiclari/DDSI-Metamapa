@@ -63,7 +63,6 @@ services:
       - ./data/fuente-dinamica/archivos:/app/multimedia
     ports:
       - "9001:9001"
-    user: "${UID}:${GID}"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=MetamapaDB_FD;encrypt=true;trustServerCertificate=true
       - SPRING_DATASOURCE_USERNAME=miusuario
