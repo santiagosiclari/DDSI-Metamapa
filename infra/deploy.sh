@@ -46,4 +46,4 @@ echo "------------------------------------------------"
 echo "🔍 Monitoreando arranque del Gateway (el último en subir)..."
 # Monitoreamos el gateway porque ahora con el 'restart: always'
 # es el que nos indica cuando todo el sistema está ruteando bien.
-sudo docker compose logs -f metamapa-gateway --tail 20
+sudo docker compose logs -f gateway --tail 20
