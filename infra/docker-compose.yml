@@ -1,6 +1,7 @@
 services:
   gateway:
     image: nginx:latest
+    restart: always
     container_name: metamapa-gateway
     ports:
       - "80:80"
@@ -12,11 +13,9 @@ services:
       - agregador
       - usuarios-service
       - metamapa-service
-    deploy:
-      resources:
-        limits:
-          memory: 100M
-          cpus: '0.20'
+      - fuente-estatica
+      - fuente-dinamica
+      - estadistica-service
   prometheus:
     image: prom/prometheus:latest
     container_name: metamapa-prometheus
@@ -37,6 +36,10 @@ services:
       context: ../Metamapa/metamapa-service
       dockerfile: Dockerfile
     container_name: metamapa-service
+    depends_on:
+      - fuente-estatica
+      - fuente-dinamica
+      - estadistica-service
     ports:
       - "9000:9000"
     environment:
@@ -98,8 +101,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      agregador:
-        condition: service_healthy
+      - agregador
     deploy:
       resources:
         limits:
@@ -111,12 +113,6 @@ services:
       context: ../Metamapa/M-Agregador-Service
       dockerfile: Dockerfile
     container_name: agregador
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9004/actuator/health" ]
-      interval: 15s
-      timeout: 10s
-      retries: 15
-      start_period: 90s
     volumes:
       - ./data/agregador:/app/data
     ports:

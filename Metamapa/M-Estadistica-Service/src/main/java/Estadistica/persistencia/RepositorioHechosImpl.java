@@ -114,17 +114,8 @@ public Optional<String> obtenerHoraConMasHechos(String categoria) {
 
   @Override
   public List<String> obtenerCategorias() {
-    CriteriaBuilder cb = em.getCriteriaBuilder();
-    CriteriaQuery<Tuple> query = cb.createTupleQuery();
-    Root<Hecho> root = query.from(Hecho.class);
-
-    Expression<String> categoriaExpr = root.get("categoria");
-    query.multiselect(
-                    categoriaExpr.alias("categoria")
-            )
-            .distinct(true);
-
-    return em.createQuery(query).getResultStream().map(t -> t.get("categoria", String.class)).toList();
+    return em.createQuery("SELECT DISTINCT h.categoria FROM Hecho h", String.class)
+            .getResultList();
   }
 
   @Override

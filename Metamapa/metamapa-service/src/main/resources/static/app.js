@@ -5,8 +5,8 @@ window.METAMAPA = window.METAMAPA || {
     API_USUARIOS: "/usuarios",
 
     // Rutas para las fuentes mapeadas en Nginx
-    API_FUENTE_DINAMICA: "/api-fuente-dinamica",
-    API_FUENTE_ESTATICA: "/api-fuente-estatica",
+    API_FUENTE_DINAMICA: "/api-fuente-dinamica/api-fuentesDeDatos",
+    API_FUENTE_ESTATICA: "/api-fuente-estatica/api-fuentesDeDatos",
     API_FUENTE_DEMO: "/api-fuente-demo",
     API_FUENTE_METAMAPA: "/api-fuente-metamapa",
 

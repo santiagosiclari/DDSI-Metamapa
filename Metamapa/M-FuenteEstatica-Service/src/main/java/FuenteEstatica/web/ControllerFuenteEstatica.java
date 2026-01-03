@@ -113,6 +113,7 @@ public class ControllerFuenteEstatica {
   public ResponseEntity<?> cargarCSV(@PathVariable Integer idFuenteDeDatos, @RequestParam("file") MultipartFile file) {
     try {
       repositorioFuentes.subirArchivoCsv(file, idFuenteDeDatos);
+      procesarCSVs(idFuenteDeDatos);
       log.info("CSV recibido para fuente {}", idFuenteDeDatos);
       return ResponseEntity.ok(Map.of("status", "CSV cargado correctamente"));
     } catch (Exception e) {

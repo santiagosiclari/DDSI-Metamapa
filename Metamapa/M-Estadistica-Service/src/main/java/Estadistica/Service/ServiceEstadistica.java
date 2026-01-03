@@ -8,6 +8,7 @@ import Estadistica.persistencia.*;
 import Estadistica.business.Colecciones.Coleccion;
 import Estadistica.business.Estadistica.*;
 import Estadistica.business.Hechos.Hecho;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ServiceEstadistica {
@@ -26,6 +27,7 @@ public class ServiceEstadistica {
         this.repositorioEstadisticas = repositorioEstadisticas;
     }
 
+    @Transactional
     public void actualizar() {
         CantidadDeSpam spamStats = estadisticaSpam();
         CategoriaConMasHechos topCategoriaStats = estadisticaCategoriaMasReportada();

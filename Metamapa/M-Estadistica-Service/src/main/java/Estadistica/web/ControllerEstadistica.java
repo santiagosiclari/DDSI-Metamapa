@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 @Controller
 @Tag(name = "Servicio de Estadísticas", description = "Consultas y exportación de estadísticas")
 @RequiredArgsConstructor
-@RequestMapping("/estadistica")
+@RequestMapping("/")
 public class ControllerEstadistica {
   private final ServiceEstadistica estadisticaService;
   private List<Map<String, String>> agregadores = new ArrayList<>();
