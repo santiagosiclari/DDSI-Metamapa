@@ -23,9 +23,12 @@ public class SecurityConfig {
   public SecurityFilterChain resourceServerSecurity(HttpSecurity http) throws Exception {
     http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(AbstractHttpConfigurer::disable) // Desactivar CSRF es clave para APIs
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/swagger-ui.html",
                             "/actuator/**",
                             "/prometheus",
                             "/hechos",
@@ -38,7 +41,7 @@ public class SecurityConfig {
                             "/multimedia/**"
 
                     ).permitAll()
-                    .anyRequest().authenticated() // El resto (POST/PUT/DELETE) pide token
+                    .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
