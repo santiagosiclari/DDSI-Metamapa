@@ -3,15 +3,22 @@ set -e
 
 echo "🚀 Iniciando despliegue de METAMAPA..."
 
-echo "🧹 Limpiando ambiente anterior..."
-docker compose -f docker-compose.yml down --remove-orphans
+if [ -d "nginx.conf" ]; then
+    echo "⚠️ Se detectó carpeta 'nginx.conf' (Zombie). Eliminando con sudo..."
+    sudo rm -rf nginx.conf
+fi
 
-echo "🏗️ Levantando base y servicios..."
-docker compose up -d gateway
+if [ -d "prometheus.yml" ]; then
+    echo "⚠️ Se detectó carpeta 'prometheus.yml' (Zombie). Eliminando con sudo..."
+    sudo rm -rf prometheus.yml
+fi
+# -----------------------------------------------
 
+echo "🧹 Bajando contenedores viejos..."
+# Usamos el docker-compose para bajar todo ordenadamente
+docker compose down --remove-orphans || true
+
+echo "🏗️ Levantando servicios..."
 docker compose up -d --build
 
-echo "🧹 Borrando imágenes viejas para ahorrar disco..."
-docker image prune -f
-
-echo "✅ Metamapa está en línea."
+echo "✅ Despliegue finalizado."
