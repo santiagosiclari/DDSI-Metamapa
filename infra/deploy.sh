@@ -1,49 +1,17 @@
 #!/bin/bash
+set -e
 
-# 1. Ir a la raíz del proyecto
-cd ..
+echo "🚀 Iniciando despliegue de METAMAPA..."
 
-echo "🚀 Iniciando despliegue desde rama MAIN..."
-git checkout main
-git pull origin main
+echo "🧹 Limpiando ambiente anterior..."
+docker compose -f docker-compose.yml down --remove-orphans
 
-echo "📦 Compilando microservicios..."
+echo "🏗️ Levantando base y servicios..."
+docker compose up -d gateway prometheus
 
-# Compilamos TODOS los servicios que tienen cambios
-# Agregamos Estadística (fundamental por el error que arreglamos) y Usuarios
-services=(
-    "Metamapa/M-Agregador-Service"
-    "Metamapa/M-FuenteDinamica-Service"
-    "Metamapa/M-FuenteEstatica-Service"
-    "Metamapa/M-Estadistica-Service"
-    "Metamapa/M-Usuarios-Service"
-    "Metamapa/metamapa-service"
-)
+docker compose up -d --build
 
-for service in "${services[@]}"; do
-    echo "🛠️ Compilando $service..."
-    if ! mvn -f "$service/pom.xml" clean package -DskipTests; then
-        echo "❌ Error al compilar $service. Abortando."
-        exit 1
-    fi
-done
+echo "🧹 Borrando imágenes viejas para ahorrar disco..."
+docker image prune -f
 
-# 3. Volver a la carpeta infra para el despliegue
-cd infra
-
-echo "🏗️ Reconstruyendo contenedores en Docker..."
-# Usamos down -v si queremos limpiar volúmenes, pero con down normal está bien
-sudo docker compose down
-
-# Levantamos todo. El build es necesario para que tome los nuevos JARs
-sudo docker compose up -d --build
-
-# Limpieza de imágenes huérfanas para no llenar el disco de la Acer
-sudo docker image prune -f
-
-echo "✅ Despliegue completado."
-echo "------------------------------------------------"
-echo "🔍 Monitoreando arranque del Gateway (el último en subir)..."
-# Monitoreamos el gateway porque ahora con el 'restart: always'
-# es el que nos indica cuando todo el sistema está ruteando bien.
-sudo docker compose logs -f gateway --tail 20
+echo "✅ Metamapa está en línea."
