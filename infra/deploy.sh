@@ -7,7 +7,7 @@ echo "🧹 Limpiando ambiente anterior..."
 docker compose -f docker-compose.yml down --remove-orphans
 
 echo "🏗️ Levantando base y servicios..."
-docker compose up -d gateway prometheus
+docker compose up -d gateway
 
 docker compose up -d --build
 

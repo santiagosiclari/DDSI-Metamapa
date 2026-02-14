@@ -1,16 +1,14 @@
-global:
-  scrape_interval: 10s
-
-scrape_configs:
-  - job_name: "metamapa-services"
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets:
-          - "metamapa-service:9000"
-          - "fuente-dinamica:9001"
-          - "fuente-estatica:9002"
-          - "estadistica-service:9008"
-          - "agregador:9004"
-          - "usuarios-service:9005"
-          - "fuente-demo:9006"
-          - "fuente-metamapa:9007"
+# prometheus:
+#   image: prom/prometheus:latest
+#   container_name: metamapa-prometheus
+#   volumes:
+#     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#   ports:
+#     - "9090:9090"
+#   networks:
+#     - metamapa-net
+#   deploy:
+#     resources:
+#       limits:
+#         cpus: '0.20'
+#         memory: 200M
