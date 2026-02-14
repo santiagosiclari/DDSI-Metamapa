@@ -1,12 +1,17 @@
 pipeline {
     agent any
 
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '3'))
-        timeout(time: 20, unit: 'MINUTES')
-    }
-
     stages {
+        // --- AGREGAR ESTO AL PRINCIPIO ---
+        stage('Limpieza Exorcista') {
+            steps {
+                // Esto borra TODO lo que haya en la carpeta antes de empezar.
+                // Mata cualquier carpeta zombie que haya dejado Docker.
+                cleanWs()
+            }
+        }
+        // ---------------------------------
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -24,6 +29,7 @@ pipeline {
             }
         }
     }
+}
 
     post {
         success {
