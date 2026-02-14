@@ -7,6 +7,39 @@ pipeline {
     }
 
     stages {
+        stage('Diagnóstico Pre-Deploy') {
+            steps {
+                dir('infra') {
+                    sh '''
+                        echo "=== Contenido de infra ==="
+                        ls -laR
+
+                        echo "=== Tipo de nginx.conf ==="
+                        file nginx.conf || echo "file command failed"
+                        stat nginx.conf || echo "stat failed"
+
+                        echo "=== ¿Es directorio? ==="
+                        if [ -d "nginx.conf" ]; then
+                            echo "❌ SÍ - ES DIRECTORIO (ZOMBIE DETECTADO)"
+                            sudo rm -rf nginx.conf
+                            echo "Zombie eliminado, pero esto no debería pasar..."
+                        else
+                            echo "✅ NO - Es archivo normal"
+                        fi
+
+                        echo "=== ¿Es archivo regular? ==="
+                        if [ -f "nginx.conf" ]; then
+                            echo "✅ SÍ - nginx.conf es archivo regular"
+                            head -5 nginx.conf
+                        else
+                            echo "❌ NO - nginx.conf NO es archivo regular"
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        }
+
         stage('Limpieza Total') {
             steps {
                 echo "🧹 Limpieza completa del workspace..."
