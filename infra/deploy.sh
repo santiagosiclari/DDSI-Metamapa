@@ -3,40 +3,32 @@ set -e
 
 echo "🚀 Iniciando despliegue de METAMAPA..."
 
-# -----------------------------------------------
-# LIMPIEZA DE ZOMBIES (antes de docker compose down)
-# -----------------------------------------------
-
+# Limpieza de zombies
 if [ -d "nginx.conf" ]; then
-    echo "⚠️ Se detectó carpeta 'nginx.conf' (Zombie). Eliminando..."
+    echo "⚠️ Eliminando zombie nginx.conf..."
     sudo rm -rf nginx.conf
 fi
 
 if [ -d "prometheus.yml" ]; then
-    echo "⚠️ Se detectó carpeta 'prometheus.yml' (Zombie). Eliminando..."
+    echo "⚠️ Eliminando zombie prometheus.yml..."
     sudo rm -rf prometheus.yml
 fi
 
-# -----------------------------------------------
-# VALIDACIÓN DE ARCHIVOS REQUERIDOS
-# -----------------------------------------------
-
+# Validar archivo
 if [ ! -f "nginx.conf" ]; then
-    echo "❌ ERROR: nginx.conf no existe como archivo"
-    echo "   Ubicación esperada: $(pwd)/nginx.conf"
+    echo "❌ ERROR: nginx.conf no existe"
+    ls -la
     exit 1
 fi
 
-echo "✅ nginx.conf encontrado correctamente"
+echo "✅ nginx.conf validado"
 
-# -----------------------------------------------
-# DESPLIEGUE
-# -----------------------------------------------
-
-echo "🧹 Bajando contenedores viejos..."
+# Deploy
+echo "🧹 Deteniendo contenedores..."
 docker compose down --remove-orphans || true
 
-echo "🏗️ Levantando servicios..."
+echo "🏗️ Iniciando servicios..."
 docker compose up -d --build
 
-echo "✅ Despliegue finalizado."
+echo "✅ Despliegue completado"
+docker compose ps
