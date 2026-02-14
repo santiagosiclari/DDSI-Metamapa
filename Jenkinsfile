@@ -1,27 +1,35 @@
 pipeline {
     agent any
 
+    options {
+        // Mantiene limpio el historial de builds
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
     stages {
-        // --- AGREGAR ESTO AL PRINCIPIO ---
-        stage('Limpieza Exorcista') {
+        // 1. LIMPIEZA TOTAL (El Exorcismo)
+        // Esto borra la carpeta 'nginx.conf' mal creada para que Git pueda bajar el archivo real.
+        stage('Limpieza Inicial') {
             steps {
-                // Esto borra TODO lo que haya en la carpeta antes de empezar.
-                // Mata cualquier carpeta zombie que haya dejado Docker.
                 cleanWs()
             }
         }
-        // ---------------------------------
 
-        stage('Checkout') {
+        // 2. CHECKOUT
+        // Baja el código fresco de GitHub (incluyendo el nginx.conf real)
+        stage('Checkout del Código') {
             steps {
                 checkout scm
             }
         }
 
+        // 3. DESPLIEGUE
+        // Entra a la carpeta infra y ejecuta el script
         stage('Despliegue Microservicios') {
             steps {
                 dir('infra') {
                     script {
+                        // Le damos permisos y ejecutamos
                         sh 'chmod +x deploy.sh'
                         sh './deploy.sh'
                     }
@@ -29,14 +37,13 @@ pipeline {
             }
         }
     }
-}
 
     post {
-        success {
-            echo "🔥 ¡Metamapa desplegado! Gateway en puerto 80."
+        always {
+            echo "🏁 Build finalizado."
         }
         failure {
-            echo "❌ Error en el despliegue. Revisá logs de Docker."
+            echo "❌ Algo falló. Revisá los logs."
         }
     }
 }
