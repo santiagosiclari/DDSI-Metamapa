@@ -3,101 +3,135 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
+        skipDefaultCheckout(true)  // We'll do checkout manually
     }
 
     stages {
-        // 1. LIMPIEZA TOTAL DEL WORKSPACE
-        stage('Limpieza Inicial') {
+        stage('Diagnóstico Pre-Deploy') {
             steps {
-                echo "🧹 Limpiando workspace..."
-                cleanWs()
+                dir('infra') {
+                    sh '''
+                        echo "=== Contenido de infra ==="
+                        ls -laR
+
+                        echo "=== Tipo de nginx.conf ==="
+                        file nginx.conf || echo "file command failed"
+                        stat nginx.conf || echo "stat failed"
+
+                        echo "=== ¿Es directorio? ==="
+                        if [ -d "nginx.conf" ]; then
+                            echo "❌ SÍ - ES DIRECTORIO (ZOMBIE DETECTADO)"
+                            sudo rm -rf nginx.conf
+                            echo "Zombie eliminado, pero esto no debería pasar..."
+                        else
+                            echo "✅ NO - Es archivo normal"
+                        fi
+
+                        echo "=== ¿Es archivo regular? ==="
+                        if [ -f "nginx.conf" ]; then
+                            echo "✅ SÍ - nginx.conf es archivo regular"
+                            head -5 nginx.conf
+                        else
+                            echo "❌ NO - nginx.conf NO es archivo regular"
+                            exit 1
+                        fi
+                    '''
+                }
             }
         }
 
-        // 2. CHECKOUT DEL CÓDIGO
-        stage('Checkout del Código') {
+        stage('Limpieza Total') {
             steps {
-                echo "📦 Descargando código desde Git..."
+                echo "🧹 Limpieza completa del workspace..."
+                deleteDir()  // Nuclear option - deletes EVERYTHING
+            }
+        }
+
+        stage('Checkout Fresco') {
+            steps {
+                echo "📦 Clonando repositorio..."
                 checkout scm
+
+                // Verify files exist
+                sh '''
+                    echo "=== Archivos en workspace ==="
+                    ls -la
+
+                    echo "=== Archivos en infra ==="
+                    ls -la infra/
+
+                    echo "=== Verificando archivos críticos ==="
+                    [ -f "Jenkinsfile" ] && echo "✅ Jenkinsfile" || echo "❌ Jenkinsfile"
+                    [ -f "infra/docker-compose.yml" ] && echo "✅ docker-compose.yml" || echo "❌ docker-compose.yml"
+                    [ -f "infra/nginx.conf" ] && echo "✅ nginx.conf" || echo "❌ nginx.conf"
+                    [ -f "infra/deploy.sh" ] && echo "✅ deploy.sh" || echo "❌ deploy.sh"
+                '''
             }
         }
 
-        // 3. VERIFICACIÓN PRE-DEPLOY
-        stage('Verificación Pre-Deploy') {
+        stage('Limpieza de Zombies') {
             steps {
                 dir('infra') {
-                    script {
-                        echo "🔍 Verificando archivos críticos..."
+                    sh '''
+                        # Solo remover si es directorio
+                        if [ -d "nginx.conf" ]; then
+                            echo "⚠️ nginx.conf es directorio, eliminando..."
+                            sudo rm -rf nginx.conf
+                        fi
 
-                        // Verificar que nginx.conf existe y es un archivo
-                        sh '''
-                            if [ -d "nginx.conf" ]; then
-                                echo "❌ ERROR: nginx.conf es un directorio (zombie)"
-                                sudo rm -rf nginx.conf
-                                echo "✅ Zombie eliminado"
-                            fi
+                        # Verificar que ahora sea archivo
+                        if [ ! -f "nginx.conf" ]; then
+                            echo "❌ nginx.conf no existe después de limpieza"
+                            exit 1
+                        fi
 
-                            if [ ! -f "nginx.conf" ]; then
-                                echo "❌ ERROR CRÍTICO: nginx.conf no existe"
-                                exit 1
-                            fi
-
-                            echo "✅ nginx.conf es un archivo válido"
-                            ls -lh nginx.conf
-                        '''
-                    }
+                        echo "✅ nginx.conf es archivo válido"
+                    '''
                 }
             }
         }
 
-        // 4. DESPLIEGUE
-        stage('Despliegue Microservicios') {
+        stage('Despliegue') {
             steps {
                 dir('infra') {
-                    script {
-                        echo "🚀 Ejecutando deploy.sh..."
-                        sh 'chmod +x deploy.sh'
-                        sh './deploy.sh'
-                    }
+                    sh '''
+                        chmod +x deploy.sh
+                        ./deploy.sh
+                    '''
                 }
             }
         }
 
-        // 5. HEALTH CHECK (opcional pero recomendado)
-        stage('Health Check') {
+        stage('Verificación') {
             steps {
                 dir('infra') {
-                    script {
-                        echo "🏥 Verificando salud de los servicios..."
-                        sh '''
-                            sleep 10
-                            docker compose ps
+                    sh '''
+                        sleep 5
+                        echo "=== Estado de contenedores ==="
+                        docker compose ps
 
-                            # Verificar que el gateway responde
-                            if docker compose ps gateway | grep -q "Up"; then
-                                echo "✅ Gateway está corriendo"
-                            else
-                                echo "⚠️ Gateway no está activo"
-                            fi
-                        '''
-                    }
+                        echo "=== Gateway logs ==="
+                        docker logs metamapa-gateway --tail=20 || true
+                    '''
                 }
             }
         }
     }
 
     post {
-        always {
-            echo "🏁 Build finalizado."
-        }
         success {
             echo "✅ Despliegue exitoso!"
         }
         failure {
-            echo "❌ Algo falló. Revisá los logs."
-            dir('infra') {
-                sh 'docker compose logs --tail=50 || true'
-            }
+            echo "❌ Build falló"
+            sh '''
+                echo "=== Workspace content ==="
+                ls -la || true
+                ls -la infra/ || true
+
+                echo "=== Docker logs ==="
+                cd infra && docker compose logs --tail=30 || true
+            '''
         }
     }
 }

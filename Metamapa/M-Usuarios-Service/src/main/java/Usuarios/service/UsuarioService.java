@@ -4,8 +4,10 @@ import Usuarios.business.Usuarios.Usuario;
 import Usuarios.business.Usuarios.Rol;
 import Usuarios.persistencia.RepositorioUsuarios;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -18,7 +20,10 @@ public class UsuarioService {
 
   public Usuario registrar(String email, String contrasenia, String nombre, String apellido, Integer edad, Set<Rol> roles) {
     if (usuarioRepo.existsByEmail(email)) {
-      throw new RuntimeException("Ya existe un usuario con ese email.");
+      throw new ResponseStatusException(
+              HttpStatus.CONFLICT,
+              "Ya existe un usuario con ese email."
+      );
     }
 
     Usuario u = Usuario.builder()
