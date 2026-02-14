@@ -15,7 +15,6 @@ fi
 # -----------------------------------------------
 
 echo "🧹 Bajando contenedores viejos..."
-# Usamos el docker-compose para bajar todo ordenadamente
 docker compose down --remove-orphans || true
 
 echo "🏗️ Levantando servicios..."

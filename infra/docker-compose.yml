@@ -16,20 +16,6 @@ services:
       - fuente-estatica
       - fuente-dinamica
       - estadistica-service
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: metamapa-prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    networks:
-      - metamapa-net
-    deploy:
-      resources:
-        limits:
-          cpus: '0.20'
-          memory: 200M
 
   metamapa-service:
     build:
