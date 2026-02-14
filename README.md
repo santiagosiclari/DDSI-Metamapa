@@ -78,5 +78,5 @@ We utilize a professional **on-premise** infrastructure setup designed for secur
 ## 📂 Documentation & Links
 
 * 📄 [Project Guidelines (Spanish)](https://github.com/ITantucci/TP-DDSI/blob/main/Archivos/TPA%20DDSI%202025.pdf)
-* 📐 [Design Diagrams (Architecture, Class, Sequence)](https://github.com/ITantucci/TP-DDSI)
+* 📐 [Design Diagrams (Architecture, Class, Sequence)](https://drive.google.com/drive/folders/1WRYC6QB1n6_0wvNXF7x73df-3QYI259v)
 * 📊 **Swagger UI:** Accessible via specific service ports (Aggregator: 8080, Dynamic: 9001, Static: 9002).
